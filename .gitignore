@@ -141,3 +141,10 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# PGLite local database
+data/
+
+# AI agent files
+.implement
+.claude/*.local

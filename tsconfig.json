@@ -1,0 +1,37 @@
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"paths": {
+			"$lib": ["./src/lib"],
+			"$lib/*": ["./src/lib/*"],
+			"@src": ["./src"],
+			"@src/*": ["./src/*"],
+			"@db": ["./db"],
+			"@db/*": ["./db/*"],
+			"~types": ["./types"],
+			"~types/*": ["./types/*"]
+		}
+	},
+	"include": [
+		"src",
+		"db",
+		"test",
+		"types",
+		"drizzle.config.ts",
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts"
+	],
+	"exclude": ["node_modules", "**/*.config.js"]
+}
