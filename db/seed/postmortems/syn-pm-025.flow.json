@@ -1,0 +1,170 @@
+{
+  "id": "flow-syn-pm-025",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-025)",
+  "status": "completed",
+  "createdAt": "2026-06-06T15:00:00Z",
+  "completedAt": "2026-06-06T15:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-025",
+    "sourcePath": "../source/syn-pm-025.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-025",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-025",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-a6d35d40f6ac74f6",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Fenwick Analytics",
+        "product": "ETL Pipeline",
+        "severity": "unknown",
+        "categories": [],
+        "keywords": [],
+        "sourceQuality": "free_text"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": null,
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "ETL backfill consumed all warehouse IO, making production dashboards unresponsive.",
+        "affectedSystems": [
+          "etl-pipeline",
+          "data-warehouse",
+          "dashboard-service"
+        ],
+        "affectedUsers": "Dashboard consumers and production query users were blocked.",
+        "riskTypes": [
+          "availability",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Backfill job started without IO throttle",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Production query latency spiked",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "Backfill paused",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "IO freed, production queries resumed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "automation_error",
+        "rootCause": "The backfill job had no IO throttle or priority classification and consumed all warehouse IO capacity.",
+        "contributingFactors": [
+          "no IO priority for batch vs. interactive workloads",
+          "backfill job not reviewed for resource impact",
+          "no warehouse IO capacity alerting"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Paused the backfill, freed IO, and resumed production queries.",
+        "responseSummary": null,
+        "communicationQuality": "unknown",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Batch and backfill jobs must have IO priority below interactive workloads.",
+          "Backfill jobs need resource impact review before execution."
+        ],
+        "recommendedControls": [
+          "backpressure",
+          "rate_limits",
+          "alerting_threshold"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.52,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Categories",
+          "Keywords",
+          "StartTime",
+          "EndTime",
+          "SourcePublishedAt"
+        ],
+        "warnings": [
+          "Intentionally sparse record for missing-metadata handling."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "id": "flow-syn-pm-047",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Conflict resolution favored older edits after timestamp rollback",
+  "status": "completed",
+  "createdAt": "2025-12-05T09:00:00Z",
+  "completedAt": "2025-12-05T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-047",
+    "sourcePath": "../source/syn-pm-047.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-047",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-047",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-6ea2f430fad12be4",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Driftwell Notes",
+        "product": "Document Sync",
+        "severity": "SEV-2",
+        "categories": [
+          "time",
+          "database"
+        ],
+        "keywords": [
+          "conflict resolution",
+          "timestamp",
+          "rollback",
+          "sync",
+          "ntp",
+          "document",
+          "clock",
+          "logical clock"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-12-03T15:00:00Z",
+        "endTime": "2025-12-03T21:00:00Z",
+        "publishedAt": "2025-12-05T09:00:00Z",
+        "durationHours": 6.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Recent edits silently overwritten by older versions due to timestamp-based conflict resolution with clock rollback.",
+        "affectedSystems": [
+          "document-sync",
+          "conflict-resolver",
+          "sync-nodes"
+        ],
+        "affectedUsers": "Users who edited documents during the clock rollback window lost recent changes.",
+        "riskTypes": [
+          "data_loss",
+          "data_integrity"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "15:00Z",
+            "event": "NTP rollback on sync node set clock back",
+            "stage": "trigger"
+          },
+          {
+            "time": "15:10Z",
+            "event": "Edits on affected node timestamped earlier than older edits",
+            "stage": "trigger"
+          },
+          {
+            "time": "17:00Z",
+            "event": "User reported missing recent changes",
+            "stage": "detection"
+          },
+          {
+            "time": "17:30Z",
+            "event": "Clock rollback identified on sync node",
+            "stage": "investigation"
+          },
+          {
+            "time": "18:00Z",
+            "event": "Affected documents restored from edit history",
+            "stage": "mitigation"
+          },
+          {
+            "time": "21:00Z",
+            "event": "Lamport timestamp migration completed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "clock_skew",
+        "rootCause": "Wall-clock timestamp rollback caused the conflict resolver to prefer stale edits over recent ones.",
+        "contributingFactors": [
+          "wall-clock based conflict resolution",
+          "no clock skew detection in sync health",
+          "silent overwrite without user notification"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Restored affected documents from edit history and migrated conflict resolution to Lamport timestamps.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Conflict resolution should use logical clocks, not wall-clock time.",
+          "Clock skew must be detected and flagged by sync health checks."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "synthetic_monitoring",
+          "schema_validation"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

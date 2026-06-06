@@ -1,0 +1,184 @@
+{
+  "id": "flow-syn-pm-039",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Dashboard timeout cascade from slow aggregation",
+  "status": "completed",
+  "createdAt": "2026-04-12T09:00:00Z",
+  "completedAt": "2026-04-12T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-039",
+    "sourcePath": "../source/syn-pm-039.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-039",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-039",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-6690707167be65a1",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Canopy Metrics",
+        "product": "Dashboard Renderer",
+        "severity": "SEV-2",
+        "categories": [
+          "cascading-failure",
+          "database"
+        ],
+        "keywords": [
+          "dashboard",
+          "timeout",
+          "aggregation",
+          "connection pool",
+          "cascade",
+          "database",
+          "query",
+          "metrics"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-04-10T10:00:00Z",
+        "endTime": "2026-04-10T14:00:00Z",
+        "publishedAt": "2026-04-12T09:00:00Z",
+        "durationHours": 4.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "All dashboards timed out for four hours due to connection pool exhaustion from a slow aggregation query.",
+        "affectedSystems": [
+          "dashboard-renderer",
+          "query-engine",
+          "connection-pool",
+          "metrics-database"
+        ],
+        "affectedUsers": "All dashboard users experienced timeouts and could not view metrics.",
+        "riskTypes": [
+          "availability",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "10:00Z",
+            "event": "Slow aggregation query started on large metrics table",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:05Z",
+            "event": "Connection pool began filling",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:15Z",
+            "event": "Dashboard timeout alerts fired",
+            "stage": "detection"
+          },
+          {
+            "time": "10:30Z",
+            "event": "Slow query killed",
+            "stage": "mitigation"
+          },
+          {
+            "time": "11:00Z",
+            "event": "Connection pool recovery started",
+            "stage": "recovery"
+          },
+          {
+            "time": "14:00Z",
+            "event": "Dashboard response times normalized",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "software_bug",
+        "rootCause": "A full-table aggregation query held database connections, exhausting the shared connection pool for all dashboard requests.",
+        "contributingFactors": [
+          "no query timeout limit",
+          "shared connection pool for batch and interactive queries",
+          "no query cost estimation gate"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Killed the slow query, added query timeout limits, and implemented connection pool isolation.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Interactive and batch queries should use separate connection pools.",
+          "Query timeout limits are mandatory for user-facing query paths."
+        ],
+        "recommendedControls": [
+          "timeout_tuning",
+          "circuit_breaker",
+          "backpressure",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

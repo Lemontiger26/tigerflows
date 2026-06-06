@@ -1,5 +1,5 @@
 import type { Template } from '~types';
-import { seedTemplates } from './seed';
+import { seedTemplates } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 

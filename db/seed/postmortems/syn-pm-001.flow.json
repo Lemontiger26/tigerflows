@@ -1,0 +1,184 @@
+{
+  "id": "flow-syn-pm-001",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Edge CDN cache invalidation storm during config push",
+  "status": "completed",
+  "createdAt": "2025-07-18T10:00:00Z",
+  "completedAt": "2025-07-18T10:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-001",
+    "sourcePath": "../source/syn-pm-001.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-001",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-001",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-ad11856a8b5f736d",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Paperkite Cloud",
+        "product": "Edge CDN",
+        "severity": "SEV-1",
+        "categories": [
+          "config-change",
+          "cloud"
+        ],
+        "keywords": [
+          "cdn",
+          "cache",
+          "invalidation",
+          "configuration",
+          "origin",
+          "capacity",
+          "latency",
+          "cloud"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-07-14T06:30:00Z",
+        "endTime": "2025-07-14T14:30:00Z",
+        "publishedAt": "2025-07-18T10:00:00Z",
+        "durationHours": 8.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Origin servers saturated after global cache purge, causing elevated error rates across all regions.",
+        "affectedSystems": [
+          "edge-cdn",
+          "origin-servers",
+          "connection-pools"
+        ],
+        "affectedUsers": "All regions experienced intermittent errors and slow page loads for approximately two hours.",
+        "riskTypes": [
+          "availability",
+          "latency",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "06:30Z",
+            "event": "Caching policy push initiated globally",
+            "stage": "trigger"
+          },
+          {
+            "time": "06:32Z",
+            "event": "Edge nodes began full cache purge",
+            "stage": "trigger"
+          },
+          {
+            "time": "06:45Z",
+            "event": "Origin error rate alerts fired",
+            "stage": "detection"
+          },
+          {
+            "time": "07:10Z",
+            "event": "Config reverted, purge halted",
+            "stage": "mitigation"
+          },
+          {
+            "time": "09:00Z",
+            "event": "Staged cache warm-up started",
+            "stage": "recovery"
+          },
+          {
+            "time": "14:30Z",
+            "event": "Cache hit rates returned to normal",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The policy diff engine treated a key rename as a full purge instruction, invalidating all cached content simultaneously.",
+        "contributingFactors": [
+          "key rename not handled by diff engine",
+          "no dry-run mode for config pushes",
+          "origin not sized for global cache miss"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted the config, pre-warmed caches region by region, and added dry-run mode to the policy push pipeline.",
+        "responseSummary": "Response was slow to start because the cache purge was not immediately recognized as the cause of origin overload.",
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Config diff engines must handle structural renames without triggering full purges.",
+          "Origin capacity must account for simultaneous global cache miss scenarios."
+        ],
+        "recommendedControls": [
+          "dry_run",
+          "blast_radius_reduction",
+          "capacity_planning",
+          "canary"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

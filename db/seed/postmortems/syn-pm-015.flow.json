@@ -1,0 +1,177 @@
+{
+  "id": "flow-syn-pm-015",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Session tokens not invalidated after password reset",
+  "status": "completed",
+  "createdAt": "2025-10-06T09:00:00Z",
+  "completedAt": "2025-10-06T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-015",
+    "sourcePath": "../source/syn-pm-015.json",
+    "sourceShape": "rich_article",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-015",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-015",
+        "archiveUrl": "",
+        "sourceShape": "rich_article",
+        "payloadHash": "sha256-442b9c5a2f7d5feb",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Cerulean Health",
+        "product": "Patient Portal",
+        "severity": "SEV-1",
+        "categories": [
+          "security",
+          "auth"
+        ],
+        "keywords": [
+          "session",
+          "token",
+          "password reset",
+          "auth",
+          "security",
+          "revocation",
+          "patient portal",
+          "access"
+        ],
+        "sourceQuality": "structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-10-02T14:00:00Z",
+        "endTime": "2025-10-03T02:00:00Z",
+        "publishedAt": "2025-10-06T09:00:00Z",
+        "durationHours": 12.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Old sessions remained valid after password reset; exposure window until natural token expiry.",
+        "affectedSystems": [
+          "patient-portal",
+          "token-store",
+          "auth-service"
+        ],
+        "affectedUsers": "Any patient who reset their password and had active sessions on other devices.",
+        "riskTypes": [
+          "security",
+          "compliance"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "14:00Z",
+            "event": "Patient reported old session still active after password reset",
+            "stage": "detection"
+          },
+          {
+            "time": "14:30Z",
+            "event": "Confirmed tokens not revoked on password reset",
+            "stage": "investigation"
+          },
+          {
+            "time": "15:00Z",
+            "event": "Emergency token revocation deployed for password reset flow",
+            "stage": "mitigation"
+          },
+          {
+            "time": "18:00Z",
+            "event": "Token revocation list backfilled",
+            "stage": "recovery"
+          },
+          {
+            "time": "2025-10-03T02:00Z",
+            "event": "Security audit completed, no unauthorized access found",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "software_bug",
+        "rootCause": "The password reset flow did not include a session revocation step; tokens relied solely on TTL-based expiry.",
+        "contributingFactors": [
+          "no token revocation list",
+          "password reset flow not reviewed for session lifecycle",
+          "TTL-only token management"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Added immediate session revocation to the password reset flow and backfilled a token revocation list.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Password reset must invalidate all existing sessions.",
+          "Token stores need a revocation mechanism beyond TTL expiry."
+        ],
+        "recommendedControls": [
+          "access_review",
+          "preflight_check",
+          "health_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.96,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

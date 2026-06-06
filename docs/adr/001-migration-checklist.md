@@ -2,20 +2,24 @@
 
 Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to the ADR's Migration Plan.
 
-## 0. Spike (Already Done — Do Not Repeat Here)
+## 0. Source Freeze + Spike Results
 
 - [x] Vector mechanics (`vector32(?)` insert, `vector_distance_cos()` ranking parity, raw `Float32Array` blob compatibility) validated in the sibling TigerTrack repo's `src/eval/libsqlEval.ts`.
 - [x] Findings transfer: they validate libSQL dialect mechanics, not flows app logic.
+- [x] Decision locked: PGLite is now only the source/reference implementation. Do not spend more time stabilizing PGLite unless needed to inspect old state.
+- [x] Migration mechanism locked: re-seed/import controlled seed/system content into libSQL. Do not perform a live `data/pglite/` data-directory conversion.
 
 **Constraints (in force for this repo):** no external data added to `flows`; no test scripts referencing external data. The spike/eval stays in `track`.
 
-**Review point:** confirm Outcome B (plain BLOB + raw SQL `vector32()`) is the chosen vector path before schema work.
+**Review point:** confirm Outcome B (plain BLOB + raw SQL `vector32()`) remains the chosen vector path before schema work.
 
 ## 1. Prep / Git Hygiene
 
 - [ ] Confirm current branch and worktree state.
 - [ ] Commit any pending ADR/doc changes before schema work starts.
 - [ ] Keep unrelated staged/unstaged changes untouched.
+- [ ] Stop any stale `pglite-server` process before testing DB tools; DBeaver/Studio must not accidentally connect to the old PGLite socket.
+- [ ] Preserve the current seed data as the import source while rewriting scripts.
 
 **Review point:** decide whether doc changes are committed before schema work starts.
 
@@ -56,6 +60,8 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] Delete the old Postgres baseline (`db/migrations/0000_goofy_major_mapleleaf.sql` + `meta/`).
 - [ ] Generate a fresh SQLite/libSQL migration (`bun run db:gen`).
 - [ ] Inspect generated SQL: `embeddings blob`, JSON columns as `text`, timestamp `text`, booleans `integer DEFAULT`, compound unique constraints, FK clauses.
+- [ ] Apply the generated migration to a fresh `data/userFlows.db`.
+- [ ] Confirm `PRAGMA foreign_key_check` returns no rows on an empty migrated DB.
 
 **Review point:** review generated SQL before seeding.
 
@@ -68,17 +74,27 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 6. Seed & CLI Scripts
 
-- [ ] `db/scripts/seed.ts`: Drizzle insert API is dialect-agnostic — only client import changes. Convert any `Date` objects to ISO strings.
+- [ ] `db/scripts/seed.ts`: rewrite as the libSQL seed/import path. Drizzle insert API remains useful for ordinary fields. Convert any `Date` objects to ISO strings.
+- [x] Move original built-in seed source from `src/lib/stores/seed.ts` to `db/seed/builtin.ts`.
+- [x] Bundle synthetic incident-postmortem showcase flow JSON under `db/seed/postmortems/` (50 files, product demo content, no extra download).
 - [ ] Write embeddings via raw SQL `UPDATE ... SET embeddings = vector32(?) WHERE id = ?`.
 - [ ] Replace all current `userId: null` seed/store defaults with `SYSTEM_USER_ID` for built-ins and `LOCAL_USER_ID` for self-hosted user-created records.
+- [ ] Seed/import all existing built-in demo content from `db/seed/builtin.ts`: categories, tags, templates, template steps, flows, flow steps, skills, execution gates, input sources, enum sets/values, and join tables.
+- [ ] Seed/import bundled postmortem showcase flows from `db/seed/postmortems/` as `SYSTEM` demo/showcase content.
+- [ ] Seed/import `SYSTEM` and `LOCAL` sentinel users before any scoped records.
 - [ ] `db/scripts/wipe.ts`, `check_db.ts`, `migrate.ts`, `embed.ts`: update client import; remove any `CREATE EXTENSION` calls.
-- [ ] Run wipe + seed against the local libSQL file; spot-check row counts and a few rows.
+- [ ] Run wipe + migrate + seed against the local libSQL file.
+- [ ] Assert table counts match expected seed counts.
+- [ ] Assert representative rows by stable slug/ID (`SYSTEM` category/template/tag, at least one flow, at least one agentic gate/input source).
+- [ ] Assert `PRAGMA foreign_key_check` returns no rows after seed.
+- [ ] Assert at least one stored embedding round-trip and one `vector_distance_cos()` query work.
 
 **Review point:** inspect seeded counts and representative rows (including a stored embedding round-trip).
 
 ## 7. Dependencies & Data Directory
 
 - [ ] Remove `@electric-sql/pglite` and `@electric-sql/pglite-socket`.
+- [ ] Remove `@electric-sql/pglite-pgvector`.
 - [ ] Add `@libsql/client`.
 - [ ] Remove the `db:serve` (pglite-server) script from `package.json`.
 - [ ] `.gitignore`: ignore local runtime DBs (`data/userFlows.db*`) while allowing committed/bundled `data/systemFlows.db` (`data/*` + `!data/systemFlows.db`).
@@ -91,7 +107,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] Replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel across queries.
 - [ ] Seed both sentinels as rows in `users` (satisfy FK constraints) via explicit init/install commands and `onConflictDoNothing`.
 - [ ] Give all system content **stable hardcoded IDs** (not random `tigerid()` at module load) so upsert-by-PK updates rather than duplicates.
-- [ ] Add `db:build-system` CLI: fresh libSQL DB, apply migrations, insert release-managed built-in content with `userId='SYSTEM'` + stable IDs → `data/systemFlows.db` (committed/bundled). Content includes the `SYSTEM` sentinel row, categories, tags, skills, templates, agentic input/gate templates, demos/showcases, and onboarding examples.
+- [ ] Add `db:build-system` CLI: fresh libSQL DB, apply migrations, insert release-managed built-in content with `userId='SYSTEM'` + stable IDs → `data/systemFlows.db` (committed/bundled). Content includes the `SYSTEM` sentinel row, categories, tags, skills, templates, agentic input/gate templates, demos/onboarding examples, and the 50-flow postmortem showcase from `db/seed/postmortems/`.
 - [ ] Add `db:install-system` CLI / `db/seed-system.ts`: ensure `SYSTEM` + `LOCAL` users in `userFlows.db` → open `systemFlows.db` read-only → copy in FK-safe order (root tables with `userId`, then child tables by FK) → `onConflictDoUpdate` by PK → close source.
 - [ ] Keep system installation explicit. Do not wire `seedSystemData` into app startup.
 - [ ] Use only synthetic, privacy-safe showcase content. Avoid health, medical, mental-health, employee surveillance, customer PII, or other sensitive personal data.
@@ -103,7 +119,9 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] `grep -ri "pglite\|pg-core\|pgEnum\|jsonb\|vector(" db/ src/` returns nothing stale.
 - [ ] Run `bun run check` (svelte-check + tsc) → 0 errors.
 - [ ] Run `bun run test`.
-- [ ] Run wipe + seed + build-system + install-system; start dev server, confirm multi-process access (dev server + `db:stud` simultaneously — the original motivation).
+- [ ] Run wipe + migrate + seed/import + build-system + install-system.
+- [ ] Start dev server and open DB inspector simultaneously against `data/userFlows.db` — confirm multi-process access, the original motivation.
+- [ ] Remove or archive `data/pglite/` after libSQL seed/import verification passes.
 - [ ] Review full diff.
 
 **Final review:** schema, generated migration, seed/system-seed behavior, multi-process access, dependency cleanup.

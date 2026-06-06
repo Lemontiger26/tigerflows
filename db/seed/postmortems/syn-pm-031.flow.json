@@ -1,0 +1,169 @@
+{
+  "id": "flow-syn-pm-031",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-031)",
+  "status": "completed",
+  "createdAt": "2026-06-06T15:00:00Z",
+  "completedAt": "2026-06-06T15:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-031",
+    "sourcePath": "../source/syn-pm-031.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-031",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-031",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-ca75fae39df1a3f5",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Tideline Logistics",
+        "product": "Route Optimizer",
+        "severity": "unknown",
+        "categories": [],
+        "keywords": [],
+        "sourceQuality": "free_text"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": null,
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Routes were suboptimal for approximately two days, causing late deliveries.",
+        "affectedSystems": [
+          "route-optimizer",
+          "map-api-integration"
+        ],
+        "affectedUsers": "Delivery drivers followed longer routes, resulting in late deliveries.",
+        "riskTypes": [
+          "latency",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Map provider changed API response format",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Dispatcher noticed consistently late deliveries",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "API integration updated for new format",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "Route quality restored to baseline",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "dependency_failure",
+        "rootCause": "The third-party map API changed its response format, causing the optimizer to misinterpret travel time estimates.",
+        "contributingFactors": [
+          "no API response schema validation",
+          "silent parsing failure",
+          "no route quality monitoring"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Updated the API integration for the new format and added response schema validation.",
+        "responseSummary": null,
+        "communicationQuality": "unknown",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Third-party API integrations need response schema validation.",
+          "Route quality metrics should alert on sudden changes."
+        ],
+        "recommendedControls": [
+          "schema_validation",
+          "synthetic_monitoring",
+          "alerting_threshold"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.5,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Categories",
+          "Keywords",
+          "StartTime",
+          "EndTime",
+          "SourcePublishedAt"
+        ],
+        "warnings": [
+          "Intentionally sparse record for missing-metadata handling."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

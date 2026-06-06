@@ -1,0 +1,168 @@
+{
+  "id": "flow-syn-pm-048",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-048)",
+  "status": "completed",
+  "createdAt": "2026-05-12T09:00:00Z",
+  "completedAt": "2026-05-12T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-048",
+    "sourcePath": "../source/syn-pm-048.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-048",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-048",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-ceff77c55e0baad0",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Driftwell Notes",
+        "product": null,
+        "severity": "unknown",
+        "categories": [],
+        "keywords": [],
+        "sourceQuality": "free_text"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-05-10T10:00:00Z",
+        "endTime": "2026-05-10T11:00:00Z",
+        "publishedAt": "2026-05-12T09:00:00Z",
+        "durationHours": 1.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Notification queue backed up after bulk comment import triggered individual notifications for each comment.",
+        "affectedSystems": [
+          "comment-service",
+          "notification-queue",
+          "workspace-notifications"
+        ],
+        "affectedUsers": "All workspace members received a flood of notifications; other notifications were delayed.",
+        "riskTypes": [
+          "availability",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "10:00Z",
+            "event": "Bulk document import with hundreds of comments",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:02Z",
+            "event": "Notification queue depth spiked",
+            "stage": "detection"
+          },
+          {
+            "time": "10:15Z",
+            "event": "Notification processing paused for bulk import",
+            "stage": "mitigation"
+          },
+          {
+            "time": "11:00Z",
+            "event": "Batch notification sent, queue cleared",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "load_spike",
+        "rootCause": "Each imported comment generated an individual notification, overwhelming the notification queue.",
+        "contributingFactors": [
+          "no batch notification mode",
+          "no rate limit on import-triggered notifications",
+          "notification queue shared across all workspace operations"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Paused notifications for the bulk import, added batch notification mode, and cleared the queue.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Bulk operations should use batch notification mode.",
+          "Import-triggered notifications need rate limits."
+        ],
+        "recommendedControls": [
+          "rate_limits",
+          "blast_radius_reduction",
+          "backpressure"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.62,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Product",
+          "Categories",
+          "Keywords"
+        ],
+        "warnings": [
+          "Intentionally sparse record for missing-metadata handling."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "id": "flow-syn-pm-021",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "CDN served stale content after origin failover",
+  "status": "completed",
+  "createdAt": "2026-01-23T09:00:00Z",
+  "completedAt": "2026-01-23T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-021",
+    "sourcePath": "../source/syn-pm-021.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-021",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-021",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-1e1cc2f78ffee466",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "ArcticVault",
+        "product": "CDN Edge",
+        "severity": "SEV-2",
+        "categories": [
+          "cloud",
+          "config-change",
+          "network"
+        ],
+        "keywords": [
+          "cdn",
+          "cache",
+          "origin",
+          "failover",
+          "stale content",
+          "invalidation",
+          "cloud",
+          "network"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-01-20T16:00:00Z",
+        "endTime": "2026-01-20T20:00:00Z",
+        "publishedAt": "2026-01-23T09:00:00Z",
+        "durationHours": 4.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Stale content served from CDN edge caches for four hours after origin failover.",
+        "affectedSystems": [
+          "cdn-edge",
+          "origin-server",
+          "cache-invalidation",
+          "health-check"
+        ],
+        "affectedUsers": "End users received outdated content for several hours after origin failover.",
+        "riskTypes": [
+          "data_integrity",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "16:00Z",
+            "event": "Origin server failed, traffic routed to standby",
+            "stage": "trigger"
+          },
+          {
+            "time": "16:30Z",
+            "event": "User reported outdated content on CDN-served page",
+            "stage": "detection"
+          },
+          {
+            "time": "17:00Z",
+            "event": "Manual cache purge triggered for failed origin's content",
+            "stage": "mitigation"
+          },
+          {
+            "time": "20:00Z",
+            "event": "All edge nodes serving fresh content from standby origin",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "dependency_failure",
+        "rootCause": "Cache invalidation pipeline was not connected to origin health check failover events.",
+        "contributingFactors": [
+          "cache invalidation and health check systems decoupled",
+          "no automatic purge on origin failover",
+          "stale content TTL too long"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Manually purged caches and connected cache invalidation to the health check failover event.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Cache invalidation must be triggered automatically by origin failover events.",
+          "Content TTLs should account for origin failure scenarios."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "alerting_threshold",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.92,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

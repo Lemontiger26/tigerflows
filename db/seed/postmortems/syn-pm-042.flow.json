@@ -1,0 +1,180 @@
+{
+  "id": "flow-syn-pm-042",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Users shown offline after Redis node failure",
+  "status": "completed",
+  "createdAt": "2026-01-08T09:00:00Z",
+  "completedAt": "2026-01-08T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-042",
+    "sourcePath": "../source/syn-pm-042.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-042",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-042",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-5af29eaf74043516",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Signal Grove",
+        "product": "Presence Service",
+        "severity": "unknown",
+        "categories": [
+          "hardware",
+          "cloud",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "presence",
+          "redis",
+          "offline",
+          "node failure",
+          "cluster",
+          "heartbeat",
+          "rebuild",
+          "state"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-01-05T19:00:00Z",
+        "endTime": "2026-01-05T22:00:00Z",
+        "publishedAt": "2026-01-08T09:00:00Z",
+        "durationHours": 3.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Users appeared offline after Redis node failure until a heartbeat action re-established presence.",
+        "affectedSystems": [
+          "presence-service",
+          "redis-cluster",
+          "heartbeat-manager"
+        ],
+        "affectedUsers": "Users whose presence state was stored on the failed node appeared offline to contacts.",
+        "riskTypes": [
+          "availability",
+          "data_loss"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "19:00Z",
+            "event": "Redis cluster node failed",
+            "stage": "trigger"
+          },
+          {
+            "time": "19:05Z",
+            "event": "Users on failed node shown as offline",
+            "stage": "trigger"
+          },
+          {
+            "time": "19:20Z",
+            "event": "User reports of incorrect offline status",
+            "stage": "detection"
+          },
+          {
+            "time": "19:45Z",
+            "event": "Presence rebuild triggered for affected users",
+            "stage": "mitigation"
+          },
+          {
+            "time": "22:00Z",
+            "event": "All presence states rebuilt and verified",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "hardware_failure",
+        "rootCause": "Presence state stored on the failed Redis node was lost, and the service did not rebuild it from connected clients.",
+        "contributingFactors": [
+          "no presence rebuild on node failure",
+          "single-node state storage without replication",
+          "heartbeat-only presence update"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Triggered presence rebuild from connected clients and improved Redis cluster health monitoring.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Presence systems must rebuild state automatically after node failures.",
+          "Presence data should be replicated across Redis cluster nodes."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "circuit_breaker",
+          "capacity_planning"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.9,
+        "missingFields": [
+          "Summary"
+        ],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

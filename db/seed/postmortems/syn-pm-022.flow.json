@@ -1,0 +1,181 @@
+{
+  "id": "flow-syn-pm-022",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Replication split-brain after network partition healed",
+  "status": "completed",
+  "createdAt": "2026-03-05T09:00:00Z",
+  "completedAt": "2026-03-05T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-022",
+    "sourcePath": "../source/syn-pm-022.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-022",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-022",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-6cc12f5a3be72c04",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "ArcticVault",
+        "product": "Replication Service",
+        "severity": "SEV-1",
+        "categories": [
+          "network",
+          "cascading-failure",
+          "database"
+        ],
+        "keywords": [
+          "split-brain",
+          "replication",
+          "partition",
+          "conflict",
+          "object store",
+          "network",
+          "consistency",
+          "vector clock"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": "2026-03-05T09:00:00Z",
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Conflicting object versions created during partition; required conflict resolution job after partition healed.",
+        "affectedSystems": [
+          "replication-service",
+          "object-store",
+          "zone-a",
+          "zone-b"
+        ],
+        "affectedUsers": "Customers writing during the partition window had conflicting object versions until resolution.",
+        "riskTypes": [
+          "data_integrity",
+          "data_loss",
+          "network"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Network partition between replication zones",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Both zones accepting writes independently",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Partition healed, replication reconnected",
+            "stage": "recovery"
+          },
+          {
+            "time": null,
+            "event": "Conflict resolution job completed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "network_partition",
+        "rootCause": "The replication service reconnected after partition without performing a conflict resolution pass.",
+        "contributingFactors": [
+          "no automatic conflict resolution on reconnect",
+          "both zones writable during partition",
+          "partition detection did not trigger write fencing"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Paused writes, ran conflict resolution with last-writer-wins and vector clock tie-breaking, verified consistency.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Partition recovery must include a mandatory conflict resolution pass.",
+          "Consider write fencing on partition detection to prevent divergence."
+        ],
+        "recommendedControls": [
+          "circuit_breaker",
+          "health_check",
+          "runbook",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.88,
+        "missingFields": [
+          "StartTime",
+          "EndTime"
+        ],
+        "warnings": [
+          "Timing information not available; partition duration estimated at forty minutes."
+        ],
+        "needsReview": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "id": "flow-syn-pm-024",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Dashboard cache poisoned by concurrent deploy",
+  "status": "completed",
+  "createdAt": "2026-02-05T09:00:00Z",
+  "completedAt": "2026-02-05T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-024",
+    "sourcePath": "../source/syn-pm-024.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-024",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-024",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-9377ae4fd64e1e01",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Fenwick Analytics",
+        "product": "Dashboard Service",
+        "severity": "SEV-2",
+        "categories": [
+          "deployment",
+          "config-change",
+          "cloud"
+        ],
+        "keywords": [
+          "dashboard",
+          "cache",
+          "deploy",
+          "rolling restart",
+          "poisoning",
+          "version",
+          "cloud",
+          "stale"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-02-03T14:00:00Z",
+        "endTime": "2026-02-03T15:30:00Z",
+        "publishedAt": "2026-02-05T09:00:00Z",
+        "durationHours": 1.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Dashboards showed incorrect data from cross-version cache poisoning during a rolling deploy.",
+        "affectedSystems": [
+          "dashboard-service",
+          "dashboard-cache",
+          "deploy-pipeline"
+        ],
+        "affectedUsers": "Dashboard consumers saw incorrect values for approximately ninety minutes.",
+        "riskTypes": [
+          "data_integrity",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "14:00Z",
+            "event": "Rolling deploy started",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:10Z",
+            "event": "Old instance cached result with previous logic",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:20Z",
+            "event": "New instance served stale cached result",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:35Z",
+            "event": "User reported incorrect dashboard values",
+            "stage": "detection"
+          },
+          {
+            "time": "14:50Z",
+            "event": "Dashboard cache flushed",
+            "stage": "mitigation"
+          },
+          {
+            "time": "15:30Z",
+            "event": "All dashboards verified correct",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "deployment",
+        "rootCause": "Cache keys were not versioned, allowing old instances to write values that new instances served as current.",
+        "contributingFactors": [
+          "no cache version key",
+          "rolling deploy window allowed cross-version coexistence",
+          "cache TTL longer than deploy window"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Flushed the dashboard cache and added a cache version key to prevent cross-version reads.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Caches must include a version key to prevent cross-version poisoning during rolling deploys.",
+          "Cache TTL should be shorter than the deploy window or flushed on deploy."
+        ],
+        "recommendedControls": [
+          "canary",
+          "preflight_check",
+          "rollback"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "id": "flow-syn-pm-029",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Search index corrupted after failed migration",
+  "status": "completed",
+  "createdAt": "2026-03-20T09:00:00Z",
+  "completedAt": "2026-03-20T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-029",
+    "sourcePath": "../source/syn-pm-029.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-029",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-029",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-a2071588d11dea7c",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Runbook.io",
+        "product": "Runbook Store",
+        "severity": "SEV-3",
+        "categories": [
+          "database",
+          "deployment"
+        ],
+        "keywords": [
+          "search index",
+          "migration",
+          "corruption",
+          "runbook",
+          "database",
+          "deployment",
+          "rebuild",
+          "consistency"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-03-18T08:00:00Z",
+        "endTime": "2026-03-18T09:00:00Z",
+        "publishedAt": "2026-03-20T09:00:00Z",
+        "durationHours": 1.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Search results were incomplete or incorrect until the index was rebuilt from the primary store.",
+        "affectedSystems": [
+          "runbook-store",
+          "search-index",
+          "migration-runner"
+        ],
+        "affectedUsers": "Users searching for runbooks received unreliable results for one hour.",
+        "riskTypes": [
+          "data_integrity",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "08:00Z",
+            "event": "Index migration started",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:10Z",
+            "event": "Migration failed midway due to disk error",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:15Z",
+            "event": "Search results reported as incomplete by user",
+            "stage": "detection"
+          },
+          {
+            "time": "08:30Z",
+            "event": "Index dropped and rebuild started",
+            "stage": "mitigation"
+          },
+          {
+            "time": "09:00Z",
+            "event": "Index rebuilt and search verified",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "schema_migration",
+        "rootCause": "A partially applied migration left the search index in an inconsistent state with mixed schema versions.",
+        "contributingFactors": [
+          "no migration atomicity guarantee",
+          "no post-migration integrity check",
+          "transient disk error during migration"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Dropped the index, rebuilt from primary data, and added post-migration integrity check.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Index migrations must verify schema consistency across all documents after completion.",
+          "Partial migration states should trigger automatic rollback."
+        ],
+        "recommendedControls": [
+          "schema_validation",
+          "rollback",
+          "health_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

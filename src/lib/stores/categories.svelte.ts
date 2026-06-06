@@ -1,5 +1,5 @@
 import type { Category } from '~types';
-import { seedCategories } from './seed';
+import { seedCategories } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 
@@ -14,14 +14,12 @@ function createCategoryStore() {
 		},
 
 		add(
-			data: Pick<Category, 'name' | 'description'> &
-				Partial<Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'color'>>
+			data: Pick<Category, 'name' | 'description'> & Partial<Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'color'>>
 		) {
 			const now = new Date().toISOString();
 			const existingColors = new Set(items.map((i) => i.color));
 			const nextColor =
-				COLOR_CYCLE.find((c) => !existingColors.has(c)) ??
-				COLOR_CYCLE[items.length % COLOR_CYCLE.length];
+				COLOR_CYCLE.find((c) => !existingColors.has(c)) ?? COLOR_CYCLE[items.length % COLOR_CYCLE.length];
 			const c: Category = {
 				userId: null,
 				slug: slugify(data.name),
@@ -37,9 +35,7 @@ function createCategoryStore() {
 		},
 
 		update(id: string, patch: Partial<Category>) {
-			items = items.map((i) =>
-				i.id === id ? { ...i, ...patch, updatedAt: new Date().toISOString() } : i,
-			);
+			items = items.map((i) => (i.id === id ? { ...i, ...patch, updatedAt: new Date().toISOString() } : i));
 		},
 
 		remove(id: string) {
@@ -52,7 +48,7 @@ function createCategoryStore() {
 
 		getBySlug(slug: string) {
 			return items.find((i) => slugify(i.name) === slug);
-		},
+		}
 	};
 }
 

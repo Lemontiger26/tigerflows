@@ -1,0 +1,185 @@
+{
+  "id": "flow-syn-pm-040",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Log ingestion stalled after partition reassignment",
+  "status": "completed",
+  "createdAt": "2026-05-05T09:00:00Z",
+  "completedAt": "2026-05-05T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-040",
+    "sourcePath": "../source/syn-pm-040.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-040",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-040",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-c9c5d9831d4a71a3",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Canopy Metrics",
+        "product": "Log Pipeline",
+        "severity": "SEV-1",
+        "categories": [
+          "cloud",
+          "automation",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "log",
+          "kafka",
+          "partition",
+          "consumer",
+          "offset",
+          "stall",
+          "pipeline",
+          "ingestion"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": "2026-05-05T09:00:00Z",
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Log ingestion stalled for approximately seven hours during which logs accumulated unprocessed in Kafka.",
+        "affectedSystems": [
+          "log-pipeline",
+          "kafka",
+          "consumer-group",
+          "group-coordinator"
+        ],
+        "affectedUsers": "Log search and alerting based on log data were unavailable during the stall.",
+        "riskTypes": [
+          "availability",
+          "data_loss"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Kafka partition reassignment triggered",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Consumers stuck on offset commit failures",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Consumer lag alert fired",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "Consumer group restarted with fresh coordinator",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "Backlog drained, log processing resumed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "maintenance_event",
+        "rootCause": "Partition reassignment left consumers with a stale group coordinator reference, preventing offset commits.",
+        "contributingFactors": [
+          "stale coordinator not detected by health check",
+          "consumer lag alert threshold too high",
+          "offset commit failure retried indefinitely"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Restarted the consumer group, cleared the stale coordinator reference, and tuned the consumer lag alert.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Consumer health checks must verify coordinator freshness.",
+          "Consumer lag alerts should be based on throughput decline, not just absolute lag."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "alerting_threshold",
+          "circuit_breaker",
+          "runbook"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.87,
+        "missingFields": [
+          "StartTime",
+          "EndTime"
+        ],
+        "warnings": [
+          "Exact timing not available; estimated seven-hour stall."
+        ],
+        "needsReview": false
+      }
+    }
+  ]
+}

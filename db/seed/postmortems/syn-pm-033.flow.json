@@ -1,0 +1,175 @@
+{
+  "id": "flow-syn-pm-033",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-033)",
+  "status": "completed",
+  "createdAt": "2026-06-06T15:00:00Z",
+  "completedAt": "2026-06-06T15:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-033",
+    "sourcePath": "../source/syn-pm-033.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-033",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-033",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-2992966983e53c57",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Ember Auth",
+        "product": null,
+        "severity": "SEV-1",
+        "categories": [
+          "security",
+          "deployment",
+          "auth"
+        ],
+        "keywords": [],
+        "sourceQuality": "free_text"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": null,
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "SAML assertion validation bypassed after library upgrade; discovered by internal security review before exploitation.",
+        "affectedSystems": [
+          "sso-gateway",
+          "saml-library",
+          "auth-service"
+        ],
+        "affectedUsers": "No external exploitation confirmed; vulnerability existed in production for an estimated two weeks.",
+        "riskTypes": [
+          "security",
+          "compliance"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Library upgrade changed XML signature verification defaults",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Internal security review discovered the bypass",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "Patch deployed to restore strict verification",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "Audit confirmed no unauthorized access",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "deployment",
+        "rootCause": "A SAML library upgrade changed the default XML signature verification to a lenient mode that accepted forged assertions.",
+        "contributingFactors": [
+          "library changelog not reviewed for security-relevant changes",
+          "no integration test for assertion forgery",
+          "default behavior change not documented by library maintainer"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Patched the SSO Gateway to enforce strict XML signature verification and audited access logs.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Security-critical library upgrades must include changelog review for default behavior changes.",
+          "SAML integrations need assertion forgery tests."
+        ],
+        "recommendedControls": [
+          "access_review",
+          "preflight_check",
+          "schema_validation",
+          "synthetic_monitoring"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.6,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Product",
+          "Keywords",
+          "StartTime",
+          "EndTime",
+          "SourcePublishedAt"
+        ],
+        "warnings": [
+          "Intentionally sparse record; timing estimated at two-week exposure window."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "id": "flow-syn-pm-050",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Schema evolution rejected valid Avro records",
+  "status": "completed",
+  "createdAt": "2026-05-22T09:00:00Z",
+  "completedAt": "2026-05-22T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-050",
+    "sourcePath": "../source/syn-pm-050.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-050",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-050",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-7f6e7f82726d9fb7",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "LanternDB Labs",
+        "product": "Streaming Ingest",
+        "severity": "SEV-2",
+        "categories": [
+          "config-change",
+          "deployment"
+        ],
+        "keywords": [
+          "schema",
+          "avro",
+          "evolution",
+          "ingest",
+          "cache",
+          "registry",
+          "streaming",
+          "rejection"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-05-20T10:00:00Z",
+        "endTime": "2026-05-20T12:00:00Z",
+        "publishedAt": "2026-05-22T09:00:00Z",
+        "durationHours": 2.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Valid Avro records rejected for two hours while ingest service served stale schema from cache.",
+        "affectedSystems": [
+          "streaming-ingest",
+          "schema-registry",
+          "schema-cache"
+        ],
+        "affectedUsers": "Producers sending records with the new field received rejections until the cache refreshed.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "10:00Z",
+            "event": "Schema evolution registered with new field",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:05Z",
+            "event": "Producers began sending records with new field",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:08Z",
+            "event": "Ingest service rejected records with unknown field",
+            "stage": "detection"
+          },
+          {
+            "time": "10:30Z",
+            "event": "Manual cache invalidation triggered",
+            "stage": "mitigation"
+          },
+          {
+            "time": "12:00Z",
+            "event": "All ingest nodes serving current schema",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The ingest service's schema cache served the old version and did not recognize the new field, rejecting valid records.",
+        "contributingFactors": [
+          "schema cache TTL too long",
+          "no cache invalidation on schema evolution",
+          "schema evolution and producer update not coordinated"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Manually invalidated the schema cache, reduced cache TTL, and added invalidation hook to evolution events.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Schema cache must be invalidated on evolution events, not just on TTL expiry.",
+          "Schema evolution and producer rollout should be coordinated."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "health_check",
+          "canary"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

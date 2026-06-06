@@ -1,0 +1,183 @@
+{
+  "id": "flow-syn-pm-046",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Publishing queue lost ordering after broker upgrade",
+  "status": "completed",
+  "createdAt": "2026-04-28T09:00:00Z",
+  "completedAt": "2026-04-28T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-046",
+    "sourcePath": "../source/syn-pm-046.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-046",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-046",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-04ede6dc30863118",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Patchwork CMS",
+        "product": "Publishing Queue",
+        "severity": "SEV-2",
+        "categories": [
+          "deployment",
+          "database"
+        ],
+        "keywords": [
+          "queue",
+          "ordering",
+          "broker",
+          "partition",
+          "upgrade",
+          "publishing",
+          "sequence",
+          "deployment"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": "2026-04-28T09:00:00Z",
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Articles appeared out of sequence on the public site after broker upgrade changed partitioning.",
+        "affectedSystems": [
+          "publishing-queue",
+          "message-broker",
+          "content-renderer"
+        ],
+        "affectedUsers": "Readers saw articles in the wrong order within publications.",
+        "riskTypes": [
+          "data_integrity",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Message broker upgraded to new version",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Partitioning strategy changed to round-robin",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Content team reported articles out of order",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "Partitioning reverted to key-based",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "Affected publications reprocessed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "deployment",
+        "rootCause": "The broker upgrade changed the default partitioning strategy from key-based to round-robin, breaking ordering guarantees.",
+        "contributingFactors": [
+          "broker upgrade changelog not reviewed for default changes",
+          "no ordering invariant test",
+          "partitioning strategy not pinned in configuration"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted partitioning strategy, reprocessed affected publications, and added ordering invariant test.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Message ordering dependencies must be tested after broker upgrades.",
+          "Partitioning strategy should be pinned in configuration, not reliant on defaults."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "schema_validation",
+          "dry_run",
+          "rollback"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.88,
+        "missingFields": [
+          "StartTime",
+          "EndTime"
+        ],
+        "warnings": [
+          "Timing not precisely recorded."
+        ],
+        "needsReview": false
+      }
+    }
+  ]
+}

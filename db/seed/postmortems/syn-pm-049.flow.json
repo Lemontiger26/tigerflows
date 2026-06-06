@@ -1,0 +1,180 @@
+{
+  "id": "flow-syn-pm-049",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Autovacuum consumed all IOPS during business hours",
+  "status": "completed",
+  "createdAt": "2026-05-02T09:00:00Z",
+  "completedAt": "2026-05-02T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-049",
+    "sourcePath": "../source/syn-pm-049.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-049",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-049",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-50d571b1f76efa73",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "LanternDB Labs",
+        "product": "Managed Postgres",
+        "severity": "SEV-1",
+        "categories": [
+          "automation",
+          "database",
+          "hardware"
+        ],
+        "keywords": [
+          "autovacuum",
+          "postgres",
+          "iops",
+          "performance",
+          "threshold",
+          "database",
+          "bloat",
+          "managed"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-04-30T09:00:00Z",
+        "endTime": "2026-04-30T14:00:00Z",
+        "publishedAt": "2026-05-02T09:00:00Z",
+        "durationHours": 5.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Customer query performance degraded for five hours while autovacuum consumed all available IOPS.",
+        "affectedSystems": [
+          "managed-postgres",
+          "autovacuum",
+          "iops-controller"
+        ],
+        "affectedUsers": "All customers on the affected fleet experienced degraded query performance.",
+        "riskTypes": [
+          "availability",
+          "latency",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "09:00Z",
+            "event": "New autovacuum threshold applied to fleet",
+            "stage": "trigger"
+          },
+          {
+            "time": "09:15Z",
+            "event": "IOPS utilization hit 100% from vacuum activity",
+            "stage": "detection"
+          },
+          {
+            "time": "09:30Z",
+            "event": "Autovacuum threshold reverted",
+            "stage": "mitigation"
+          },
+          {
+            "time": "11:00Z",
+            "event": "Vacuum backlog cleared",
+            "stage": "recovery"
+          },
+          {
+            "time": "14:00Z",
+            "event": "Query performance returned to baseline",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "Lowered autovacuum threshold caused aggressive vacuuming during high-write business hours, consuming all IOPS.",
+        "contributingFactors": [
+          "threshold not tested under business-hour write rates",
+          "no time-of-day vacuum scheduling",
+          "no IOPS utilization alert for vacuum"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted the threshold, implemented time-of-day aware scheduling, and added IOPS alerting.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Database maintenance configuration changes must be tested under peak write load.",
+          "Vacuum scheduling should be time-of-day aware."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "capacity_planning",
+          "alerting_threshold",
+          "dry_run"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

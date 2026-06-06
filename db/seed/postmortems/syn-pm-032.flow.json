@@ -1,0 +1,172 @@
+{
+  "id": "flow-syn-pm-032",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Dispatch batch assignment failed during peak hours",
+  "status": "completed",
+  "createdAt": "2026-01-30T09:00:00Z",
+  "completedAt": "2026-01-30T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-032",
+    "sourcePath": "../source/syn-pm-032.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-032",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-032",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-70d24bc2a3c9ba4b",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Tideline Logistics",
+        "product": "Dispatch Service",
+        "severity": "SEV-2",
+        "categories": [
+          "automation",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "dispatch",
+          "batch",
+          "assignment",
+          "timeout",
+          "scaling",
+          "optimization",
+          "peak",
+          "cascading failure"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-01-28T11:30:00Z",
+        "endTime": "2026-01-28T14:30:00Z",
+        "publishedAt": "2026-01-30T09:00:00Z",
+        "durationHours": 3.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Delivery assignments blocked for three hours during peak until a fallback algorithm was engaged.",
+        "affectedSystems": [
+          "dispatch-service",
+          "assignment-optimizer",
+          "delivery-queue"
+        ],
+        "affectedUsers": "Drivers had no new assignments; deliveries were delayed during peak hours.",
+        "riskTypes": [
+          "availability",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "11:30Z",
+            "event": "Batch assignment job started with peak driver count",
+            "stage": "trigger"
+          },
+          {
+            "time": "11:35Z",
+            "event": "Assignment job timed out",
+            "stage": "detection"
+          },
+          {
+            "time": "12:00Z",
+            "event": "Greedy assignment fallback engaged",
+            "stage": "mitigation"
+          },
+          {
+            "time": "14:30Z",
+            "event": "Assignment backlog cleared",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "load_spike",
+        "rootCause": "The batch assignment algorithm had quadratic complexity and could not complete within the timeout at peak driver counts.",
+        "contributingFactors": [
+          "quadratic algorithm not load-tested at peak",
+          "no fallback assignment path",
+          "timeout too short for peak load"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Engaged greedy assignment fallback, cleared the backlog, and refactored the optimizer for linear scaling.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Assignment algorithms must be load-tested at peak driver counts.",
+          "A fallback assignment path should always be available."
+        ],
+        "recommendedControls": [
+          "capacity_planning",
+          "circuit_breaker",
+          "timeout_tuning"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

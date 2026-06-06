@@ -1,0 +1,172 @@
+{
+  "id": "flow-syn-pm-009",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Ledger balance drift after timezone handling change",
+  "status": "completed",
+  "createdAt": "2026-01-10T09:00:00Z",
+  "completedAt": "2026-01-10T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-009",
+    "sourcePath": "../source/syn-pm-009.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-009",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-009",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-57d6c4b9884a95de",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "NovaPay",
+        "product": "Ledger Service",
+        "severity": "SEV-2",
+        "categories": [
+          "time",
+          "database"
+        ],
+        "keywords": [
+          "timezone",
+          "ledger",
+          "balance",
+          "cutoff",
+          "settlement",
+          "database",
+          "drift",
+          "calculation"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-01-08T10:00:00Z",
+        "endTime": "2026-01-08T13:00:00Z",
+        "publishedAt": "2026-01-10T09:00:00Z",
+        "durationHours": 3.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Daily settlement totals were incorrect for non-UTC merchants due to shifted end-of-day cutoff.",
+        "affectedSystems": [
+          "ledger-service",
+          "settlement-calculator",
+          "merchant-reports"
+        ],
+        "affectedUsers": "Merchants with non-UTC settlement timezones saw incorrect daily totals until recalculation.",
+        "riskTypes": [
+          "data_integrity",
+          "compliance"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "10:00Z",
+            "event": "Timezone-aware timestamp change deployed",
+            "stage": "trigger"
+          },
+          {
+            "time": "12:30Z",
+            "event": "Routine audit flagged balance discrepancies for APAC merchants",
+            "stage": "detection"
+          },
+          {
+            "time": "12:45Z",
+            "event": "Change reverted",
+            "stage": "mitigation"
+          },
+          {
+            "time": "13:00Z",
+            "event": "Affected balances recalculated and confirmed correct",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The end-of-day cutoff helper used the raw timezone offset incorrectly, shifting settlement windows for non-UTC merchants.",
+        "contributingFactors": [
+          "test fixtures only used UTC offsets",
+          "no timezone-diverse integration tests",
+          "change deployed without audit-period validation"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted the change, recalculated affected balances from the transaction log, and added timezone-diverse fixtures.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Timezone changes must be tested with non-UTC settlement zones.",
+          "Balance calculations need post-deploy audit gates."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "schema_validation",
+          "dry_run"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

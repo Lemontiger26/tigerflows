@@ -1,0 +1,190 @@
+{
+  "id": "flow-syn-pm-016",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Lab results API returned stale data after failover",
+  "status": "completed",
+  "createdAt": "2025-12-22T14:00:00Z",
+  "completedAt": "2025-12-22T14:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-016",
+    "sourcePath": "../source/syn-pm-016.json",
+    "sourceShape": "rich_article",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-016",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-016",
+        "archiveUrl": "",
+        "sourceShape": "rich_article",
+        "payloadHash": "sha256-e271abcd83c7be38",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Cerulean Health",
+        "product": "Lab Results API",
+        "severity": "SEV-0",
+        "categories": [
+          "database",
+          "cloud",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "lab results",
+          "replica",
+          "failover",
+          "stale data",
+          "replication lag",
+          "database",
+          "health",
+          "clinical"
+        ],
+        "sourceQuality": "structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-12-18T08:00:00Z",
+        "endTime": "2025-12-18T11:00:00Z",
+        "publishedAt": "2025-12-22T14:00:00Z",
+        "durationHours": 3.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Clinicians received stale lab results from a lagging replica after database failover. Patient safety concern.",
+        "affectedSystems": [
+          "lab-results-api",
+          "database-replica",
+          "failover-controller"
+        ],
+        "affectedUsers": "Clinicians querying recent lab results for patients in active care.",
+        "riskTypes": [
+          "data_integrity",
+          "compliance",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "08:00Z",
+            "event": "Primary database failed, automatic failover triggered",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:02Z",
+            "event": "Read replica promoted, replication lag present",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:30Z",
+            "event": "Clinician reported outdated lab result for a patient",
+            "stage": "detection"
+          },
+          {
+            "time": "08:45Z",
+            "event": "Replication lag confirmed at fifteen minutes",
+            "stage": "investigation"
+          },
+          {
+            "time": "09:00Z",
+            "event": "API responses annotated with freshness warning",
+            "stage": "mitigation"
+          },
+          {
+            "time": "09:30Z",
+            "event": "Replica fully caught up",
+            "stage": "recovery"
+          },
+          {
+            "time": "11:00Z",
+            "event": "All stale responses verified and clinicians notified",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "dependency_failure",
+        "rootCause": "Failover health check verified connectivity but did not check replication freshness, promoting a lagging replica.",
+        "contributingFactors": [
+          "no replication lag gate in failover",
+          "maintenance window increased replica lag",
+          "API did not expose data freshness"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Added replication lag check to failover health gate and implemented freshness indicator in API responses.",
+        "responseSummary": "Clinician report led to rapid investigation. Freshness warning was deployed within thirty minutes.",
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Failover health checks must include replication lag thresholds.",
+          "APIs serving clinical data should expose a freshness indicator."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "alerting_threshold",
+          "preflight_check",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.97,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

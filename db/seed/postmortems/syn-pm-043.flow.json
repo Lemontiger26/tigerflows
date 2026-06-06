@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-043",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Permission bypass after ACL cache TTL expired",
+  "status": "completed",
+  "createdAt": "2026-03-03T09:00:00Z",
+  "completedAt": "2026-03-03T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-043",
+    "sourcePath": "../source/syn-pm-043.json",
+    "sourceShape": "rich_article",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-043",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-043",
+        "archiveUrl": "",
+        "sourceShape": "rich_article",
+        "payloadHash": "sha256-7580742aa58a72b1",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Signal Grove",
+        "product": "Channel Manager",
+        "severity": "SEV-1",
+        "categories": [
+          "security",
+          "auth",
+          "config-change"
+        ],
+        "keywords": [
+          "acl",
+          "cache",
+          "permission",
+          "bypass",
+          "channel",
+          "security",
+          "auth",
+          "ttl"
+        ],
+        "sourceQuality": "structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-03-01T08:00:00Z",
+        "endTime": "2026-03-01T08:45:00Z",
+        "publishedAt": "2026-03-03T09:00:00Z",
+        "durationHours": 0.75,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Unauthorized users could read private channel content during ACL cache miss window.",
+        "affectedSystems": [
+          "channel-manager",
+          "acl-cache",
+          "permission-service"
+        ],
+        "affectedUsers": "Members of private channels had their content potentially visible to unauthorized users.",
+        "riskTypes": [
+          "security",
+          "compliance"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "08:00Z",
+            "event": "ACL cache entry expired for private channels",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:05Z",
+            "event": "Fallback returned permissive default",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:10Z",
+            "event": "Security test detected unauthorized read access",
+            "stage": "detection"
+          },
+          {
+            "time": "08:25Z",
+            "event": "Default policy changed to deny-all",
+            "stage": "mitigation"
+          },
+          {
+            "time": "08:45Z",
+            "event": "All ACL entries reloaded and verified",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "ACL cache fallback used a permissive default policy instead of deny-all.",
+        "contributingFactors": [
+          "permissive default in ACL lookup",
+          "no cache-miss alert",
+          "TTL expiry not tested with restrictive channels"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Changed default policy to deny-all, added cache-miss alert, and reloaded all ACL entries.",
+        "responseSummary": "Caught by routine security test; production exposure was brief.",
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Cache fallback policies must fail closed, not open.",
+          "ACL cache misses should trigger alerts."
+        ],
+        "recommendedControls": [
+          "access_review",
+          "preflight_check",
+          "synthetic_monitoring",
+          "health_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.96,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

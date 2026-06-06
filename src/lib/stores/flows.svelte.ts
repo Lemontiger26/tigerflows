@@ -1,5 +1,5 @@
 import type { Flow, FlowStep } from '~types';
-import { seedFlows } from './seed';
+import { seedFlows } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { templateStore } from './templates.svelte';
 import { slugify } from '$lib/helpers/slugify';

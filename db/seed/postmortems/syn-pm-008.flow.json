@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-008",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Fraud rule update blocked legitimate high-value transactions",
+  "status": "completed",
+  "createdAt": "2025-12-08T09:00:00Z",
+  "completedAt": "2025-12-08T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-008",
+    "sourcePath": "../source/syn-pm-008.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-008",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-008",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-9ceb106784807b2b",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "NovaPay",
+        "product": "Fraud Gateway",
+        "severity": "SEV-2",
+        "categories": [
+          "security",
+          "config-change"
+        ],
+        "keywords": [
+          "fraud",
+          "rule",
+          "threshold",
+          "false positive",
+          "transaction",
+          "security",
+          "configuration",
+          "gateway"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-12-05T16:00:00Z",
+        "endTime": "2025-12-05T16:30:00Z",
+        "publishedAt": "2025-12-08T09:00:00Z",
+        "durationHours": 0.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Legitimate high-value transactions blocked for thirty minutes until the rule was reverted.",
+        "affectedSystems": [
+          "fraud-gateway",
+          "transaction-router",
+          "merchant-portal"
+        ],
+        "affectedUsers": "High-value merchants saw transactions blocked and received false fraud alerts.",
+        "riskTypes": [
+          "availability",
+          "configuration",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "16:00Z",
+            "event": "Updated fraud detection rules deployed",
+            "stage": "trigger"
+          },
+          {
+            "time": "16:05Z",
+            "event": "High-value transaction block rate spiked",
+            "stage": "detection"
+          },
+          {
+            "time": "16:12Z",
+            "event": "Merchant support tickets correlated with rule change",
+            "stage": "investigation"
+          },
+          {
+            "time": "16:20Z",
+            "event": "Rule reverted to previous thresholds",
+            "stage": "mitigation"
+          },
+          {
+            "time": "16:30Z",
+            "event": "Blocked transactions resubmitted and cleared",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "Fraud rules used absolute dollar thresholds instead of percentile-based ones, blocking legitimate high-value merchants.",
+        "contributingFactors": [
+          "no shadow-scoring period for rule changes",
+          "thresholds not segmented by merchant profile",
+          "rule review did not include merchant transaction distribution"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted the rule, resubmitted blocked transactions, and confirmed no legitimate transactions were permanently lost.",
+        "responseSummary": "Fast detection and rollback. On-call correlated the rule change within twelve minutes.",
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Fraud rule changes need a shadow-scoring period before enforcement.",
+          "Thresholds should be percentile-based and segmented by merchant profile."
+        ],
+        "recommendedControls": [
+          "canary",
+          "dry_run",
+          "rollback",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

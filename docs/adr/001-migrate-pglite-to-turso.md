@@ -1,7 +1,8 @@
 # ADR-001: Migrate from PGLite to Turso (libSQL)
 
-**Status:** Proposed  
+**Status:** Accepted — implementation starting  
 **Date:** 2026-06-02  
+**Last updated:** 2026-06-06  
 **Authors:** @bernd-malle
 
 ## Context
@@ -10,6 +11,8 @@ TigerFlows uses PGLite (embedded Postgres) for local-first data storage. PGLite 
 
 With sync/team features on the roadmap for late summer 2026, we'd also need to build a full sync layer on top of PGLite — conflict resolution, offline queue, reconnection, and a hosted Postgres backend. That's a significant engineering effort for a feature that already exists as a solved problem in other ecosystems.
 
+As of 2026-06-06, this migration is no longer exploratory. PGLite remains useful only as the current source implementation while the libSQL schema, scripts, and seed/import path are built. Recent PGLite extension packaging changes (`@electric-sql/pglite-pgvector`) reinforced the decision: we should not spend more engineering time stabilizing the Postgres/PGLite setup when the accepted direction is libSQL/Turso.
+
 ### Current state (as of this ADR)
 
 - **No application code imports from the DB layer.** Routes and components use in-memory stores. The DB wiring is the next planned milestone.
@@ -17,6 +20,7 @@ With sync/team features on the roadmap for late summer 2026, we'd also need to b
 - **DB client:** `db/index.ts` (app) and `db/scripts/db.ts` (CLI) — both PGLite-specific, ~10 lines each
 - **Postgres-specific features in use:** pg enums (6), partial unique indexes (7), jsonb columns (14), `vector(384)` columns, `timestamp with time zone`
 - **Embedding pipeline:** server-only HuggingFace `Xenova/bge-small-en-v1.5` — dialect-independent
+- **Migration stance:** no live conversion of local PGLite runtime data. Built-in/demo data is re-seeded/imported from controlled seed/system sources into libSQL.
 
 ## Decision
 
@@ -94,6 +98,17 @@ Application code, queries, Drizzle schema — all unchanged. Sync is a configura
 > **Caveat:** Embedded replicas / offline sync are deliberately out of scope for this migration. When that milestone approaches, run a separate sync spike and decide whether `@libsql/client` embedded replicas, `@tursodatabase/sync`, or another Turso sync path is appropriate.
 
 ## Migration Plan
+
+### Phase 0: Freeze Source Inputs
+
+Before rewriting code, treat the existing PGLite implementation as a source reference only:
+
+- Keep the current schema and seed data available for comparison.
+- Do not spend additional effort fixing PGLite extension/server behavior except when needed to inspect the old data.
+- Stop any stale `pglite-server` process before testing libSQL tooling, so tools like DBeaver do not accidentally connect to the old database.
+- Do not attempt a byte-level or row-level migration from `data/pglite/`. Current product data is still seed/demo content, so the supported migration path is controlled re-seeding into libSQL.
+
+The migration output is a fresh `userFlows.db` plus an explicit system-content installation path. Verification proves the seed/system data was imported correctly.
 
 ### Phase 1: Schema Translation
 
@@ -336,6 +351,17 @@ export default defineConfig({
 
 `db/scripts/seed.ts` — Drizzle insert API remains useful, but vector writes change. Insert ordinary fields through Drizzle, then update `embeddings` through raw SQL `vector32(?)`. Also replace `userId: null` seed data with `SYSTEM` / `LOCAL` sentinels.
 
+This is a seed/import rewrite, not a live PGLite data migration. Existing built-in categories, tags, templates, flows, skills, gates, input sources, and showcase/demo records are inserted into libSQL from controlled seed definitions. The old `data/pglite/` directory is discarded after the libSQL seed verifies.
+
+Seed inputs live under `db/seed/`:
+
+| Path                   | Purpose                                                                                                                |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `db/seed/builtin.ts`   | Original built-in categories, templates, template steps, demo flows, and tags. Migrated from `src/lib/stores/seed.ts`. |
+| `db/seed/postmortems/` | Bundled synthetic incident-postmortem showcase history: 50 normalized flow JSON files, safe to ship with the app.      |
+
+The postmortem showcase is bundled, not downloaded on demand. At roughly 250KB, the product benefit of an immediately available demo history outweighs the tiny package-size cost. These records are installed as `SYSTEM` demo/showcase content and remain separate from user-created data.
+
 `db/scripts/wipe.ts`, `check_db.ts`, `migrate.ts` — Update db client import. Remove any `CREATE EXTENSION` calls.
 
 ### Phase 7: Data Directory
@@ -393,7 +419,7 @@ Where `currentUserId` is `LOCAL_USER_ID` for self-hosted or the authenticated us
 
 #### 8.2 Stable system IDs
 
-Current seed data generates IDs with `tigerid()` (random nanoid) at module load. If `systemFlows.db` is rebuilt, new random IDs would cause "upsert by primary key" to append duplicates instead of updating.
+Current `db/seed/builtin.ts` seed data still generates IDs with `tigerid()` (random nanoid) at module load. If `systemFlows.db` is rebuilt, new random IDs would cause "upsert by primary key" to append duplicates instead of updating.
 
 **System content must have deterministic, stable IDs.** Two approaches:
 
@@ -410,7 +436,7 @@ Recommendation: **hardcoded IDs** for the initial set (it's small), with the opt
 bun run db:build-system   # creates/rebuilds data/systemFlows.db
 ```
 
-This script creates a fresh libSQL database, applies the same schema migrations, and inserts release-managed built-in content with `userId = 'SYSTEM'` and stable IDs. That includes the `SYSTEM` sentinel row, built-in categories, tags, skills, templates, agentic input/gate templates, demo/showcase flows, and onboarding examples. The resulting file is committed to the repo or bundled with releases.
+This script creates a fresh libSQL database, applies the same schema migrations, and inserts release-managed built-in content with `userId = 'SYSTEM'` and stable IDs. That includes the `SYSTEM` sentinel row, built-in categories, tags, skills, templates, agentic input/gate templates, demo/onboarding flows, and the bundled 50-flow synthetic incident-postmortem showcase from `db/seed/postmortems/`. The resulting file is committed to the repo or bundled with releases.
 
 `LOCAL` is a runtime sentinel, not bundled showcase content. It is ensured in `userFlows.db` by explicit runtime init/install commands.
 
@@ -495,7 +521,8 @@ The app does **not** auto-migrate or auto-seed on startup. Drizzle tracks which 
 bun run db:mig             # migrate userFlows.db
 bun run db:build-system    # rebuild bundled systemFlows.db
 bun run db:install-system  # upsert bundled system content into userFlows.db
-bun run db:reset           # local dev convenience: fresh DB + migrate + install
+bun run db:seed            # local dev seed/import path for demo data
+bun run db:reset           # local dev convenience: fresh DB + migrate + install/seed
 ```
 
 #### Why this works across deployment modes
@@ -510,7 +537,7 @@ bun run db:reset           # local dev convenience: fresh DB + migrate + install
 
 | Phase                  | Scope                                          | Effort       |
 | ---------------------- | ---------------------------------------------- | ------------ |
-| 0. Vector spike        | Validate Drizzle custom type + vector search   | half day     |
+| 0. Source freeze       | Freeze PGLite as source reference only         | done         |
 | 1. Schema translation  | 2 files, ~250 lines each                       | 1-2 days     |
 | 2. DB client           | 2 files, single libSQL client                  | 30 min       |
 | 3. Drizzle config      | 1 file                                         | 15 min       |
@@ -521,7 +548,7 @@ bun run db:reset           # local dev convenience: fresh DB + migrate + install
 | 8. System data seeding | Sentinel convention, seed-system.ts, build CLI | half day     |
 | **Total**              |                                                | **3-4 days** |
 
-Phase 0 (vector spike) is already complete in the sibling Track repo. The chosen vector path is plain nullable BLOB columns plus raw SQL `vector32()` conversion at write/query boundaries. The bulk of the remaining work is Phase 1 (mechanical schema rewrite). No route/component code imports from the DB layer yet, but in-memory stores and seed data still contain `userId: null` and must be moved to sentinel values before the DB becomes authoritative.
+The vector spike is already complete in the sibling Track repo. The chosen vector path is plain nullable BLOB columns plus raw SQL `vector32()` conversion at write/query boundaries. The bulk of the remaining work is Phase 1 (mechanical schema rewrite). No route/component code imports from the DB layer yet, but in-memory stores and seed data still contain `userId: null` and must be moved to sentinel values before the DB becomes authoritative.
 
 ## What We Gain
 
@@ -561,12 +588,14 @@ Phase 0 (vector spike) is already complete in the sibling Track repo. The chosen
 - **Schema rewrite introduces bugs.** Mitigated: no application code depends on the DB layer yet. The rewrite is mechanical and can be verified by seeding + running the existing seed script.
 - **Automatic migration/seed surprises.** Mitigated: no migration or seed runs on app startup or DB import. Provisioning/dev commands perform those writes explicitly.
 - **Vector writes require raw SQL.** Mitigated: the Track spike proved the `vector32(?)` path. Keep Drizzle for ordinary fields and centralize vector update helpers.
+- **Seed/import drift.** Mitigated: seed into a fresh libSQL file, assert table counts, sentinel rows, FK integrity, representative slug lookups, and at least one embedding round-trip before removing PGLite dependencies.
 
 ## Resolved Questions
 
 1. **System / User data separation: how?** Single runtime DB (`userFlows.db`) with sentinel `userId = 'SYSTEM'` for system records and `userId = 'LOCAL'` for self-hosted users. `systemFlows.db` is a bundled distribution artifact, not a runtime dependency. All FKs are local, no cross-DB complexity. Both sentinels seeded as rows in the `users` table to satisfy FK constraints.
 2. **`userId` column: keep or drop?** Keep on all scoped tables, effectively non-null. `'SYSTEM'` = system-owned, `'LOCAL'` = self-hosted user, actual `users.id` = authenticated user. External provider IDs stay in `users.authId`. Also serves as `createdBy` in future team DBs.
 3. **Vector column helper: custom Drizzle type or raw SQL?** Resolved: use plain nullable BLOB columns plus raw SQL with `vector32()` conversion functions. A custom type can be revisited later if repetition becomes painful.
+4. **Migration mechanism for current data?** Re-seeding/import from controlled seed/system content. No live PGLite data-directory conversion for this milestone.
 
 ## Open Questions
 

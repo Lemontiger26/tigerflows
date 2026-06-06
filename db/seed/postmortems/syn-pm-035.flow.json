@@ -1,0 +1,171 @@
+{
+  "id": "flow-syn-pm-035",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-035)",
+  "status": "completed",
+  "createdAt": "2026-02-22T09:00:00Z",
+  "completedAt": "2026-02-22T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-035",
+    "sourcePath": "../source/syn-pm-035.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-035",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-035",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-917bcc1d151ae6ef",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Ember Auth",
+        "product": null,
+        "severity": "SEV-3",
+        "categories": [
+          "cloud",
+          "network"
+        ],
+        "keywords": [],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-02-20T09:00:00Z",
+        "endTime": "2026-02-20T11:00:00Z",
+        "publishedAt": "2026-02-22T09:00:00Z",
+        "durationHours": 2.0,
+        "timingConfidence": "partial"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "SMS MFA codes delayed by several minutes during login surge until secondary provider engaged.",
+        "affectedSystems": [
+          "mfa-engine",
+          "sms-provider",
+          "auth-service"
+        ],
+        "affectedUsers": "Users relying on SMS-based MFA experienced multi-minute delays receiving codes.",
+        "riskTypes": [
+          "availability",
+          "latency",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "09:00Z",
+            "event": "Login surge triggered high SMS volume",
+            "stage": "trigger"
+          },
+          {
+            "time": "09:10Z",
+            "event": "Telecom API rate limit hit, SMS queued",
+            "stage": "detection"
+          },
+          {
+            "time": "09:30Z",
+            "event": "Secondary SMS provider enabled as fallback",
+            "stage": "mitigation"
+          },
+          {
+            "time": "11:00Z",
+            "event": "SMS delivery latency normalized",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "load_spike",
+        "rootCause": "Single SMS provider rate limit was exceeded during a login surge, causing SMS queuing.",
+        "contributingFactors": [
+          "single SMS provider dependency",
+          "no rate-limit-aware routing",
+          "MFA fallback path not automated"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Enabled secondary SMS provider as fallback and implemented rate-limit-aware routing.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "MFA systems should not depend on a single SMS provider.",
+          "Rate-limit-aware routing should engage automatically."
+        ],
+        "recommendedControls": [
+          "circuit_breaker",
+          "capacity_planning",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.7,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Product",
+          "Keywords"
+        ],
+        "warnings": [
+          "Sparse source record."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

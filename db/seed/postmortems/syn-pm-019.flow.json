@@ -1,0 +1,180 @@
+{
+  "id": "flow-syn-pm-019",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Upload failures after TLS certificate chain rotation",
+  "status": "completed",
+  "createdAt": "2025-09-24T09:00:00Z",
+  "completedAt": "2025-09-24T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-019",
+    "sourcePath": "../source/syn-pm-019.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-019",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-019",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-20cde6be73cb9fc2",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "ArcticVault",
+        "product": "Object Store",
+        "severity": "SEV-2",
+        "categories": [
+          "security",
+          "config-change",
+          "deployment"
+        ],
+        "keywords": [
+          "tls",
+          "certificate",
+          "upload",
+          "chain",
+          "rotation",
+          "security",
+          "deployment",
+          "object store"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-09-22T11:00:00Z",
+        "endTime": "2025-09-22T13:00:00Z",
+        "publishedAt": "2025-09-24T09:00:00Z",
+        "durationHours": 2.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Object uploads failed for clients without cached intermediate certificates for approximately two hours.",
+        "affectedSystems": [
+          "object-store",
+          "tls-terminator",
+          "upload-endpoint"
+        ],
+        "affectedUsers": "Clients without cached TLS intermediates could not upload objects.",
+        "riskTypes": [
+          "availability",
+          "security",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "11:00Z",
+            "event": "TLS certificate chain rotated on upload endpoints",
+            "stage": "trigger"
+          },
+          {
+            "time": "11:15Z",
+            "event": "Upload error rate began climbing",
+            "stage": "detection"
+          },
+          {
+            "time": "11:30Z",
+            "event": "Incomplete chain identified",
+            "stage": "investigation"
+          },
+          {
+            "time": "11:50Z",
+            "event": "Complete certificate bundle deployed",
+            "stage": "mitigation"
+          },
+          {
+            "time": "13:00Z",
+            "event": "Upload success rates normalized",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "credential_rotation",
+        "rootCause": "The rotated certificate bundle was missing an intermediate certificate, breaking verification for clients without cached intermediates.",
+        "contributingFactors": [
+          "no chain completeness validation in deploy pipeline",
+          "gradual failure onset as caches expired",
+          "no client-side certificate verification test"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Replaced the bundle with the complete chain and verified connectivity from diverse client positions.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Certificate rotation pipelines must validate chain completeness before deployment.",
+          "Post-rotation verification should test from clients without cached intermediates."
+        ],
+        "recommendedControls": [
+          "cert_rotation_automation",
+          "preflight_check",
+          "synthetic_monitoring",
+          "health_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "id": "flow-syn-pm-044",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Draft content served in production after flag misconfiguration",
+  "status": "completed",
+  "createdAt": "2025-10-17T09:00:00Z",
+  "completedAt": "2025-10-17T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-044",
+    "sourcePath": "../source/syn-pm-044.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-044",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-044",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-8632136894929965",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Patchwork CMS",
+        "product": "Content API",
+        "severity": "SEV-2",
+        "categories": [
+          "config-change"
+        ],
+        "keywords": [
+          "content",
+          "draft",
+          "feature flag",
+          "publication",
+          "gate",
+          "config",
+          "cms",
+          "api"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-10-15T12:00:00Z",
+        "endTime": "2025-10-15T12:30:00Z",
+        "publishedAt": "2025-10-17T09:00:00Z",
+        "durationHours": 0.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Unpublished draft content was visible to end users for thirty minutes.",
+        "affectedSystems": [
+          "content-api",
+          "feature-flag-service",
+          "publication-gate"
+        ],
+        "affectedUsers": "Site visitors saw draft articles with placeholder text.",
+        "riskTypes": [
+          "data_integrity",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "12:00Z",
+            "event": "Feature flag disabled in production config",
+            "stage": "trigger"
+          },
+          {
+            "time": "12:05Z",
+            "event": "Draft content visible to end users",
+            "stage": "trigger"
+          },
+          {
+            "time": "12:15Z",
+            "event": "Content team noticed draft articles on live site",
+            "stage": "detection"
+          },
+          {
+            "time": "12:22Z",
+            "event": "Feature flag re-enabled",
+            "stage": "mitigation"
+          },
+          {
+            "time": "12:30Z",
+            "event": "All draft content removed from public responses",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The publication gate feature flag was accidentally disabled in the production config repository.",
+        "contributingFactors": [
+          "no flag-change review in config pipeline",
+          "publication gate flag not marked as protected",
+          "local testing config committed to production"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Re-enabled the flag, marked it as protected, and added flag-change review to the config pipeline.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Critical feature flags should be marked as protected with mandatory review.",
+          "Config pipelines must prevent accidental local-to-production commits."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "rollback",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

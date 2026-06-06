@@ -6,7 +6,7 @@
  */
 
 import { db, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
-import { seedCategories, seedTemplates, seedFlows } from '../../src/lib/stores/seed';
+import { seedCategories, seedTemplates, seedFlows } from '../seed/builtin';
 import { embedMany } from './embed';
 
 async function seed() {

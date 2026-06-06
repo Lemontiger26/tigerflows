@@ -1,0 +1,178 @@
+{
+  "id": "flow-syn-pm-037",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Metric ingest dropped samples during scaling event",
+  "status": "completed",
+  "createdAt": "2025-09-08T09:00:00Z",
+  "completedAt": "2025-09-08T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-037",
+    "sourcePath": "../source/syn-pm-037.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-037",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-037",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-e4319785aa4a8e49",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Canopy Metrics",
+        "product": "Metric Ingest",
+        "severity": "SEV-2",
+        "categories": [
+          "cloud",
+          "automation",
+          "config-change"
+        ],
+        "keywords": [
+          "metric",
+          "ingest",
+          "scaling",
+          "kafka",
+          "partition",
+          "rebalance",
+          "drop",
+          "monitoring"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-09-05T14:00:00Z",
+        "endTime": "2025-09-05T15:00:00Z",
+        "publishedAt": "2025-09-08T09:00:00Z",
+        "durationHours": 1.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Metric samples dropped for fifteen minutes during Kafka partition rebalance.",
+        "affectedSystems": [
+          "metric-ingest",
+          "kafka",
+          "partition-manager"
+        ],
+        "affectedUsers": "Customers saw gaps in metric timeseries during the rebalance window.",
+        "riskTypes": [
+          "data_loss",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "14:00Z",
+            "event": "Horizontal scaling triggered partition rebalance",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:02Z",
+            "event": "Unassigned partitions began dropping samples",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:08Z",
+            "event": "Ingest drop rate alert fired",
+            "stage": "detection"
+          },
+          {
+            "time": "14:15Z",
+            "event": "Rebalance completed, all partitions assigned",
+            "stage": "recovery"
+          },
+          {
+            "time": "15:00Z",
+            "event": "Gap confirmed, sample buffer added for future events",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "Kafka partition rebalancing during horizontal scaling left partitions temporarily unassigned, dropping incoming samples.",
+        "contributingFactors": [
+          "no sample buffering during rebalance",
+          "scaling event did not pre-verify partition assignment",
+          "rebalance window too wide for the ingestion rate"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Verified partition assignment after rebalance and added a sample buffer for future scaling events.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Scaling events must include partition assignment verification before marking healthy.",
+          "A buffering layer should hold samples during Kafka rebalance."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "backpressure",
+          "health_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-013",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Deploy Agent certificate expiry caused silent failures",
+  "status": "completed",
+  "createdAt": "2026-02-12T09:00:00Z",
+  "completedAt": "2026-02-12T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-013",
+    "sourcePath": "../source/syn-pm-013.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-013",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-013",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-1db9c98e18dced53",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "GridSync",
+        "product": "Deploy Agent",
+        "severity": "SEV-2",
+        "categories": [
+          "security",
+          "automation",
+          "time"
+        ],
+        "keywords": [
+          "certificate",
+          "tls",
+          "expiry",
+          "deploy",
+          "silent failure",
+          "security",
+          "automation",
+          "monitoring"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-02-10T00:00:00Z",
+        "endTime": "2026-02-10T03:00:00Z",
+        "publishedAt": "2026-02-12T09:00:00Z",
+        "durationHours": 3.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Deployments failed silently for three hours until certificates were reissued and agents restarted.",
+        "affectedSystems": [
+          "deploy-agent",
+          "control-plane",
+          "certificate-store"
+        ],
+        "affectedUsers": "All teams deploying during the window saw generic failures; no deployments succeeded.",
+        "riskTypes": [
+          "availability",
+          "security"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "00:00Z",
+            "event": "Deploy Agent certificates expired",
+            "stage": "trigger"
+          },
+          {
+            "time": "00:30Z",
+            "event": "First deployment failure reported by a team",
+            "stage": "detection"
+          },
+          {
+            "time": "01:00Z",
+            "event": "TLS error identified in agent logs",
+            "stage": "investigation"
+          },
+          {
+            "time": "01:30Z",
+            "event": "New certificates issued and distributed",
+            "stage": "mitigation"
+          },
+          {
+            "time": "03:00Z",
+            "event": "All agents restarted and deployments resumed",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "certificate_expiry",
+        "rootCause": "Deploy Agent TLS certificates expired without alerting because they were not tracked in a certificate inventory.",
+        "contributingFactors": [
+          "no certificate expiry monitoring",
+          "agent error path returned generic failure",
+          "one-year certificate validity with no renewal automation"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reissued certificates, restarted all agents, and added certificate expiry monitoring with thirty-day advance alerts.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "All TLS certificates must be tracked in a certificate inventory with expiry alerting.",
+          "Agent error paths must surface actionable error codes, not generic failures."
+        ],
+        "recommendedControls": [
+          "cert_rotation_automation",
+          "alerting_threshold",
+          "health_check",
+          "synthetic_monitoring"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

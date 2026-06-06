@@ -1,0 +1,171 @@
+{
+  "id": "flow-syn-pm-030",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "GPS coordinate parsing rejected valid EU formats",
+  "status": "completed",
+  "createdAt": "2025-10-09T09:00:00Z",
+  "completedAt": "2025-10-09T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-030",
+    "sourcePath": "../source/syn-pm-030.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-030",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-030",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-df268940b1b8ee81",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Tideline Logistics",
+        "product": null,
+        "severity": "SEV-3",
+        "categories": [
+          "config-change"
+        ],
+        "keywords": [
+          "gps",
+          "coordinate",
+          "parsing",
+          "format",
+          "eu",
+          "tracking",
+          "locale",
+          "api"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-10-08T07:00:00Z",
+        "endTime": "2025-10-08T07:20:00Z",
+        "publishedAt": "2025-10-09T09:00:00Z",
+        "durationHours": 0.33,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "EU fleet vehicles had tracking gaps for twenty minutes due to coordinate format rejection.",
+        "affectedSystems": [
+          "tracking-api",
+          "gps-parser"
+        ],
+        "affectedUsers": "EU fleet operators saw missing position updates for affected vehicles.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "07:00Z",
+            "event": "New GPS device firmware submitted comma-decimal coordinates",
+            "stage": "trigger"
+          },
+          {
+            "time": "07:05Z",
+            "event": "Tracking API parse error rate spiked for EU devices",
+            "stage": "detection"
+          },
+          {
+            "time": "07:10Z",
+            "event": "Coordinate parser updated to accept comma notation",
+            "stage": "mitigation"
+          },
+          {
+            "time": "07:20Z",
+            "event": "Parse error rate returned to zero",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The GPS coordinate parser only accepted period decimal separators, rejecting valid comma-separated EU format.",
+        "contributingFactors": [
+          "no locale-aware parsing",
+          "test fixtures only used US format",
+          "device firmware update changed output format"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Updated the parser to accept both comma and period separators and added format-diverse test fixtures.",
+        "responseSummary": null,
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Input parsers must handle locale-specific formatting.",
+          "Test fixtures should cover international format variations."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "schema_validation"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.96,
+        "missingFields": [
+          "Product"
+        ],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

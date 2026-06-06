@@ -1,0 +1,170 @@
+{
+  "id": "flow-syn-pm-045",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-045)",
+  "status": "completed",
+  "createdAt": "2026-02-17T09:00:00Z",
+  "completedAt": "2026-02-17T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-045",
+    "sourcePath": "../source/syn-pm-045.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-045",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-045",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-133c4834dfed90cd",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Patchwork CMS",
+        "product": "Media Pipeline",
+        "severity": "unknown",
+        "categories": [
+          "automation",
+          "cascading-failure"
+        ],
+        "keywords": [],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-02-14T08:00:00Z",
+        "endTime": "2026-02-14T16:00:00Z",
+        "publishedAt": "2026-02-17T09:00:00Z",
+        "durationHours": 8.0,
+        "timingConfidence": "partial"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Media processing backlogged for all customers due to an unthrottled bulk upload.",
+        "affectedSystems": [
+          "media-pipeline",
+          "worker-pool",
+          "upload-endpoint"
+        ],
+        "affectedUsers": "All customers experienced delayed media processing for approximately eight hours.",
+        "riskTypes": [
+          "availability",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "08:00Z",
+            "event": "Bulk upload of several thousand images started",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:30Z",
+            "event": "Media processing backlog alert fired",
+            "stage": "detection"
+          },
+          {
+            "time": "09:00Z",
+            "event": "Per-tenant rate limit applied",
+            "stage": "mitigation"
+          },
+          {
+            "time": "16:00Z",
+            "event": "Backlog cleared, processing times normalized",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "load_spike",
+        "rootCause": "No per-tenant rate limit on media uploads allowed a single customer to consume the entire processing capacity.",
+        "contributingFactors": [
+          "no per-tenant rate limit",
+          "worker pool undersized for burst",
+          "backlog not isolated per tenant"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Applied per-tenant rate limits and increased worker pool capacity.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Per-tenant rate limits are mandatory for shared processing pipelines.",
+          "Worker pools should be sized for burst capacity or have auto-scaling."
+        ],
+        "recommendedControls": [
+          "rate_limits",
+          "blast_radius_reduction",
+          "capacity_planning",
+          "backpressure"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.68,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Keywords"
+        ],
+        "warnings": [
+          "Sparse metadata."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

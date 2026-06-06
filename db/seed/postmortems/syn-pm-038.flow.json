@@ -1,0 +1,166 @@
+{
+  "id": "flow-syn-pm-038",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Untitled incident review (syn-pm-038)",
+  "status": "completed",
+  "createdAt": "2026-03-24T09:00:00Z",
+  "completedAt": "2026-03-24T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-038",
+    "sourcePath": "../source/syn-pm-038.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-038",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-038",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-cecb5c4661a8ff8f",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Canopy Metrics",
+        "product": "Alert Engine",
+        "severity": "SEV-3",
+        "categories": [],
+        "keywords": [],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-03-22T03:00:00Z",
+        "endTime": "2026-03-22T03:30:00Z",
+        "publishedAt": "2026-03-24T09:00:00Z",
+        "durationHours": 0.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "False positive alerts for thirty minutes after maintenance reset thresholds to defaults.",
+        "affectedSystems": [
+          "alert-engine",
+          "threshold-store"
+        ],
+        "affectedUsers": "On-call engineers received spurious pages.",
+        "riskTypes": [
+          "configuration",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "03:00Z",
+            "event": "Maintenance reset alert thresholds to defaults",
+            "stage": "trigger"
+          },
+          {
+            "time": "03:02Z",
+            "event": "False positive alerts fired",
+            "stage": "detection"
+          },
+          {
+            "time": "03:15Z",
+            "event": "Custom thresholds restored from backup",
+            "stage": "mitigation"
+          },
+          {
+            "time": "03:30Z",
+            "event": "Alert behavior verified normal",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "maintenance_event",
+        "rootCause": "Maintenance operation reset custom alert thresholds to factory defaults.",
+        "contributingFactors": [
+          "maintenance script did not preserve custom thresholds",
+          "no threshold backup before maintenance",
+          "no threshold drift detection"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Restored custom thresholds from backup and added threshold backup to the maintenance checklist.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Maintenance scripts must preserve custom configuration.",
+          "Alert threshold stores should be backed up before maintenance."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "rollback",
+          "runbook"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.72,
+        "missingFields": [
+          "Title",
+          "Summary",
+          "Categories",
+          "Keywords"
+        ],
+        "warnings": [
+          "Sparse metadata."
+        ],
+        "needsReview": true
+      }
+    }
+  ]
+}

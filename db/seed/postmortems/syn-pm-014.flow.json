@@ -1,0 +1,171 @@
+{
+  "id": "flow-syn-pm-014",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Build queue starvation from runaway matrix jobs",
+  "status": "completed",
+  "createdAt": "2026-04-24T09:00:00Z",
+  "completedAt": "2026-04-24T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-014",
+    "sourcePath": "../source/syn-pm-014.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-014",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-014",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-318bd8f8130c52f2",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "GridSync",
+        "product": "Build Pipeline",
+        "severity": "SEV-3",
+        "categories": [
+          "automation",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "matrix build",
+          "queue",
+          "starvation",
+          "concurrency",
+          "capacity",
+          "automation",
+          "pipeline",
+          "limits"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-04-22T13:00:00Z",
+        "endTime": "2026-04-22T13:45:00Z",
+        "publishedAt": "2026-04-24T09:00:00Z",
+        "durationHours": 0.75,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Build queue starved for forty-five minutes while a runaway matrix consumed all capacity.",
+        "affectedSystems": [
+          "build-pipeline",
+          "build-queue",
+          "build-agents"
+        ],
+        "affectedUsers": "All other teams' builds were delayed until the runaway matrix was cancelled.",
+        "riskTypes": [
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "13:00Z",
+            "event": "Matrix build submitted with 4000+ job cross-product",
+            "stage": "trigger"
+          },
+          {
+            "time": "13:05Z",
+            "event": "Build queue depth alert fired",
+            "stage": "detection"
+          },
+          {
+            "time": "13:15Z",
+            "event": "Runaway matrix identified and cancelled",
+            "stage": "mitigation"
+          },
+          {
+            "time": "13:45Z",
+            "event": "Queue depth returned to normal",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "automation_error",
+        "rootCause": "No per-project concurrency limit or matrix size guard existed to prevent a single build from consuming the entire queue.",
+        "contributingFactors": [
+          "no matrix size validation",
+          "no per-project concurrency cap",
+          "user error in matrix parameter configuration"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Cancelled the runaway matrix, added per-project concurrency caps, and implemented matrix size guard.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Build systems need per-project concurrency limits.",
+          "Matrix configurations exceeding a threshold should require explicit approval."
+        ],
+        "recommendedControls": [
+          "rate_limits",
+          "blast_radius_reduction",
+          "preflight_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

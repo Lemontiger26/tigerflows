@@ -1,0 +1,202 @@
+{
+  "id": "flow-syn-pm-002",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Billing engine double-charge after schema migration",
+  "status": "completed",
+  "createdAt": "2025-08-28T14:00:00Z",
+  "completedAt": "2025-08-28T14:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-002",
+    "sourcePath": "../source/syn-pm-002.json",
+    "sourceShape": "rich_article",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-002",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-002",
+        "archiveUrl": "",
+        "sourceShape": "rich_article",
+        "payloadHash": "sha256-a3ac141873874dcc",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Paperkite Cloud",
+        "product": "Billing Engine",
+        "severity": "SEV-0",
+        "categories": [
+          "database",
+          "deployment",
+          "config-change"
+        ],
+        "keywords": [
+          "billing",
+          "schema migration",
+          "duplicate",
+          "charge",
+          "database",
+          "ledger",
+          "deployment",
+          "revenue"
+        ],
+        "sourceQuality": "structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-08-22T02:00:00Z",
+        "endTime": "2025-08-24T02:00:00Z",
+        "publishedAt": "2025-08-28T14:00:00Z",
+        "durationHours": 48.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Customers with mixed billing line items were charged twice. Direct revenue and trust impact.",
+        "affectedSystems": [
+          "billing-engine",
+          "charge-ledger",
+          "payment-processor"
+        ],
+        "affectedUsers": "Approximately 3,400 subscriptions were double-charged; all required manual credit.",
+        "riskTypes": [
+          "data_integrity",
+          "compliance",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "2025-08-22T02:00Z",
+            "event": "Schema migration started during maintenance window",
+            "stage": "trigger"
+          },
+          {
+            "time": "2025-08-22T02:18Z",
+            "event": "Migration completed without errors",
+            "stage": "trigger"
+          },
+          {
+            "time": "2025-08-22T06:00Z",
+            "event": "Nightly billing run processed duplicate rows",
+            "stage": "trigger"
+          },
+          {
+            "time": "2025-08-22T09:30Z",
+            "event": "Support ticket volume spiked with double-charge reports",
+            "stage": "detection"
+          },
+          {
+            "time": "2025-08-22T10:15Z",
+            "event": "Billing runs halted globally",
+            "stage": "mitigation"
+          },
+          {
+            "time": "2025-08-22T14:00Z",
+            "event": "Duplicate rows identified and reversal script prepared",
+            "stage": "investigation"
+          },
+          {
+            "time": "2025-08-23T08:00Z",
+            "event": "Credits issued to all affected accounts",
+            "stage": "recovery"
+          },
+          {
+            "time": "2025-08-23T12:00Z",
+            "event": "Customer notification email sent",
+            "stage": "communication"
+          },
+          {
+            "time": "2025-08-24T02:00Z",
+            "event": "Corrected migration validated and applied",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "schema_migration",
+        "rootCause": "A JOIN condition in the migration script produced duplicate ledger rows for subscriptions with both monthly and usage-based line items.",
+        "contributingFactors": [
+          "migration tested only with simple subscription shapes",
+          "no row-count validation after migration",
+          "billing run lacked idempotency guard"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Halted billing runs, identified duplicates via ledger audit query, reversed charges, issued credits, and sent customer notification.",
+        "responseSummary": "Initial detection was slow because support tickets were not correlated with the migration until mid-morning.",
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Schema migrations must be tested with production-representative data shapes, not simplified fixtures.",
+          "Billing runs need idempotency guards that reject duplicate charge rows.",
+          "Post-migration row-count validation should be mandatory."
+        ],
+        "recommendedControls": [
+          "schema_validation",
+          "dry_run",
+          "rollback",
+          "preflight_check",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.97,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

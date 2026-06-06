@@ -1,0 +1,172 @@
+{
+  "id": "flow-syn-pm-017",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Scheduling double-booked slots after DST transition",
+  "status": "completed",
+  "createdAt": "2026-03-11T09:00:00Z",
+  "completedAt": "2026-03-11T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-017",
+    "sourcePath": "../source/syn-pm-017.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-017",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-017",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-c0b0810966e16a78",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Cerulean Health",
+        "product": "Scheduling Service",
+        "severity": "SEV-3",
+        "categories": [
+          "time",
+          "automation"
+        ],
+        "keywords": [
+          "dst",
+          "scheduling",
+          "double booking",
+          "timezone",
+          "appointment",
+          "time",
+          "automation",
+          "slot"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-03-09T02:00:00Z",
+        "endTime": "2026-03-09T02:30:00Z",
+        "publishedAt": "2026-03-11T09:00:00Z",
+        "durationHours": 0.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Phantom appointment slots created during DST transition caused double bookings for the 3:00 AM hour.",
+        "affectedSystems": [
+          "scheduling-service",
+          "slot-generator",
+          "calendar-api"
+        ],
+        "affectedUsers": "A small number of early-morning appointments were double-booked.",
+        "riskTypes": [
+          "data_integrity",
+          "customer_comms"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "02:00Z",
+            "event": "Slot generator created phantom slots for non-existent DST hour",
+            "stage": "trigger"
+          },
+          {
+            "time": "02:10Z",
+            "event": "Double booking detected by calendar validation",
+            "stage": "detection"
+          },
+          {
+            "time": "02:20Z",
+            "event": "Phantom slots cleared",
+            "stage": "mitigation"
+          },
+          {
+            "time": "02:30Z",
+            "event": "Affected patients notified of rescheduled slots",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "clock_skew",
+        "rootCause": "The slot generator used naive local time arithmetic without DST awareness, creating slots for a non-existent hour.",
+        "contributingFactors": [
+          "naive datetime arithmetic",
+          "no DST transition test",
+          "slot validation ran after generation, not during"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Cleared phantom slots, notified affected patients, and updated slot generator to use timezone-aware arithmetic.",
+        "responseSummary": null,
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Scheduling systems must use timezone-aware date arithmetic.",
+          "DST transitions should be tested annually before the transition date."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "schema_validation",
+          "synthetic_monitoring"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "id": "flow-syn-pm-011",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Build image pull failures after registry mirror rotation",
+  "status": "completed",
+  "createdAt": "2025-08-08T09:00:00Z",
+  "completedAt": "2025-08-08T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-011",
+    "sourcePath": "../source/syn-pm-011.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-011",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-011",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-1d460bc0fd1668fd",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "GridSync",
+        "product": "Build Pipeline",
+        "severity": "SEV-2",
+        "categories": [
+          "config-change",
+          "cloud",
+          "automation"
+        ],
+        "keywords": [
+          "container",
+          "registry",
+          "mirror",
+          "image pull",
+          "build",
+          "configuration",
+          "docker",
+          "automation"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-08-06T09:00:00Z",
+        "endTime": "2025-08-06T10:00:00Z",
+        "publishedAt": "2025-08-08T09:00:00Z",
+        "durationHours": 1.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Builds failed on agents with stale registry mirror endpoints for one hour.",
+        "affectedSystems": [
+          "build-pipeline",
+          "container-registry",
+          "build-agents"
+        ],
+        "affectedUsers": "Developers on affected agent pools saw build failures until the daemon config was refreshed.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "09:00Z",
+            "event": "Registry mirror rotation completed",
+            "stage": "trigger"
+          },
+          {
+            "time": "09:08Z",
+            "event": "Build failure rate spiked on subset of agents",
+            "stage": "detection"
+          },
+          {
+            "time": "09:20Z",
+            "event": "Stale daemon config identified on affected agents",
+            "stage": "investigation"
+          },
+          {
+            "time": "09:35Z",
+            "event": "Daemon config reload forced on all agents",
+            "stage": "mitigation"
+          },
+          {
+            "time": "10:00Z",
+            "event": "Build success rate returned to baseline",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "Docker daemon configs on a subset of build agents cached the old mirror endpoint and were not refreshed by the config management push.",
+        "contributingFactors": [
+          "daemon config not reloaded after push",
+          "no post-rotation image pull health check",
+          "agent pool heterogeneity"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Forced daemon config reload on all agents and added post-rotation health check.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Registry mirror rotations must include a post-rotation image pull check from every agent pool.",
+          "Config pushes to build agents must verify daemon reload."
+        ],
+        "recommendedControls": [
+          "health_check",
+          "preflight_check",
+          "canary"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

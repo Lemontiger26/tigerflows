@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-012",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Artifact GC deleted live build artifacts",
+  "status": "completed",
+  "createdAt": "2025-11-25T10:00:00Z",
+  "completedAt": "2025-11-25T10:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-012",
+    "sourcePath": "../source/syn-pm-012.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-012",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-012",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-197e2ce62b8bb1c0",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "GridSync",
+        "product": "Artifact Registry",
+        "severity": "SEV-1",
+        "categories": [
+          "automation",
+          "database"
+        ],
+        "keywords": [
+          "artifact",
+          "garbage collection",
+          "retention",
+          "build",
+          "deletion",
+          "backup",
+          "automation",
+          "registry"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-11-20T03:00:00Z",
+        "endTime": "2025-11-21T03:00:00Z",
+        "publishedAt": "2025-11-25T10:00:00Z",
+        "durationHours": 24.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Live build artifacts deleted by GC, causing build failures for long-running matrix builds until restored from backup.",
+        "affectedSystems": [
+          "artifact-registry",
+          "garbage-collector",
+          "build-pipeline",
+          "backup-tier"
+        ],
+        "affectedUsers": "Teams with long-running matrix builds saw failures and had to wait for artifact restoration.",
+        "riskTypes": [
+          "data_loss",
+          "availability"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "2025-11-20T03:00Z",
+            "event": "GC job ran with shortened retention window",
+            "stage": "trigger"
+          },
+          {
+            "time": "2025-11-20T06:00Z",
+            "event": "Matrix builds failed with missing artifact errors",
+            "stage": "detection"
+          },
+          {
+            "time": "2025-11-20T07:00Z",
+            "event": "GC policy reverted to seven-day window",
+            "stage": "mitigation"
+          },
+          {
+            "time": "2025-11-20T08:00Z",
+            "event": "Artifact restore from backup tier started",
+            "stage": "recovery"
+          },
+          {
+            "time": "2025-11-21T03:00Z",
+            "event": "All artifacts restored, builds green",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The shortened retention window did not account for artifacts referenced by builds running longer than the new window.",
+        "contributingFactors": [
+          "GC policy lacked active-build exclusion",
+          "retention change not reviewed against build queue depth",
+          "backup restore was slow"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reverted GC policy, restored artifacts from backup tier, and added active-build artifact exclusion to GC.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "GC policies must exclude artifacts referenced by active builds.",
+          "Retention policy changes need review against current build queue depth and duration."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "dry_run",
+          "schema_validation",
+          "rollback"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

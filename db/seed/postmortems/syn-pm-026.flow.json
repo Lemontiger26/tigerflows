@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-026",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Warehouse disk full from temp table growth",
+  "status": "completed",
+  "createdAt": "2026-04-05T09:00:00Z",
+  "completedAt": "2026-04-05T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-026",
+    "sourcePath": "../source/syn-pm-026.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-026",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-026",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-f1eaf30dc9cff6fb",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Fenwick Analytics",
+        "product": "Data Warehouse",
+        "severity": "SEV-1",
+        "categories": [
+          "hardware",
+          "database",
+          "automation"
+        ],
+        "keywords": [
+          "disk full",
+          "temp table",
+          "warehouse",
+          "storage",
+          "cleanup",
+          "database",
+          "hardware",
+          "monitoring"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": null,
+        "endTime": null,
+        "publishedAt": "2026-04-05T09:00:00Z",
+        "durationHours": null,
+        "timingConfidence": "missing"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Data Warehouse disk full from orphaned temp tables. All writes blocked until cleanup.",
+        "affectedSystems": [
+          "data-warehouse",
+          "temp-table-reaper",
+          "etl-pipeline"
+        ],
+        "affectedUsers": "All ETL loads and write operations blocked; dashboards stale until resolved.",
+        "riskTypes": [
+          "availability",
+          "data_integrity"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": null,
+            "event": "Temp table reaper config error left orphaned tables",
+            "stage": "trigger"
+          },
+          {
+            "time": null,
+            "event": "Disk utilization crossed 100%, writes failed",
+            "stage": "detection"
+          },
+          {
+            "time": null,
+            "event": "Orphaned temp tables cleared",
+            "stage": "mitigation"
+          },
+          {
+            "time": null,
+            "event": "Reaper config fixed, disk alert added at 80%",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The temp table reaper was misconfigured and did not clean up temporary tables created by long-running queries.",
+        "contributingFactors": [
+          "no disk usage alerting",
+          "reaper config not validated after change",
+          "temp tables not bounded by quota"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Cleared orphaned temp tables, fixed reaper configuration, and added disk usage alerting at eighty percent.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Disk usage alerting is mandatory for database hosts.",
+          "Temp table cleanup configuration changes must be validated."
+        ],
+        "recommendedControls": [
+          "alerting_threshold",
+          "health_check",
+          "capacity_planning",
+          "preflight_check"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.85,
+        "missingFields": [
+          "StartTime",
+          "EndTime"
+        ],
+        "warnings": [
+          "Exact timing not recorded; incident discovered after gradual disk fill."
+        ],
+        "needsReview": false
+      }
+    }
+  ]
+}

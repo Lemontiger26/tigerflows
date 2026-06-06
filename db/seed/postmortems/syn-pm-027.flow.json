@@ -1,0 +1,178 @@
+{
+  "id": "flow-syn-pm-027",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Remediation loop executed without circuit breaker",
+  "status": "completed",
+  "createdAt": "2025-07-31T09:00:00Z",
+  "completedAt": "2025-07-31T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-027",
+    "sourcePath": "../source/syn-pm-027.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-027",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-027",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-8aaccfd6700f12be",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Runbook.io",
+        "product": "Workflow Engine",
+        "severity": "SEV-1",
+        "categories": [
+          "automation",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "remediation",
+          "loop",
+          "circuit breaker",
+          "automation",
+          "restart",
+          "workflow",
+          "health check",
+          "retry"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-07-28T22:00:00Z",
+        "endTime": "2025-07-29T00:00:00Z",
+        "publishedAt": "2025-07-31T09:00:00Z",
+        "durationHours": 2.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Remediation loop consumed compute resources and generated thousands of restart events for two hours.",
+        "affectedSystems": [
+          "workflow-engine",
+          "target-service",
+          "compute-pool"
+        ],
+        "affectedUsers": "The target service was repeatedly restarted, causing intermittent availability for its consumers.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "22:00Z",
+            "event": "Health check failure triggered remediation workflow",
+            "stage": "trigger"
+          },
+          {
+            "time": "22:02Z",
+            "event": "Service restarted but health check failed again",
+            "stage": "trigger"
+          },
+          {
+            "time": "22:30Z",
+            "event": "Ops noticed high restart event volume",
+            "stage": "detection"
+          },
+          {
+            "time": "23:00Z",
+            "event": "Workflow manually stopped",
+            "stage": "mitigation"
+          },
+          {
+            "time": "2025-07-29T00:00Z",
+            "event": "Underlying health check issue resolved",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "automation_error",
+        "rootCause": "The remediation workflow had no circuit breaker or retry limit, causing an unbounded restart loop.",
+        "contributingFactors": [
+          "no max retry on remediation actions",
+          "no escalation path after repeated failure",
+          "restart action did not address root cause"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Manually stopped the workflow and added a circuit breaker with a three-retry maximum.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "All automated remediation workflows must have circuit breakers.",
+          "Repeated remediation failure must escalate to a human operator."
+        ],
+        "recommendedControls": [
+          "circuit_breaker",
+          "rate_limits",
+          "alerting_threshold",
+          "runbook"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.93,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

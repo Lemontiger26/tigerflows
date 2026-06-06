@@ -1,0 +1,179 @@
+{
+  "id": "flow-syn-pm-003",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Checkout rate limiter misconfigured after feature flag rollout",
+  "status": "completed",
+  "createdAt": "2025-11-06T09:00:00Z",
+  "completedAt": "2025-11-06T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-003",
+    "sourcePath": "../source/syn-pm-003.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-003",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-003",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-c147c39041aea31c",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Paperkite Cloud",
+        "product": "Checkout API",
+        "severity": "SEV-2",
+        "categories": [
+          "config-change",
+          "automation"
+        ],
+        "keywords": [
+          "rate limiter",
+          "feature flag",
+          "checkout",
+          "throttle",
+          "configuration",
+          "api",
+          "429",
+          "rollback"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-11-03T14:10:00Z",
+        "endTime": "2025-11-03T16:10:00Z",
+        "publishedAt": "2025-11-06T09:00:00Z",
+        "durationHours": 2.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Checkout API throttled legitimate requests at testing-level thresholds for twenty minutes.",
+        "affectedSystems": [
+          "checkout-api",
+          "rate-limiter",
+          "feature-flag-service"
+        ],
+        "affectedUsers": "Checkout conversion dropped during the throttle window; rejected requests were replayed without data loss.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "14:10Z",
+            "event": "Feature flag enabled globally for new rate limiter",
+            "stage": "trigger"
+          },
+          {
+            "time": "14:14Z",
+            "event": "429 rejection rate spiked on checkout endpoint",
+            "stage": "detection"
+          },
+          {
+            "time": "14:30Z",
+            "event": "On-call disabled the feature flag",
+            "stage": "mitigation"
+          },
+          {
+            "time": "15:00Z",
+            "event": "Rejected requests replayed from durable queue",
+            "stage": "recovery"
+          },
+          {
+            "time": "16:10Z",
+            "event": "Checkout conversion rates confirmed normal",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "feature_flag_rollout",
+        "rootCause": "The rate limiter was rolled out with internal testing thresholds that were roughly ten percent of production capacity.",
+        "contributingFactors": [
+          "rollout checklist missing threshold review",
+          "no shadow mode for rate limiter",
+          "testing thresholds committed to production config"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Disabled the feature flag, replayed rejected requests from the durable queue, and confirmed no orders were lost.",
+        "responseSummary": "Detection and rollback were fast; the on-call engineer recognized the pattern within four minutes.",
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Feature flag rollout checklists must include threshold and parameter review.",
+          "Rate limiters should support a shadow mode for pre-production validation."
+        ],
+        "recommendedControls": [
+          "canary",
+          "dry_run",
+          "rollback",
+          "preflight_check",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.95,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

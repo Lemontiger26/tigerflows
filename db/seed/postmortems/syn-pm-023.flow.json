@@ -1,0 +1,177 @@
+{
+  "id": "flow-syn-pm-023",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Query engine returned wrong aggregates after column migration",
+  "status": "completed",
+  "createdAt": "2025-11-13T09:00:00Z",
+  "completedAt": "2025-11-13T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-023",
+    "sourcePath": "../source/syn-pm-023.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-023",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-023",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-0abac21a45ee6144",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Fenwick Analytics",
+        "product": "Query Engine",
+        "severity": "SEV-1",
+        "categories": [
+          "database",
+          "config-change"
+        ],
+        "keywords": [
+          "query",
+          "aggregation",
+          "column migration",
+          "decimal",
+          "integer",
+          "truncation",
+          "database",
+          "analytics"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-11-10T09:00:00Z",
+        "endTime": "2025-11-10T15:00:00Z",
+        "publishedAt": "2025-11-13T09:00:00Z",
+        "durationHours": 6.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Aggregate queries returned truncated results after column type migration. Dashboard data was subtly incorrect.",
+        "affectedSystems": [
+          "query-engine",
+          "aggregation-layer",
+          "materialized-views"
+        ],
+        "affectedUsers": "Data analysts and dashboard consumers received subtly wrong aggregate values.",
+        "riskTypes": [
+          "data_integrity",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "09:00Z",
+            "event": "Column type migration applied (integer to decimal)",
+            "stage": "trigger"
+          },
+          {
+            "time": "11:00Z",
+            "event": "Data analyst noticed discrepancy in quarterly report",
+            "stage": "detection"
+          },
+          {
+            "time": "11:30Z",
+            "event": "Truncation in aggregation functions identified",
+            "stage": "investigation"
+          },
+          {
+            "time": "12:00Z",
+            "event": "Aggregation functions updated for decimal type",
+            "stage": "mitigation"
+          },
+          {
+            "time": "15:00Z",
+            "event": "Materialized views recomputed and verified",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "schema_migration",
+        "rootCause": "Integer-optimized aggregation functions truncated decimal values after a column type migration.",
+        "contributingFactors": [
+          "aggregation functions not updated with migration",
+          "no type-aware aggregation tests",
+          "subtle error not caught by automated checks"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Updated aggregation functions to handle decimal types and recomputed all affected materialized views.",
+        "responseSummary": null,
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Column type migrations must include an audit of all dependent functions.",
+          "Aggregation tests should verify type-correct results across integer and decimal inputs."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "schema_validation",
+          "dry_run"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

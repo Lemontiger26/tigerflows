@@ -1,0 +1,177 @@
+{
+  "id": "flow-syn-pm-028",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Alert dedup window suppressed real incidents",
+  "status": "completed",
+  "createdAt": "2025-12-15T09:00:00Z",
+  "completedAt": "2025-12-15T09:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-028",
+    "sourcePath": "../source/syn-pm-028.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-028",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-028",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-58619d10b4c3fdc1",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Runbook.io",
+        "product": "Alert Router",
+        "severity": "SEV-2",
+        "categories": [
+          "config-change",
+          "automation"
+        ],
+        "keywords": [
+          "alert",
+          "deduplication",
+          "suppression",
+          "routing",
+          "monitoring",
+          "configuration",
+          "automation",
+          "noise"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2025-12-12T10:00:00Z",
+        "endTime": "2025-12-12T16:00:00Z",
+        "publishedAt": "2025-12-15T09:00:00Z",
+        "durationHours": 6.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "A legitimate alert was suppressed by overly aggressive deduplication, delaying incident response by six hours.",
+        "affectedSystems": [
+          "alert-router",
+          "dedup-engine",
+          "incident-response"
+        ],
+        "affectedUsers": "The on-call team did not receive the alert; the affected service's users experienced degraded service.",
+        "riskTypes": [
+          "availability",
+          "configuration"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "10:00Z",
+            "event": "New incident triggered alert with signature similar to resolved alert",
+            "stage": "trigger"
+          },
+          {
+            "time": "10:01Z",
+            "event": "Alert Router deduplicated the alert as a duplicate",
+            "stage": "trigger"
+          },
+          {
+            "time": "16:00Z",
+            "event": "User reported degraded service, on-call investigated",
+            "stage": "detection"
+          },
+          {
+            "time": "16:15Z",
+            "event": "Suppressed alert identified, incident acknowledged",
+            "stage": "investigation"
+          },
+          {
+            "time": "16:30Z",
+            "event": "Dedup window reduced and resolved-state check added",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "config_change",
+        "rootCause": "The deduplication window was increased to two hours without a resolved-state check, suppressing a new incident as a duplicate.",
+        "contributingFactors": [
+          "dedup window too long",
+          "no resolved-state awareness in dedup logic",
+          "alert signature overlap between distinct incidents"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Reduced the dedup window, added resolved-state check, and implemented minimum distinct alert count before dedup.",
+        "responseSummary": null,
+        "communicationQuality": "weak",
+        "customerVisibleUpdates": false,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Alert deduplication must be aware of resolved state.",
+          "Dedup window increases should be tested against historical alert data."
+        ],
+        "recommendedControls": [
+          "preflight_check",
+          "dry_run",
+          "alerting_threshold"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

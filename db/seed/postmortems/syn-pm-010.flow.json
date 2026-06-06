@@ -1,0 +1,178 @@
+{
+  "id": "flow-syn-pm-010",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Transaction Router pool exhaustion under holiday load",
+  "status": "completed",
+  "createdAt": "2026-03-18T10:00:00Z",
+  "completedAt": "2026-03-18T10:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-010",
+    "sourcePath": "../source/syn-pm-010.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-010",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-010",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-97a95627ab467ad0",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "NovaPay",
+        "product": "Transaction Router",
+        "severity": "SEV-1",
+        "categories": [
+          "cloud",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "connection pool",
+          "capacity",
+          "holiday",
+          "timeout",
+          "transaction",
+          "load",
+          "scaling",
+          "cascading failure"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-03-14T11:00:00Z",
+        "endTime": "2026-03-14T16:00:00Z",
+        "publishedAt": "2026-03-18T10:00:00Z",
+        "durationHours": 5.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Transaction timeouts and failures during holiday traffic spike until pool was scaled and overflow routed.",
+        "affectedSystems": [
+          "transaction-router",
+          "connection-pool",
+          "downstream-services"
+        ],
+        "affectedUsers": "Customers experienced failed or delayed transactions during peak holiday hours.",
+        "riskTypes": [
+          "availability",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "11:00Z",
+            "event": "Holiday traffic exceeded connection pool ceiling",
+            "stage": "trigger"
+          },
+          {
+            "time": "11:08Z",
+            "event": "Transaction timeout alerts fired",
+            "stage": "detection"
+          },
+          {
+            "time": "11:25Z",
+            "event": "Pool limits increased and connection shedding enabled",
+            "stage": "mitigation"
+          },
+          {
+            "time": "12:00Z",
+            "event": "Overflow routed to standby region",
+            "stage": "mitigation"
+          },
+          {
+            "time": "16:00Z",
+            "event": "Queued transactions drained, latency normalized",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "load_spike",
+        "rootCause": "Connection pool was sized for typical peak traffic without holiday surge multipliers.",
+        "contributingFactors": [
+          "no dynamic pool scaling",
+          "capacity planning excluded holiday multipliers",
+          "standby region activation was manual"
+        ],
+        "preventability": "partially_preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Increased pool limits, enabled connection shedding for low-priority traffic, and routed overflow to standby region.",
+        "responseSummary": "Detection was fast but full recovery took five hours due to queued transaction backlog.",
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Capacity planning must include holiday and seasonal surge multipliers.",
+          "Connection pools should support dynamic scaling with automatic overflow routing."
+        ],
+        "recommendedControls": [
+          "capacity_planning",
+          "circuit_breaker",
+          "backpressure",
+          "blast_radius_reduction"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

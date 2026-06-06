@@ -1,0 +1,170 @@
+{
+  "id": "flow-syn-pm-005",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Object Store metadata indexer slow after maintenance window",
+  "status": "completed",
+  "createdAt": "2026-04-09T10:00:00Z",
+  "completedAt": "2026-04-09T10:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-005",
+    "sourcePath": "../source/syn-pm-005.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-005",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-005",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-60d28d7bc5c1c2c6",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Paperkite Cloud",
+        "product": "Object Store",
+        "severity": "SEV-3",
+        "categories": [
+          "cloud",
+          "database"
+        ],
+        "keywords": [
+          "object store",
+          "metadata",
+          "indexer",
+          "maintenance",
+          "compaction",
+          "listing",
+          "cloud",
+          "latency"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-04-08T05:00:00Z",
+        "endTime": "2026-04-08T06:30:00Z",
+        "publishedAt": "2026-04-09T10:00:00Z",
+        "durationHours": 1.5,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Object listing APIs returned stale results for approximately ninety minutes while the metadata indexer caught up.",
+        "affectedSystems": [
+          "object-store",
+          "metadata-indexer"
+        ],
+        "affectedUsers": "API consumers querying object listings saw stale results; uploads and downloads were unaffected.",
+        "riskTypes": [
+          "data_integrity",
+          "latency"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "05:00Z",
+            "event": "Maintenance window completed, indexer restarted",
+            "stage": "trigger"
+          },
+          {
+            "time": "05:10Z",
+            "event": "Indexer lag alert fired",
+            "stage": "detection"
+          },
+          {
+            "time": "05:18Z",
+            "event": "Compaction job paused to free IO",
+            "stage": "mitigation"
+          },
+          {
+            "time": "06:30Z",
+            "event": "Index fully caught up, listings current",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "maintenance_event",
+        "rootCause": "The metadata indexer competed for IO with a concurrent compaction job after maintenance restart.",
+        "contributingFactors": [
+          "compaction not deferred after maintenance",
+          "indexer restart did not pre-empt background jobs"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Paused compaction, let the indexer drain its backlog, and rescheduled compaction outside peak hours.",
+        "responseSummary": "Detected within ten minutes, resolved in under two hours. Improved playbooks from prior incidents.",
+        "communicationQuality": "strong",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": false
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Post-maintenance restart sequences should defer non-critical background jobs.",
+          "Indexer priority should pre-empt compaction after maintenance windows."
+        ],
+        "recommendedControls": [
+          "runbook",
+          "preflight_check",
+          "alerting_threshold"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.96,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}

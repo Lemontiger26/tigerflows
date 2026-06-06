@@ -1,0 +1,178 @@
+{
+  "id": "flow-syn-pm-004",
+  "kind": "tigerflows.syntheticFlow.v1",
+  "synthetic": true,
+  "templateSlug": "incident-postmortem-review",
+  "categorySlug": "reliability-incident-learning",
+  "title": "Identity Gateway token refresh race condition",
+  "status": "completed",
+  "createdAt": "2026-01-18T11:00:00Z",
+  "completedAt": "2026-01-18T11:00:00Z",
+  "sourceRef": {
+    "sourceId": "syn-pm-004",
+    "sourcePath": "../source/syn-pm-004.json",
+    "sourceShape": "compact_metadata",
+    "generatorVersion": "tigerflows-postmortem-gen-v1"
+  },
+  "steps": [
+    {
+      "order": 1,
+      "title": "Source intake",
+      "stepType": "agent",
+      "value": {
+        "sourceKind": "synthetic_postmortem",
+        "sourceId": "syn-pm-004",
+        "sourceUrl": "https://demo.tigerflows.local/reference/syn-pm-004",
+        "archiveUrl": "",
+        "sourceShape": "compact_metadata",
+        "payloadHash": "sha256-04f4447f1c9318b9",
+        "generatorVersion": "tigerflows-postmortem-gen-v1",
+        "generatedAt": "2026-06-06T15:00:00Z"
+      }
+    },
+    {
+      "order": 2,
+      "title": "Classify incident",
+      "stepType": "text",
+      "value": {
+        "company": "Paperkite Cloud",
+        "product": "Identity Gateway",
+        "severity": "SEV-1",
+        "categories": [
+          "auth",
+          "cascading-failure"
+        ],
+        "keywords": [
+          "token",
+          "refresh",
+          "race condition",
+          "auth",
+          "identity",
+          "session",
+          "concurrency",
+          "gateway"
+        ],
+        "sourceQuality": "semi_structured"
+      }
+    },
+    {
+      "order": 3,
+      "title": "Normalize timing",
+      "stepType": "date",
+      "value": {
+        "startTime": "2026-01-15T08:00:00Z",
+        "endTime": "2026-01-15T12:00:00Z",
+        "publishedAt": "2026-01-18T11:00:00Z",
+        "durationHours": 4.0,
+        "timingConfidence": "exact"
+      }
+    },
+    {
+      "order": 4,
+      "title": "Summarize impact",
+      "stepType": "text",
+      "value": {
+        "impactSummary": "Users with multiple sessions experienced repeated forced re-authentication due to concurrent token refresh invalidation.",
+        "affectedSystems": [
+          "identity-gateway",
+          "token-store",
+          "session-manager"
+        ],
+        "affectedUsers": "Users with multiple active tabs or devices were forced to re-authenticate repeatedly.",
+        "riskTypes": [
+          "availability",
+          "security"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "title": "Extract timeline",
+      "stepType": "text",
+      "value": {
+        "entries": [
+          {
+            "time": "08:00Z",
+            "event": "Optimized token refresh path deployed",
+            "stage": "trigger"
+          },
+          {
+            "time": "08:45Z",
+            "event": "Support reports of forced re-auth began arriving",
+            "stage": "detection"
+          },
+          {
+            "time": "09:10Z",
+            "event": "Race condition identified in refresh path",
+            "stage": "investigation"
+          },
+          {
+            "time": "09:30Z",
+            "event": "Refresh path rolled back to serialized implementation",
+            "stage": "mitigation"
+          },
+          {
+            "time": "12:00Z",
+            "event": "All affected sessions recovered without further re-auth",
+            "stage": "resolution"
+          }
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "title": "Identify root cause",
+      "stepType": "text",
+      "value": {
+        "triggerType": "deployment",
+        "rootCause": "The optimized compare-and-swap refresh path did not serialize concurrent requests for the same user, causing mutual invalidation.",
+        "contributingFactors": [
+          "missing concurrency tests for token refresh",
+          "compare-and-swap without user-level lock",
+          "gradual onset masked the deploy correlation"
+        ],
+        "preventability": "preventable"
+      }
+    },
+    {
+      "order": 7,
+      "title": "Response and communication",
+      "stepType": "text",
+      "value": {
+        "mitigation": "Rolled back to the previous serialized token refresh implementation and confirmed sessions recovered.",
+        "responseSummary": "Faster response than prior Paperkite incidents; race condition was identified within 25 minutes of first report.",
+        "communicationQuality": "adequate",
+        "customerVisibleUpdates": true,
+        "statusPageIssue": true
+      }
+    },
+    {
+      "order": 8,
+      "title": "Lessons learned",
+      "stepType": "text",
+      "value": {
+        "lessons": [
+          "Token refresh paths must be tested for concurrent multi-session scenarios.",
+          "Compare-and-swap on shared tokens requires user-level serialization."
+        ],
+        "recommendedControls": [
+          "canary",
+          "rollback",
+          "preflight_check",
+          "circuit_breaker"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "title": "Review quality",
+      "stepType": "agent",
+      "value": {
+        "extractionConfidence": 0.94,
+        "missingFields": [],
+        "warnings": [],
+        "needsReview": false
+      }
+    }
+  ]
+}
