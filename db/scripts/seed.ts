@@ -1,13 +1,86 @@
 /**
  * db:seed — wipes all tables, then inserts system templates/categories/flows
- * into the local libSQL database.
+ * into the local libSQL database and backfills libSQL vector embeddings.
  *
  * Usage: bun run db:seed
  */
 
-import { db, users, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
+import { client, db, users, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
 import { LOCAL_USER_ID, SYSTEM_USER_ID } from '../schema/shared';
 import { seedCategories, seedTemplates, seedFlows } from '../seed/builtin';
+import { embedMany } from './embed';
+
+type EmbeddingTable = 'categories' | 'tags' | 'templates' | 'template_steps' | 'flows' | 'flow_steps';
+
+type EmbeddingJob = {
+	table: EmbeddingTable;
+	id: string;
+	text: string;
+};
+
+function compactText(parts: Array<string | null | undefined>) {
+	return parts
+		.map((part) => part?.trim())
+		.filter(Boolean)
+		.join('\n');
+}
+
+function vectorParam(vec: number[]) {
+	return JSON.stringify(vec);
+}
+
+async function updateEmbedding(table: EmbeddingTable, id: string, vector: number[]) {
+	await client.execute({
+		sql: `UPDATE ${table} SET embeddings = vector32(?) WHERE id = ?`,
+		args: [vectorParam(vector), id]
+	});
+}
+
+async function backfillEmbeddings(jobs: EmbeddingJob[]) {
+	console.log('\nComputing embeddings (model: Xenova/bge-small-en-v1.5, 384d)...');
+	const vectors = await embedMany(jobs.map((job) => job.text));
+
+	console.log('Writing embeddings via libSQL vector32()...');
+	for (const [idx, job] of jobs.entries()) {
+		await updateEmbedding(job.table, job.id, vectors[idx]!);
+	}
+	console.log(`  ✓ ${jobs.length} vectors`);
+
+	return vectors[0]!;
+}
+
+async function verifyEmbeddings(expectedCount: number, probeVector: number[]) {
+	const tables: EmbeddingTable[] = ['categories', 'tags', 'templates', 'template_steps', 'flows', 'flow_steps'];
+	let storedCount = 0;
+
+	for (const table of tables) {
+		const result = await client.execute({
+			sql: `SELECT count(*) AS count FROM ${table} WHERE embeddings IS NOT NULL`
+		});
+		storedCount += Number(result.rows[0]?.count ?? 0);
+	}
+
+	if (storedCount !== expectedCount) {
+		throw new Error(`Expected ${expectedCount} stored embeddings, found ${storedCount}`);
+	}
+
+	const nearest = await client.execute({
+		sql: `
+			SELECT id, vector_distance_cos(embeddings, vector32(?)) AS distance
+			FROM categories
+			WHERE embeddings IS NOT NULL
+			ORDER BY distance
+			LIMIT 1
+		`,
+		args: [vectorParam(probeVector)]
+	});
+
+	if (!nearest.rows[0]) {
+		throw new Error('Embedding verification query returned no rows');
+	}
+
+	console.log(`  ✓ vector_distance_cos() smoke test nearest category: ${nearest.rows[0].id}`);
+}
 
 async function seed() {
 	// ── Wipe ────────────────────────────────────────────────────────────────────
@@ -23,6 +96,33 @@ async function seed() {
 
 	const allTplSteps = seedTemplates.flatMap((t) => t.steps);
 	const allFlowSteps = seedFlows.flatMap((f) => f.steps);
+	const embeddingJobs: EmbeddingJob[] = [
+		...seedCategories.map((category) => ({
+			table: 'categories' as const,
+			id: category.id,
+			text: compactText([category.name, category.description])
+		})),
+		...seedTemplates.map((template) => ({
+			table: 'templates' as const,
+			id: template.id,
+			text: compactText([template.name, template.description, template.tags.join(', ')])
+		})),
+		...allTplSteps.map((step) => ({
+			table: 'template_steps' as const,
+			id: step.id,
+			text: compactText([step.title, step.description, step.stepType])
+		})),
+		...seedFlows.map((flow) => ({
+			table: 'flows' as const,
+			id: flow.id,
+			text: compactText([flow.title, flow.status])
+		})),
+		...allFlowSteps.map((step) => ({
+			table: 'flow_steps' as const,
+			id: step.id,
+			text: compactText([step.title, step.description, step.comment, step.stepType])
+		}))
+	];
 
 	// ── Insert ───────────────────────────────────────────────────────────────────
 	console.log('Seeding database...');
@@ -73,6 +173,11 @@ async function seed() {
 			})
 			.returning({ id: tags.id });
 		tagIdByName.set(name, row.id);
+		embeddingJobs.push({
+			table: 'tags',
+			id: row.id,
+			text: name
+		});
 	}
 	console.log(`  ✓ ${allTagNames.length} tags`);
 
@@ -145,6 +250,9 @@ async function seed() {
 		}
 	}
 	console.log(`  ✓ ${seedFlows.length} flows (with ${allFlowSteps.length} steps)`);
+
+	const probeVector = await backfillEmbeddings(embeddingJobs);
+	await verifyEmbeddings(embeddingJobs.length, probeVector);
 
 	console.log('\n✓ Seed complete');
 

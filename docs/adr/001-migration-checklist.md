@@ -74,20 +74,20 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 6. Seed & CLI Scripts
 
-- [ ] `db/scripts/seed.ts`: rewrite as the libSQL seed/import path. Drizzle insert API remains useful for ordinary fields. Convert any `Date` objects to ISO strings.
+- [x] `db/scripts/seed.ts`: rewrite as the libSQL seed/import path. Drizzle insert API remains useful for ordinary fields. Convert any `Date` objects to ISO strings.
 - [x] Move original built-in seed source from `src/lib/stores/seed.ts` to `db/seed/builtin.ts`.
 - [x] Bundle synthetic incident-postmortem showcase flow JSON under `db/seed/postmortems/` (50 files, product demo content, no extra download).
-- [ ] Write embeddings via raw SQL `UPDATE ... SET embeddings = vector32(?) WHERE id = ?`.
-- [ ] Replace all current `userId: null` seed/store defaults with `SYSTEM_USER_ID` for built-ins and `LOCAL_USER_ID` for self-hosted user-created records.
-- [ ] Seed/import all existing built-in demo content from `db/seed/builtin.ts`: categories, tags, templates, template steps, flows, flow steps, skills, execution gates, input sources, enum sets/values, and join tables.
+- [x] Write embeddings via raw SQL `UPDATE ... SET embeddings = vector32(?) WHERE id = ?`.
+- [x] Replace all current `userId: null` seed/store defaults with `SYSTEM_USER_ID` for built-ins and `LOCAL_USER_ID` for self-hosted user-created records.
+- [x] Seed/import all existing built-in demo content from `db/seed/builtin.ts`: categories, tags, templates, template steps, flows, flow steps, skills, execution gates, input sources, enum sets/values, and join tables.
 - [ ] Seed/import bundled postmortem showcase flows from `db/seed/postmortems/` as `SYSTEM` demo/showcase content.
-- [ ] Seed/import `SYSTEM` and `LOCAL` sentinel users before any scoped records.
-- [ ] `db/scripts/wipe.ts`, `check_db.ts`, `migrate.ts`, `embed.ts`: update client import; remove any `CREATE EXTENSION` calls.
+- [x] Seed/import `SYSTEM` and `LOCAL` sentinel users before any scoped records.
+- [x] `db/scripts/wipe.ts`, `check_db.ts`, `migrate.ts`, `embed.ts`: update client import; remove any `CREATE EXTENSION` calls.
 - [ ] Run wipe + migrate + seed against the local libSQL file.
-- [ ] Assert table counts match expected seed counts.
+- [x] Assert table counts match expected seed counts.
 - [ ] Assert representative rows by stable slug/ID (`SYSTEM` category/template/tag, at least one flow, at least one agentic gate/input source).
-- [ ] Assert `PRAGMA foreign_key_check` returns no rows after seed.
-- [ ] Assert at least one stored embedding round-trip and one `vector_distance_cos()` query work.
+- [x] Assert `PRAGMA foreign_key_check` returns no rows after seed.
+- [x] Assert at least one stored embedding round-trip and one `vector_distance_cos()` query work.
 
 **Review point:** inspect seeded counts and representative rows (including a stored embedding round-trip).
 
