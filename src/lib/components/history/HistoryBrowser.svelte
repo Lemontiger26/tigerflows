@@ -40,20 +40,29 @@
 		return map;
 	});
 
-	function getCategoryColor(cid: string | null) { return cid ? (categoryStore.getById(cid)?.color ?? 'base-300') : 'base-300'; }
-	function getCategoryName(cid: string | null) { return cid ? (categoryStore.getById(cid)?.name ?? 'Unknown') : 'Unknown'; }
+	function getCategoryColor(cid: string | null) {
+		return cid ? (categoryStore.getById(cid)?.color ?? 'base-300') : 'base-300';
+	}
+	function getCategoryName(cid: string | null) {
+		return cid ? (categoryStore.getById(cid)?.name ?? 'Unknown') : 'Unknown';
+	}
 	function statusDotColor(s: Flow['status']) {
 		return s === 'completed' ? 'text-success' : s === 'abandoned' ? 'text-error' : 'text-warning';
 	}
 	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+		return new Date(iso).toLocaleDateString('en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
 	}
 	function formatTime(iso: string) {
 		return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 	}
 	function calcProgress(f: Flow) {
-		if (f.actions.length === 0) return 0;
-		return (f.actions.filter(a => a.checked).length / f.actions.length) * 100;
+		if (f.steps.length === 0) return 0;
+		return (f.steps.filter((a) => a.checked).length / f.steps.length) * 100;
 	}
 	function handleCardClick(f: Flow) {
 		const catName = f.categoryId ? (categoryStore.getById(f.categoryId)?.name ?? '') : '';
@@ -89,7 +98,12 @@
 			<option value="completed">Completed</option>
 			<option value="abandoned">Abandoned</option>
 		</select>
-		<input type="date" class="input input-bordered input-sm w-36" value={dateFrom ?? ''} onchange={handleDateFromFilter} />
+		<input
+			type="date"
+			class="input input-bordered input-sm w-36"
+			value={dateFrom ?? ''}
+			onchange={handleDateFromFilter}
+		/>
 		<input type="date" class="input input-bordered input-sm w-36" value={dateTo ?? ''} onchange={handleDateToFilter} />
 	</div>
 
@@ -101,14 +115,19 @@
 				<div class="absolute left-[11px] top-0 bottom-0 w-0.5 bg-base-300"></div>
 				{#each [...byDay.entries()] as [day, flows]}
 					<div class="relative mb-3 mt-4 first:mt-0">
-						<div class="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-base-100 border-2 border-base-300 z-10"></div>
+						<div
+							class="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-base-100 border-2 border-base-300 z-10"
+						></div>
 						<span class="text-xs font-bold text-base-content/50 uppercase tracking-wide">
 							{formatDate(day + 'T00:00:00')}
 						</span>
 					</div>
 					{#each flows as f (f.id)}
-						<button type="button" class="card bg-base-100 shadow-sm hover:shadow-md mb-2 ml-2 w-full text-left"
-							onclick={() => handleCardClick(f)}>
+						<button
+							type="button"
+							class="card bg-base-100 shadow-sm hover:shadow-md mb-2 ml-2 w-full text-left"
+							onclick={() => handleCardClick(f)}
+						>
 							<div class="card-body p-3">
 								<div class="flex items-center gap-2 mb-1">
 									<span class={`text-sm ${statusDotColor(f.status)}`}>●</span>
@@ -117,14 +136,20 @@
 								</div>
 								<div class="flex items-center gap-2 mb-2">
 									<Badge text={getCategoryName(f.categoryId)} color={getCategoryColor(f.categoryId)} size="xs" />
-									<Badge text={f.status} color={f.status === 'completed' ? 'success' : f.status === 'abandoned' ? 'error' : 'warning'} size="xs" />
+									<Badge
+										text={f.status}
+										color={f.status === 'completed' ? 'success' : f.status === 'abandoned' ? 'error' : 'warning'}
+										size="xs"
+									/>
 								</div>
 								<div class="w-full bg-base-300 rounded-full h-1">
-									<div class="h-1 rounded-full transition-all duration-300"
+									<div
+										class="h-1 rounded-full transition-all duration-300"
 										style="width: {calcProgress(f)}%"
 										class:bg-success={f.status === 'completed'}
 										class:bg-warning={f.status === 'active'}
-										class:bg-error={f.status === 'abandoned'}></div>
+										class:bg-error={f.status === 'abandoned'}
+									></div>
 								</div>
 							</div>
 						</button>

@@ -15,31 +15,24 @@
 	function formatDuration(ms: number | null): string {
 		if (ms === null) return '—';
 		if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
-		if (ms < 86400000)
-			return `${Math.round(ms / 3600000)}h ${Math.round((ms % 3600000) / 60000)}m`;
+		if (ms < 86400000) return `${Math.round(ms / 3600000)}h ${Math.round((ms % 3600000) / 60000)}m`;
 		return `${Math.round(ms / 86400000)}d`;
 	}
 
 	function getWeeklyData() {
 		const weeks: { label: string; count: number; completed: number }[] = [];
 		const now = new Date();
-		const flows = selectedCategoryId
-			? flowStore.getByCategory(selectedCategoryId)
-			: flowStore.items;
+		const flows = selectedCategoryId ? flowStore.getByCategory(selectedCategoryId) : flowStore.items;
 		for (let i = 7; i >= 0; i--) {
 			const d = new Date(now);
 			d.setDate(d.getDate() - i * 7);
 			const weekStart = d.toISOString().split('T')[0];
-			const weekEnd = new Date(d.getTime() + 7 * 24 * 60 * 60 * 1000)
-				.toISOString()
-				.split('T')[0];
-			const inWeek = flows.filter(
-				(f) => f.createdAt >= weekStart && f.createdAt < weekEnd
-			);
+			const weekEnd = new Date(d.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+			const inWeek = flows.filter((f) => f.createdAt >= weekStart && f.createdAt < weekEnd);
 			weeks.push({
 				label: `W${8 - i}`,
 				count: inWeek.length,
-				completed: inWeek.filter((f) => f.status === 'completed').length,
+				completed: inWeek.filter((f) => f.status === 'completed').length
 			});
 		}
 		return weeks;
@@ -68,13 +61,9 @@
 	</div>
 
 	{#if !selectedCategoryId}
-		<div class="text-center py-12 text-base-content/50">
-			Select a category to view statistics
-		</div>
+		<div class="text-center py-12 text-base-content/50">Select a category to view statistics</div>
 	{:else if stats && stats.totalFlows === 0}
-		<div class="text-center py-12 text-base-content/50">
-			No flows in this category yet
-		</div>
+		<div class="text-center py-12 text-base-content/50">No flows in this category yet</div>
 	{:else if stats}
 		<!-- Summary stats -->
 		<div class="stats stats-horizontal shadow">
@@ -104,21 +93,21 @@
 			</div>
 		</div>
 
-		<!-- Action completion rates -->
-		{#if stats.actionCompletionRates.length > 0}
+		<!-- Step completion rates -->
+		{#if stats.stepCompletionRates.length > 0}
 			<div class="card bg-base-100 shadow-sm">
 				<div class="card-body p-4">
-					<h3 class="text-sm font-bold mb-3">Action Completion Rates</h3>
-					{#each stats.actionCompletionRates as action}
+					<h3 class="text-sm font-bold mb-3">Step Completion Rates</h3>
+					{#each stats.stepCompletionRates as step}
 						<div class="flex items-center gap-2 mb-2 last:mb-0">
-							<span class="text-sm w-40 truncate">{action.actionTitle}</span>
+							<span class="text-sm w-40 truncate">{step.stepTitle}</span>
 							<div class="flex-1 bg-base-300 rounded-full h-4">
 								<div
-									class="{barColor(action.rate)} rounded-full h-4 transition-all duration-500"
-									style="width: {action.rate}%"
+									class="{barColor(step.rate)} rounded-full h-4 transition-all duration-500"
+									style="width: {step.rate}%"
 								></div>
 							</div>
-							<span class="text-sm w-12 text-right font-mono">{Math.round(action.rate)}%</span>
+							<span class="text-sm w-12 text-right font-mono">{Math.round(step.rate)}%</span>
 						</div>
 					{/each}
 				</div>
@@ -183,28 +172,32 @@
 						</thead>
 						<tbody>
 							{#each flowStore.getByCategory(selectedCategoryId) as flow}
-							{@const pct = flow.actions.length > 0 ? Math.round((flow.actions.filter(a => a.checked).length / flow.actions.length) * 100) : 0}
-							<tr>
-								<td class="max-w-xs truncate">{flow.title}</td>
-								<td>
-									<Badge
-										text={flow.status}
-										color={flow.status === 'completed' ? 'success' : flow.status === 'abandoned' ? 'error' : 'warning'}
-										size="xs"
-									/>
-								</td>
-								<td>
-									<div class="w-20 bg-base-300 rounded-full h-2">
-										<div
-											class="{barColor(pct)} rounded-full h-2"
-											style="width: {pct}%"
-										></div>
-									</div>
-								</td>
-								<td class="text-xs text-base-content/50">
-									{new Date(flow.createdAt).toLocaleDateString()}
-								</td>
-							</tr>
+								{@const pct =
+									flow.steps.length > 0
+										? Math.round((flow.steps.filter((a) => a.checked).length / flow.steps.length) * 100)
+										: 0}
+								<tr>
+									<td class="max-w-xs truncate">{flow.title}</td>
+									<td>
+										<Badge
+											text={flow.status}
+											color={flow.status === 'completed'
+												? 'success'
+												: flow.status === 'abandoned'
+													? 'error'
+													: 'warning'}
+											size="xs"
+										/>
+									</td>
+									<td>
+										<div class="w-20 bg-base-300 rounded-full h-2">
+											<div class="{barColor(pct)} rounded-full h-2" style="width: {pct}%"></div>
+										</div>
+									</td>
+									<td class="text-xs text-base-content/50">
+										{new Date(flow.createdAt).toLocaleDateString()}
+									</td>
+								</tr>
 							{/each}
 						</tbody>
 					</table>

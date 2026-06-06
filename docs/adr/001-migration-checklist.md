@@ -27,7 +27,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] Convert timestamps to ISO string `text(...)` with `.$defaultFn(() => new Date().toISOString())`.
 - [ ] Convert any Postgres arrays to `text(..., { mode: 'json' }).$type<string[]>()`.
 - [ ] Convert all 14 `jsonb` columns (`config` x6, `configSchema` x2, `defaults` x2, `toolSpec`, `trace`, `result`, `value`) to `text({ mode: 'json' }).$type<T>()`; convert object defaults — Drizzle serializes `default({})` for the DDL.
-- [ ] Replace all 6 `pgEnum`s with plain `text(...)` columns; export value tuples as `as const` for reuse in validators (`flow_status`, `action_type`, `executor_type`, `input_source_kind`, `execution_gate_kind`, `gate_position`).
+- [ ] Replace all 6 `pgEnum`s with plain `text(...)` columns; export value tuples as `as const` for reuse in validators (`flow_status`, `step_type`, `executor_type`, `input_source_kind`, `execution_gate_kind`, `gate_position`).
 - [ ] Convert `vector(384)` columns to nullable `blob('embeddings', { mode: 'buffer' })` so rows can be inserted first and vectors updated via raw SQL. Keep the current column name `embeddings`. Remove HNSW/pgvector index definitions.
 - [ ] Make scoped root-table `userId` columns `notNull()` and replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel. Self-hosted user content uses `'LOCAL'`; authenticated content uses `users.id`.
 - [ ] Collapse the 7 partial unique indexes into single compound `uniqueIndex(...).on(userId, slug)` — works because sentinels are real non-null strings (no SQLite NULL-distinctness quirk).

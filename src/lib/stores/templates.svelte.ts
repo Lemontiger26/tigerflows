@@ -12,7 +12,7 @@ function createTemplateStore() {
 		},
 
 		add(
-			data: Pick<Template, 'name' | 'description' | 'actions' | 'tags'> &
+			data: Pick<Template, 'name' | 'description' | 'steps' | 'tags'> &
 				Partial<Omit<Template, 'id' | 'createdAt' | 'updatedAt'>>
 		) {
 			const now = new Date().toISOString();
@@ -31,9 +31,7 @@ function createTemplateStore() {
 		},
 
 		update(id: string, patch: Partial<Template>) {
-			items = items.map((i) =>
-				i.id === id ? { ...i, ...patch, updatedAt: new Date().toISOString() } : i,
-			);
+			items = items.map((i) => (i.id === id ? { ...i, ...patch, updatedAt: new Date().toISOString() } : i));
 		},
 
 		remove(id: string) {
@@ -46,7 +44,7 @@ function createTemplateStore() {
 
 		getBySlug(slug: string) {
 			return items.find((i) => slugify(i.name) === slug);
-		},
+		}
 	};
 }
 

@@ -7,9 +7,9 @@ Local-first structured capture and workflow engine. Keyboard-first logging, reus
 TigerFlows is a structured daily capture + workflow engine with two modes over one data model:
 
 - **Capture Mode** — keyboard-first daily log editor that beats markdown. Dense, inline-editable, emoji+label+value rows. Loose templates, no validation, auto-save.
-- **Execution Mode** — card-based workflow tracker with typed actions, progress tracking, and AI-readiness. Strict templates.
+- **Execution Mode** — card-based workflow tracker with typed steps, progress tracking, and AI-readiness. Strict templates.
 
-Templates define their `mode` (`loose` | `strict`). Both modes read/write the same `Flow` + `FlowAction` data.
+Templates define their `mode` (`loose` | `strict`). Both modes read/write the same `Flow` + `FlowStep` data.
 
 ## Tech Stack
 

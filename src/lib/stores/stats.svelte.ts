@@ -11,42 +11,37 @@ function createStatsStore() {
 
 		// Average completion percent across all flows
 		const completionPercents = flows.map((flow) => {
-			if (flow.actions.length === 0) return 0;
-			const checked = flow.actions.filter((a) => a.checked).length;
-			return (checked / flow.actions.length) * 100;
+			if (flow.steps.length === 0) return 0;
+			const checked = flow.steps.filter((a) => a.checked).length;
+			return (checked / flow.steps.length) * 100;
 		});
-		const averageCompletionPercent =
-			totalFlows > 0
-				? completionPercents.reduce((a, b) => a + b, 0) / totalFlows
-				: 0;
+		const averageCompletionPercent = totalFlows > 0 ? completionPercents.reduce((a, b) => a + b, 0) / totalFlows : 0;
 
 		// Average completion time for completed flows only
 		const completedWithTime = flows
 			.filter((f) => f.status === 'completed' && f.completedAt)
 			.map((f) => new Date(f.completedAt!).getTime() - new Date(f.createdAt).getTime());
 		const averageCompletionTimeMs =
-			completedWithTime.length > 0
-				? completedWithTime.reduce((a, b) => a + b, 0) / completedWithTime.length
-				: null;
+			completedWithTime.length > 0 ? completedWithTime.reduce((a, b) => a + b, 0) / completedWithTime.length : null;
 
-		// Action completion rates: for each unique action title, what % are checked
-		const actionTitleMap = new Map<string, { total: number; checked: number }>();
+		// Step completion rates: for each unique step title, what % are checked
+		const stepTitleMap = new Map<string, { total: number; checked: number }>();
 		for (const flow of flows) {
-			for (const action of flow.actions) {
-				if (!actionTitleMap.has(action.title)) {
-					actionTitleMap.set(action.title, { total: 0, checked: 0 });
+			for (const step of flow.steps) {
+				if (!stepTitleMap.has(step.title)) {
+					stepTitleMap.set(step.title, { total: 0, checked: 0 });
 				}
-				const entry = actionTitleMap.get(action.title)!;
+				const entry = stepTitleMap.get(step.title)!;
 				entry.total++;
-				if (action.checked) entry.checked++;
+				if (step.checked) entry.checked++;
 			}
 		}
-		const actionCompletionRates = Array.from(actionTitleMap.entries())
-			.map(([actionTitle, { total, checked }]) => ({
-				actionTitle,
-				rate: total > 0 ? (checked / total) * 100 : 0,
+		const stepCompletionRates = Array.from(stepTitleMap.entries())
+			.map(([stepTitle, { total, checked }]) => ({
+				stepTitle,
+				rate: total > 0 ? (checked / total) * 100 : 0
 			}))
-			.sort((a, b) => a.actionTitle.localeCompare(b.actionTitle));
+			.sort((a, b) => a.stepTitle.localeCompare(b.stepTitle));
 
 		// Timeline data: last 30 days, { date, count, completed }
 		const today = new Date();
@@ -62,7 +57,7 @@ function createStatsStore() {
 			timelineData.push({
 				date: dateStr,
 				count: dayFlows.length,
-				completed: dayFlows.filter((f) => f.status === 'completed').length,
+				completed: dayFlows.filter((f) => f.status === 'completed').length
 			});
 		}
 
@@ -72,8 +67,8 @@ function createStatsStore() {
 			abandonedFlows,
 			averageCompletionPercent,
 			averageCompletionTimeMs,
-			actionCompletionRates,
-			timelineData,
+			stepCompletionRates,
+			timelineData
 		};
 	}
 

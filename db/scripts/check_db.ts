@@ -1,9 +1,9 @@
-import { db, categories, templates, templateActions, flows } from './db';
+import { db, categories, templates, templateSteps, flows } from './db';
 
 const [cats, tpls, tActs] = await Promise.all([
 	db.select({ id: categories.id, name: categories.name }).from(categories).limit(3),
 	db.select({ id: templates.id, name: templates.name }).from(templates).limit(3),
-	db.select({ id: templateActions.id, templateId: templateActions.templateId }).from(templateActions).limit(3)
+	db.select({ id: templateSteps.id, templateId: templateSteps.templateId }).from(templateSteps).limit(3)
 ]);
 console.log(
 	'Categories:',
@@ -14,7 +14,7 @@ console.log(
 	tpls.map((t) => t.id.slice(0, 8))
 );
 console.log(
-	'TemplateActions:',
+	'TemplateSteps:',
 	tActs.map((a) => a.templateId.slice(0, 8))
 );
 process.exit(0);

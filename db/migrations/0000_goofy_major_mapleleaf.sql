@@ -1,4 +1,4 @@
-CREATE TYPE "public"."action_type" AS ENUM('boolean', 'text', 'number', 'date', 'enum_single', 'enum_multi', 'agent');--> statement-breakpoint
+CREATE TYPE "public"."step_type" AS ENUM('boolean', 'text', 'number', 'date', 'enum_single', 'enum_multi', 'agent');--> statement-breakpoint
 CREATE TYPE "public"."executor_type" AS ENUM('human', 'agent');--> statement-breakpoint
 CREATE TYPE "public"."flow_status" AS ENUM('active', 'completed', 'abandoned');--> statement-breakpoint
 CREATE TYPE "public"."execution_gate_kind" AS ENUM('human_approval', 'predicate', 'budget', 'time_window', 'dependency', 'rate_limit', 'custom');--> statement-breakpoint
@@ -35,14 +35,14 @@ CREATE TABLE "enum_values" (
 	"order" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "flow_actions" (
+CREATE TABLE "flow_steps" (
 	"id" char(21) PRIMARY KEY NOT NULL,
 	"flow_id" char(21) NOT NULL,
-	"template_action_id" char(21) NOT NULL,
+	"template_step_id" char(21) NOT NULL,
 	"order" integer NOT NULL,
 	"title" text NOT NULL,
 	"description" text DEFAULT '' NOT NULL,
-	"action_type" "action_type" DEFAULT 'boolean' NOT NULL,
+	"step_type" "step_type" DEFAULT 'boolean' NOT NULL,
 	"executor_type" "executor_type" DEFAULT 'human' NOT NULL,
 	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"is_critical" boolean DEFAULT false NOT NULL,
@@ -76,14 +76,14 @@ CREATE TABLE "tags" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "template_actions" (
+CREATE TABLE "template_steps" (
 	"id" char(21) PRIMARY KEY NOT NULL,
 	"template_id" char(21) NOT NULL,
 	"slug" text NOT NULL,
 	"order" integer NOT NULL,
 	"title" text NOT NULL,
 	"description" text DEFAULT '' NOT NULL,
-	"action_type" "action_type" DEFAULT 'boolean' NOT NULL,
+	"step_type" "step_type" DEFAULT 'boolean' NOT NULL,
 	"executor_type" "executor_type" DEFAULT 'human' NOT NULL,
 	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"is_critical" boolean DEFAULT false NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE "execution_gate_templates" (
 --> statement-breakpoint
 CREATE TABLE "execution_gates" (
 	"id" char(21) PRIMARY KEY NOT NULL,
-	"template_action_id" char(21) NOT NULL,
+	"template_step_id" char(21) NOT NULL,
 	"gate_template_id" char(21) NOT NULL,
 	"name" text NOT NULL,
 	"position" "gate_position" DEFAULT 'pre' NOT NULL,
@@ -140,17 +140,17 @@ CREATE TABLE "execution_gates" (
 	"order" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "flow_action_skills" (
-	"flow_action_id" char(21) NOT NULL,
+CREATE TABLE "flow_step_skills" (
+	"flow_step_id" char(21) NOT NULL,
 	"skill_id" char(21) NOT NULL,
 	"order" integer DEFAULT 0 NOT NULL,
 	"trace" jsonb,
-	CONSTRAINT "flow_action_skills_flow_action_id_skill_id_pk" PRIMARY KEY("flow_action_id","skill_id")
+	CONSTRAINT "flow_step_skills_flow_step_id_skill_id_pk" PRIMARY KEY("flow_step_id","skill_id")
 );
 --> statement-breakpoint
 CREATE TABLE "flow_execution_gates" (
 	"id" char(21) PRIMARY KEY NOT NULL,
-	"flow_action_id" char(21) NOT NULL,
+	"flow_step_id" char(21) NOT NULL,
 	"execution_gate_id" char(21),
 	"kind" "execution_gate_kind" NOT NULL,
 	"position" "gate_position" DEFAULT 'pre' NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE "flow_execution_gates" (
 --> statement-breakpoint
 CREATE TABLE "flow_input_sources" (
 	"id" char(21) PRIMARY KEY NOT NULL,
-	"flow_action_id" char(21) NOT NULL,
+	"flow_step_id" char(21) NOT NULL,
 	"input_source_id" char(21),
 	"kind" "input_source_kind" NOT NULL,
 	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE "input_source_templates" (
 --> statement-breakpoint
 CREATE TABLE "input_sources" (
 	"id" char(21) PRIMARY KEY NOT NULL,
-	"template_action_id" char(21) NOT NULL,
+	"template_step_id" char(21) NOT NULL,
 	"source_template_id" char(21) NOT NULL,
 	"name" text NOT NULL,
 	"config" jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -203,42 +203,42 @@ CREATE TABLE "skills" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "template_action_skills" (
-	"template_action_id" char(21) NOT NULL,
+CREATE TABLE "template_step_skills" (
+	"template_step_id" char(21) NOT NULL,
 	"skill_id" char(21) NOT NULL,
 	"order" integer DEFAULT 0 NOT NULL,
-	CONSTRAINT "template_action_skills_template_action_id_skill_id_pk" PRIMARY KEY("template_action_id","skill_id")
+	CONSTRAINT "template_step_skills_template_step_id_skill_id_pk" PRIMARY KEY("template_step_id","skill_id")
 );
 --> statement-breakpoint
 ALTER TABLE "categories" ADD CONSTRAINT "categories_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "enum_sets" ADD CONSTRAINT "enum_sets_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "enum_values" ADD CONSTRAINT "enum_values_enum_set_id_enum_sets_id_fk" FOREIGN KEY ("enum_set_id") REFERENCES "public"."enum_sets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_actions" ADD CONSTRAINT "flow_actions_flow_id_flows_id_fk" FOREIGN KEY ("flow_id") REFERENCES "public"."flows"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_actions" ADD CONSTRAINT "flow_actions_template_action_id_template_actions_id_fk" FOREIGN KEY ("template_action_id") REFERENCES "public"."template_actions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_steps" ADD CONSTRAINT "flow_steps_flow_id_flows_id_fk" FOREIGN KEY ("flow_id") REFERENCES "public"."flows"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_steps" ADD CONSTRAINT "flow_steps_template_step_id_template_steps_id_fk" FOREIGN KEY ("template_step_id") REFERENCES "public"."template_steps"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flows" ADD CONSTRAINT "flows_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flows" ADD CONSTRAINT "flows_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flows" ADD CONSTRAINT "flows_template_id_templates_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."templates"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tags" ADD CONSTRAINT "tags_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "template_actions" ADD CONSTRAINT "template_actions_template_id_templates_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."templates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "template_steps" ADD CONSTRAINT "template_steps_template_id_templates_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."templates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "template_tags" ADD CONSTRAINT "template_tags_template_id_templates_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."templates"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "template_tags" ADD CONSTRAINT "template_tags_tag_id_tags_id_fk" FOREIGN KEY ("tag_id") REFERENCES "public"."tags"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "templates" ADD CONSTRAINT "templates_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "templates" ADD CONSTRAINT "templates_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "execution_gate_templates" ADD CONSTRAINT "execution_gate_templates_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "execution_gates" ADD CONSTRAINT "execution_gates_template_action_id_template_actions_id_fk" FOREIGN KEY ("template_action_id") REFERENCES "public"."template_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "execution_gates" ADD CONSTRAINT "execution_gates_template_step_id_template_steps_id_fk" FOREIGN KEY ("template_step_id") REFERENCES "public"."template_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "execution_gates" ADD CONSTRAINT "execution_gates_gate_template_id_execution_gate_templates_id_fk" FOREIGN KEY ("gate_template_id") REFERENCES "public"."execution_gate_templates"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_action_skills" ADD CONSTRAINT "flow_action_skills_flow_action_id_flow_actions_id_fk" FOREIGN KEY ("flow_action_id") REFERENCES "public"."flow_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_action_skills" ADD CONSTRAINT "flow_action_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_execution_gates" ADD CONSTRAINT "flow_execution_gates_flow_action_id_flow_actions_id_fk" FOREIGN KEY ("flow_action_id") REFERENCES "public"."flow_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_step_skills" ADD CONSTRAINT "flow_step_skills_flow_step_id_flow_steps_id_fk" FOREIGN KEY ("flow_step_id") REFERENCES "public"."flow_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_step_skills" ADD CONSTRAINT "flow_step_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_execution_gates" ADD CONSTRAINT "flow_execution_gates_flow_step_id_flow_steps_id_fk" FOREIGN KEY ("flow_step_id") REFERENCES "public"."flow_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flow_execution_gates" ADD CONSTRAINT "flow_execution_gates_execution_gate_id_execution_gates_id_fk" FOREIGN KEY ("execution_gate_id") REFERENCES "public"."execution_gates"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "flow_input_sources" ADD CONSTRAINT "flow_input_sources_flow_action_id_flow_actions_id_fk" FOREIGN KEY ("flow_action_id") REFERENCES "public"."flow_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flow_input_sources" ADD CONSTRAINT "flow_input_sources_flow_step_id_flow_steps_id_fk" FOREIGN KEY ("flow_step_id") REFERENCES "public"."flow_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flow_input_sources" ADD CONSTRAINT "flow_input_sources_input_source_id_input_sources_id_fk" FOREIGN KEY ("input_source_id") REFERENCES "public"."input_sources"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "input_source_templates" ADD CONSTRAINT "input_source_templates_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "input_sources" ADD CONSTRAINT "input_sources_template_action_id_template_actions_id_fk" FOREIGN KEY ("template_action_id") REFERENCES "public"."template_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "input_sources" ADD CONSTRAINT "input_sources_template_step_id_template_steps_id_fk" FOREIGN KEY ("template_step_id") REFERENCES "public"."template_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "input_sources" ADD CONSTRAINT "input_sources_source_template_id_input_source_templates_id_fk" FOREIGN KEY ("source_template_id") REFERENCES "public"."input_source_templates"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "skills" ADD CONSTRAINT "skills_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "template_action_skills" ADD CONSTRAINT "template_action_skills_template_action_fk" FOREIGN KEY ("template_action_id") REFERENCES "public"."template_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "template_action_skills" ADD CONSTRAINT "template_action_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "template_step_skills" ADD CONSTRAINT "template_step_skills_template_step_fk" FOREIGN KEY ("template_step_id") REFERENCES "public"."template_steps"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "template_step_skills" ADD CONSTRAINT "template_step_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "categories_user_slug_idx" ON "categories" USING btree ("user_id","slug");--> statement-breakpoint
 CREATE UNIQUE INDEX "categories_system_slug_idx" ON "categories" USING btree ("slug") WHERE "categories"."user_id" IS NULL;--> statement-breakpoint
 CREATE UNIQUE INDEX "enum_sets_user_slug_idx" ON "enum_sets" USING btree ("user_id","slug");--> statement-breakpoint

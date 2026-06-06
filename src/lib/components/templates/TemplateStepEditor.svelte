@@ -1,26 +1,26 @@
 <script lang="ts">
-	import type { TemplateAction } from '~types';
+	import type { TemplateStep } from '~types';
 	import MarkdownEditor from '$lib/components/ui/MarkdownEditor.svelte';
 
 	interface Props {
-		action: TemplateAction;
+		step: TemplateStep;
 		index: number;
-		onupdate: (action: TemplateAction) => void;
+		onupdate: (step: TemplateStep) => void;
 		onremove: () => void;
 	}
 
-	let { action, index, onupdate, onremove }: Props = $props();
+	let { step, index, onupdate, onremove }: Props = $props();
 
 	function handleTitleChange(e: Event) {
-		onupdate({ ...action, title: (e.target as HTMLInputElement).value });
+		onupdate({ ...step, title: (e.target as HTMLInputElement).value });
 	}
 
 	function handleDescriptionChange(desc: string) {
-		onupdate({ ...action, description: desc });
+		onupdate({ ...step, description: desc });
 	}
 
 	function toggleCritical() {
-		onupdate({ ...action, isCritical: !action.isCritical });
+		onupdate({ ...step, isCritical: !step.isCritical });
 	}
 </script>
 
@@ -43,13 +43,13 @@
 			<input
 				type="text"
 				class="input input-bordered w-full font-serif text-lg font-semibold tracking-tight"
-				placeholder="Action title"
-				value={action.title}
+				placeholder="Step title"
+				value={step.title}
 				oninput={handleTitleChange}
 			/>
 
 			<MarkdownEditor
-				value={action.description ?? ''}
+				value={step.description ?? ''}
 				onchange={handleDescriptionChange}
 				placeholder="Description (optional, supports markdown)"
 				minHeight="40px"
@@ -58,7 +58,7 @@
 			<div class="flex items-center justify-between">
 				<button
 					type="button"
-					class="btn btn-xs rounded-xl border-none {action.isCritical
+					class="btn btn-xs rounded-xl border-none {step.isCritical
 						? 'bg-error hover:bg-error/30 text-black'
 						: 'btn-ghost text-base-content/50 hover:text-error'}"
 					onclick={toggleCritical}

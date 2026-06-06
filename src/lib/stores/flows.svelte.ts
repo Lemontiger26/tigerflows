@@ -1,4 +1,4 @@
-import type { Flow, FlowAction } from '~types';
+import type { Flow, FlowStep } from '~types';
 import { seedFlows } from './seed';
 import { tigerid } from '$lib/helpers/tigerId';
 import { templateStore } from './templates.svelte';
@@ -13,7 +13,7 @@ function createFlowStore() {
 		},
 
 		add(
-			data: Pick<Flow, 'categoryId' | 'templateId' | 'title' | 'status' | 'actions'> &
+			data: Pick<Flow, 'categoryId' | 'templateId' | 'title' | 'status' | 'steps'> &
 				Partial<Omit<Flow, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'>>
 		) {
 			const now = new Date().toISOString();
@@ -43,21 +43,21 @@ function createFlowStore() {
 			return items.find((i) => i.id === id);
 		},
 
-		/** Instantiate a new flow from a template, copying its actions. */
+		/** Instantiate a new flow from a template, copying its steps. */
 		instantiate(templateId: string, categoryId: string, title: string): Flow {
 			const template = templateStore.getById(templateId);
 			if (!template) throw new Error(`Template ${templateId} not found`);
 
 			const now = new Date().toISOString();
 			const flowId = tigerid();
-			const actions: FlowAction[] = template.actions.map((ta) => ({
+			const steps: FlowStep[] = template.steps.map((ta) => ({
 				id: tigerid(),
 				flowId,
-				templateActionId: ta.id,
+				templateStepId: ta.id,
 				order: ta.order,
 				title: ta.title,
 				description: ta.description,
-				actionType: ta.actionType,
+				stepType: ta.stepType,
 				executorType: ta.executorType,
 				config: ta.config,
 				isCritical: ta.isCritical,
@@ -76,7 +76,7 @@ function createFlowStore() {
 				title,
 				status: 'active',
 				slug: slugify(title),
-				actions,
+				steps,
 				embeddings: [] as unknown as number[],
 				createdAt: now,
 				updatedAt: now,
@@ -86,23 +86,23 @@ function createFlowStore() {
 			return flow;
 		},
 
-		toggleAction(flowId: string, actionId: string) {
+		toggleStep(flowId: string, stepId: string) {
 			items = items.map((flow) => {
 				if (flow.id !== flowId) return flow;
-				const actions = flow.actions.map((a) => {
-					if (a.id !== actionId) return a;
+				const steps = flow.steps.map((a) => {
+					if (a.id !== stepId) return a;
 					const checked = !a.checked;
 					return { ...a, checked, checkedAt: checked ? new Date().toISOString() : null };
 				});
-				return { ...flow, actions, updatedAt: new Date().toISOString() };
+				return { ...flow, steps, updatedAt: new Date().toISOString() };
 			});
 		},
 
-		updateActionComment(flowId: string, actionId: string, comment: string) {
+		updateStepComment(flowId: string, stepId: string, comment: string) {
 			items = items.map((flow) => {
 				if (flow.id !== flowId) return flow;
-				const actions = flow.actions.map((a) => (a.id === actionId ? { ...a, comment } : a));
-				return { ...flow, actions, updatedAt: new Date().toISOString() };
+				const steps = flow.steps.map((a) => (a.id === stepId ? { ...a, comment } : a));
+				return { ...flow, steps, updatedAt: new Date().toISOString() };
 			});
 		},
 

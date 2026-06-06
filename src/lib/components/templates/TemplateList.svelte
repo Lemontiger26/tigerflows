@@ -20,11 +20,11 @@
 		</button>
 
 		<!-- Template Cards -->
-		{#each templateStore.items.filter((t: Template) =>
-			!navigationStore.searchQuery ||
-			t.name.toLowerCase().includes(navigationStore.searchQuery.toLowerCase()) ||
-			t.tags.some((tag) => tag.toLowerCase().includes(navigationStore.searchQuery.toLowerCase()))
-		) as t (t.id)}
+		{#each templateStore.items.filter((t: Template) => !navigationStore.searchQuery || t.name
+					.toLowerCase()
+					.includes(navigationStore.searchQuery.toLowerCase()) || t.tags.some((tag) => tag
+						.toLowerCase()
+						.includes(navigationStore.searchQuery.toLowerCase()))) as t (t.id)}
 			<button
 				type="button"
 				class="card bg-base-100 shadow-sm hover:shadow-md transition-all cursor-pointer text-left"
@@ -43,7 +43,7 @@
 					</div>
 
 					<div class="flex items-center gap-2 mt-1">
-						<Badge text="{t.actions.length} actions" color="primary" size="xs" />
+						<Badge text="{t.steps.length} steps" color="primary" size="xs" />
 					</div>
 
 					<p class="text-xs text-base-content/50 mt-1">

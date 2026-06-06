@@ -322,8 +322,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.flow_actions": {
-      "name": "flow_actions",
+    "public.flow_steps": {
+      "name": "flow_steps",
       "schema": "",
       "columns": {
         "id": {
@@ -338,8 +338,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "template_action_id": {
-          "name": "template_action_id",
+        "template_step_id": {
+          "name": "template_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -363,9 +363,9 @@
           "notNull": true,
           "default": "''"
         },
-        "action_type": {
-          "name": "action_type",
-          "type": "action_type",
+        "step_type": {
+          "name": "step_type",
+          "type": "step_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -428,9 +428,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "flow_actions_flow_id_flows_id_fk": {
-          "name": "flow_actions_flow_id_flows_id_fk",
-          "tableFrom": "flow_actions",
+        "flow_steps_flow_id_flows_id_fk": {
+          "name": "flow_steps_flow_id_flows_id_fk",
+          "tableFrom": "flow_steps",
           "tableTo": "flows",
           "columnsFrom": [
             "flow_id"
@@ -441,12 +441,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "flow_actions_template_action_id_template_actions_id_fk": {
-          "name": "flow_actions_template_action_id_template_actions_id_fk",
-          "tableFrom": "flow_actions",
-          "tableTo": "template_actions",
+        "flow_steps_template_step_id_template_steps_id_fk": {
+          "name": "flow_steps_template_step_id_template_steps_id_fk",
+          "tableFrom": "flow_steps",
+          "tableTo": "template_steps",
           "columnsFrom": [
-            "template_action_id"
+            "template_step_id"
           ],
           "columnsTo": [
             "id"
@@ -708,8 +708,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.template_actions": {
-      "name": "template_actions",
+    "public.template_steps": {
+      "name": "template_steps",
       "schema": "",
       "columns": {
         "id": {
@@ -749,9 +749,9 @@
           "notNull": true,
           "default": "''"
         },
-        "action_type": {
-          "name": "action_type",
-          "type": "action_type",
+        "step_type": {
+          "name": "step_type",
+          "type": "step_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -788,9 +788,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "template_actions_template_id_templates_id_fk": {
-          "name": "template_actions_template_id_templates_id_fk",
-          "tableFrom": "template_actions",
+        "template_steps_template_id_templates_id_fk": {
+          "name": "template_steps_template_id_templates_id_fk",
+          "tableFrom": "template_steps",
           "tableTo": "templates",
           "columnsFrom": [
             "template_id"
@@ -1196,8 +1196,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "template_action_id": {
-          "name": "template_action_id",
+        "template_step_id": {
+          "name": "template_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1239,12 +1239,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "execution_gates_template_action_id_template_actions_id_fk": {
-          "name": "execution_gates_template_action_id_template_actions_id_fk",
+        "execution_gates_template_step_id_template_steps_id_fk": {
+          "name": "execution_gates_template_step_id_template_steps_id_fk",
           "tableFrom": "execution_gates",
-          "tableTo": "template_actions",
+          "tableTo": "template_steps",
           "columnsFrom": [
-            "template_action_id"
+            "template_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1272,12 +1272,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.flow_action_skills": {
-      "name": "flow_action_skills",
+    "public.flow_step_skills": {
+      "name": "flow_step_skills",
       "schema": "",
       "columns": {
-        "flow_action_id": {
-          "name": "flow_action_id",
+        "flow_step_id": {
+          "name": "flow_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1304,12 +1304,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "flow_action_skills_flow_action_id_flow_actions_id_fk": {
-          "name": "flow_action_skills_flow_action_id_flow_actions_id_fk",
-          "tableFrom": "flow_action_skills",
-          "tableTo": "flow_actions",
+        "flow_step_skills_flow_step_id_flow_steps_id_fk": {
+          "name": "flow_step_skills_flow_step_id_flow_steps_id_fk",
+          "tableFrom": "flow_step_skills",
+          "tableTo": "flow_steps",
           "columnsFrom": [
-            "flow_action_id"
+            "flow_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1317,9 +1317,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "flow_action_skills_skill_id_skills_id_fk": {
-          "name": "flow_action_skills_skill_id_skills_id_fk",
-          "tableFrom": "flow_action_skills",
+        "flow_step_skills_skill_id_skills_id_fk": {
+          "name": "flow_step_skills_skill_id_skills_id_fk",
+          "tableFrom": "flow_step_skills",
           "tableTo": "skills",
           "columnsFrom": [
             "skill_id"
@@ -1332,10 +1332,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "flow_action_skills_flow_action_id_skill_id_pk": {
-          "name": "flow_action_skills_flow_action_id_skill_id_pk",
+        "flow_step_skills_flow_step_id_skill_id_pk": {
+          "name": "flow_step_skills_flow_step_id_skill_id_pk",
           "columns": [
-            "flow_action_id",
+            "flow_step_id",
             "skill_id"
           ]
         }
@@ -1355,8 +1355,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "flow_action_id": {
-          "name": "flow_action_id",
+        "flow_step_id": {
+          "name": "flow_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1410,12 +1410,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "flow_execution_gates_flow_action_id_flow_actions_id_fk": {
-          "name": "flow_execution_gates_flow_action_id_flow_actions_id_fk",
+        "flow_execution_gates_flow_step_id_flow_steps_id_fk": {
+          "name": "flow_execution_gates_flow_step_id_flow_steps_id_fk",
           "tableFrom": "flow_execution_gates",
-          "tableTo": "flow_actions",
+          "tableTo": "flow_steps",
           "columnsFrom": [
-            "flow_action_id"
+            "flow_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1453,8 +1453,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "flow_action_id": {
-          "name": "flow_action_id",
+        "flow_step_id": {
+          "name": "flow_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1494,12 +1494,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "flow_input_sources_flow_action_id_flow_actions_id_fk": {
-          "name": "flow_input_sources_flow_action_id_flow_actions_id_fk",
+        "flow_input_sources_flow_step_id_flow_steps_id_fk": {
+          "name": "flow_input_sources_flow_step_id_flow_steps_id_fk",
           "tableFrom": "flow_input_sources",
-          "tableTo": "flow_actions",
+          "tableTo": "flow_steps",
           "columnsFrom": [
-            "flow_action_id"
+            "flow_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1667,8 +1667,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "template_action_id": {
-          "name": "template_action_id",
+        "template_step_id": {
+          "name": "template_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1702,12 +1702,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "input_sources_template_action_id_template_actions_id_fk": {
-          "name": "input_sources_template_action_id_template_actions_id_fk",
+        "input_sources_template_step_id_template_steps_id_fk": {
+          "name": "input_sources_template_step_id_template_steps_id_fk",
           "tableFrom": "input_sources",
-          "tableTo": "template_actions",
+          "tableTo": "template_steps",
           "columnsFrom": [
-            "template_action_id"
+            "template_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1851,12 +1851,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.template_action_skills": {
-      "name": "template_action_skills",
+    "public.template_step_skills": {
+      "name": "template_step_skills",
       "schema": "",
       "columns": {
-        "template_action_id": {
-          "name": "template_action_id",
+        "template_step_id": {
+          "name": "template_step_id",
           "type": "char(21)",
           "primaryKey": false,
           "notNull": true
@@ -1877,12 +1877,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "template_action_skills_template_action_fk": {
-          "name": "template_action_skills_template_action_fk",
-          "tableFrom": "template_action_skills",
-          "tableTo": "template_actions",
+        "template_step_skills_template_step_fk": {
+          "name": "template_step_skills_template_step_fk",
+          "tableFrom": "template_step_skills",
+          "tableTo": "template_steps",
           "columnsFrom": [
-            "template_action_id"
+            "template_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1890,9 +1890,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "template_action_skills_skill_id_skills_id_fk": {
-          "name": "template_action_skills_skill_id_skills_id_fk",
-          "tableFrom": "template_action_skills",
+        "template_step_skills_skill_id_skills_id_fk": {
+          "name": "template_step_skills_skill_id_skills_id_fk",
+          "tableFrom": "template_step_skills",
           "tableTo": "skills",
           "columnsFrom": [
             "skill_id"
@@ -1905,10 +1905,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "template_action_skills_template_action_id_skill_id_pk": {
-          "name": "template_action_skills_template_action_id_skill_id_pk",
+        "template_step_skills_template_step_id_skill_id_pk": {
+          "name": "template_step_skills_template_step_id_skill_id_pk",
           "columns": [
-            "template_action_id",
+            "template_step_id",
             "skill_id"
           ]
         }
@@ -1920,8 +1920,8 @@
     }
   },
   "enums": {
-    "public.action_type": {
-      "name": "action_type",
+    "public.step_type": {
+      "name": "step_type",
       "schema": "public",
       "values": [
         "boolean",

@@ -15,7 +15,7 @@
 
 	let filtered = $derived(
 		flowStore.items
-			.filter(f => {
+			.filter((f) => {
 				if (viewMode === 'active' && f.status !== 'active') return false;
 				if (viewMode === 'past' && f.status === 'active') return false;
 				if (categoryId && f.categoryId !== categoryId) return false;
@@ -26,18 +26,18 @@
 	);
 
 	let activeCount = $derived(
-		flowStore.items.filter(f => f.status === 'active' && (!categoryId || f.categoryId === categoryId)).length
+		flowStore.items.filter((f) => f.status === 'active' && (!categoryId || f.categoryId === categoryId)).length
 	);
 	let pastCount = $derived(
-		flowStore.items.filter(f => f.status !== 'active' && (!categoryId || f.categoryId === categoryId)).length
+		flowStore.items.filter((f) => f.status !== 'active' && (!categoryId || f.categoryId === categoryId)).length
 	);
 
 	function statusColor(status: string) {
 		return status === 'completed' ? 'success' : status === 'abandoned' ? 'error' : 'primary';
 	}
-	function progress(flow: typeof flowStore.items[0]) {
-		if (flow.actions.length === 0) return 0;
-		return flow.actions.filter(a => a.checked).length / flow.actions.length * 100;
+	function progress(flow: (typeof flowStore.items)[0]) {
+		if (flow.steps.length === 0) return 0;
+		return (flow.steps.filter((a) => a.checked).length / flow.steps.length) * 100;
 	}
 	function formatDate(iso: string) {
 		return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -55,7 +55,9 @@
 			>
 				Active
 				{#if activeCount > 0}
-					<span class="badge badge-sm {viewMode === 'active' ? 'badge-primary-content' : 'badge-neutral'} ml-1">{activeCount}</span>
+					<span class="badge badge-sm {viewMode === 'active' ? 'badge-primary-content' : 'badge-neutral'} ml-1"
+						>{activeCount}</span
+					>
 				{/if}
 			</button>
 			<button
@@ -65,7 +67,9 @@
 			>
 				Past
 				{#if pastCount > 0}
-					<span class="badge badge-sm {viewMode === 'past' ? 'badge-primary-content' : 'badge-neutral'} ml-1">{pastCount}</span>
+					<span class="badge badge-sm {viewMode === 'past' ? 'badge-primary-content' : 'badge-neutral'} ml-1"
+						>{pastCount}</span
+					>
 				{/if}
 			</button>
 		</div>
@@ -76,8 +80,11 @@
 			{#each filtered as f (f.id)}
 				{@const cat = f.categoryId ? categoryStore.getById(f.categoryId) : null}
 				{@const prog = progress(f)}
-				<button type="button" class="card bg-base-100 shadow-sm cursor-pointer hover:shadow-md text-left"
-					onclick={() => goto('/categories/' + slugify(cat?.name ?? '') + '/' + slugify(f.title))}>
+				<button
+					type="button"
+					class="card bg-base-100 shadow-sm cursor-pointer hover:shadow-md text-left"
+					onclick={() => goto('/categories/' + slugify(cat?.name ?? '') + '/' + slugify(f.title))}
+				>
 					<div class="card-body gap-2">
 						<h3 class="card-title text-base truncate flex-1">{f.title}</h3>
 						<div class="flex items-center gap-2 flex-wrap">
@@ -102,7 +109,11 @@
 		</div>
 	{:else}
 		<p class="text-center text-base-content/50 py-8">
-			{search ? `No ${viewMode} flows matching "${search}".` : viewMode === 'active' ? 'No active flows.' : 'No past flows.'}
+			{search
+				? `No ${viewMode} flows matching "${search}".`
+				: viewMode === 'active'
+					? 'No active flows.'
+					: 'No past flows.'}
 		</p>
 	{/if}
 </div>

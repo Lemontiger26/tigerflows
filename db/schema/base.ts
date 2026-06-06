@@ -17,7 +17,7 @@ const tigerid = customAlphabet(nolookalikes, id_length);
 
 export const flowStatusEnum = p.pgEnum('flow_status', ['active', 'completed', 'abandoned']);
 
-export const actionTypeEnum = p.pgEnum('action_type', [
+export const stepTypeEnum = p.pgEnum('step_type', [
 	'boolean',
 	'text',
 	'number',
@@ -96,10 +96,10 @@ export const templates = p.pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// template_actions
+// template_steps
 // ---------------------------------------------------------------------------
 
-export const templateActions = p.pgTable('template_actions', {
+export const templateSteps = p.pgTable('template_steps', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
 	templateId: p
 		.char('template_id', { length: id_length })
@@ -109,7 +109,7 @@ export const templateActions = p.pgTable('template_actions', {
 	order: p.integer('order').notNull(),
 	title: p.text('title').notNull(),
 	description: p.text('description').notNull().default(''),
-	actionType: actionTypeEnum('action_type').notNull().default('boolean'),
+	stepType: stepTypeEnum('step_type').notNull().default('boolean'),
 	executorType: executorTypeEnum('executor_type').notNull().default('human'),
 	// type-specific config: { min,max,step } | { enumSetId } | { agent hints }
 	config: p.jsonb('config').$type<Record<string, unknown>>().notNull().default({}),
@@ -145,25 +145,25 @@ export const flows = p.pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// flow_actions
-// Snapshot template_action data at instantiation so template edits
+// flow_steps
+// Snapshot template_step data at instantiation so template edits
 // don't affect in-progress flows. Stores typed runtime value.
 // ---------------------------------------------------------------------------
 
-export const flowActions = p.pgTable('flow_actions', {
+export const flowSteps = p.pgTable('flow_steps', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
 	flowId: p
 		.char('flow_id', { length: id_length })
 		.notNull()
 		.references(() => flows.id, { onDelete: 'cascade' }),
-	templateActionId: p
-		.char('template_action_id', { length: id_length })
+	templateStepId: p
+		.char('template_step_id', { length: id_length })
 		.notNull()
-		.references(() => templateActions.id),
+		.references(() => templateSteps.id),
 	order: p.integer('order').notNull(),
 	title: p.text('title').notNull(),
 	description: p.text('description').notNull().default(''),
-	actionType: actionTypeEnum('action_type').notNull().default('boolean'),
+	stepType: stepTypeEnum('step_type').notNull().default('boolean'),
 	executorType: executorTypeEnum('executor_type').notNull().default('human'),
 	config: p.jsonb('config').$type<Record<string, unknown>>().notNull().default({}),
 	isCritical: p.boolean('is_critical').notNull().default(false),
@@ -214,7 +214,7 @@ export const templateTags = p.pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// user-defined enums (for enum_single / enum_multi action types)
+// user-defined enums (for enum_single / enum_multi step types)
 // ---------------------------------------------------------------------------
 
 export const enumSets = p.pgTable(

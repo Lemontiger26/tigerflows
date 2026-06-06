@@ -166,7 +166,7 @@ Six pg enums currently defined:
 | Enum                  | Values                                                                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `flow_status`         | `active`, `completed`, `abandoned`                                                                                 |
-| `action_type`         | `boolean`, `text`, `number`, `date`, `enum_single`, `enum_multi`, `agent`                                          |
+| `step_type`           | `boolean`, `text`, `number`, `date`, `enum_single`, `enum_multi`, `agent`                                          |
 | `executor_type`       | `human`, `agent`                                                                                                   |
 | `input_source_kind`   | `log_file`, `rest_health`, `systemctl_status`, `email`, `sql_query`, `http_get`, `rag_corpus`, `webhook`, `custom` |
 | `execution_gate_kind` | `human_approval`, `predicate`, `budget`, `time_window`, `dependency`, `rate_limit`, `custom`                       |
@@ -423,7 +423,7 @@ System content is installed explicitly, not automatically on app startup:
 3. Copies records into `userFlows.db` in FK-safe order (parents before children)
 4. Closes `systemFlows.db`
 
-**Not every table has `userId`.** Root tables (categories, templates, tags, enum_sets, skills, flows, input_source_templates, execution_gate_templates) carry ownership via `userId = 'SYSTEM'`. Dependent tables (template_actions, flow_actions, template_tags, enum_values, template_action_skills, input_sources, execution_gates, etc.) are copied by FK traversal — the seed reads all child rows belonging to system parent records.
+**Not every table has `userId`.** Root tables (categories, templates, tags, enum_sets, skills, flows, input_source_templates, execution_gate_templates) carry ownership via `userId = 'SYSTEM'`. Dependent tables (template_steps, flow_steps, template_tags, enum_values, template_step_skills, input_sources, execution_gates, etc.) are copied by FK traversal — the seed reads all child rows belonging to system parent records.
 
 ```ts
 // db/seed-system.ts — simplified
@@ -451,8 +451,8 @@ export async function seedSystemData(targetDb: ReturnType<typeof drizzle>) {
 	// ...
 
 	//    Child tables (no userId — belong to system parents by FK):
-	const systemTemplateActions = await sourceDb.select().from(schema.templateActions);
-	const systemFlowActions = await sourceDb.select().from(schema.flowActions);
+	const systemTemplateSteps = await sourceDb.select().from(schema.templateSteps);
+	const systemFlowSteps = await sourceDb.select().from(schema.flowSteps);
 	const systemTemplateTags = await sourceDb.select().from(schema.templateTags);
 	// ...
 

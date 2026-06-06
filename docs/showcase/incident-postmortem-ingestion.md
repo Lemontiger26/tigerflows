@@ -3,10 +3,16 @@
 This note describes the technical strategy for turning public incident
 postmortem patterns into TigerFlows showcase content.
 
-The goal is not to demonstrate that an LLM can read every document and invent a
-workflow. The goal is to demonstrate that TigerFlows can help inspect messy
-source data, produce explicit ingestion logic, validate the result, and then
-operate on recurring structured history.
+The near-term goal is not to demonstrate that an LLM can read every document
+and invent a workflow. The near-term goal is to ship useful, privacy-safe,
+synthetic incident history that shows recurring structured flows, filtering,
+statistics, and chat over history.
+
+Interactive source interpretation is a later product capability. A polished
+version needs a source viewer, field markers, mapping rules, controlled
+vocabulary editing, target-structure preview, validation output, and probably
+source-to-target mapping UI. That is intentionally out of scope for the bundled
+showcase seed.
 
 ## Source Data And Licensing
 
@@ -40,8 +46,8 @@ requiring bundled source payloads.
 
 ## Design Principle
 
-The model should inspect data and help write ingestion code. It should not be
-the ingestion engine.
+The long-term ingestion principle remains: the model should inspect data and
+help write ingestion code. It should not be the ingestion engine.
 
 Normal ingestion must be deterministic:
 
@@ -66,18 +72,46 @@ Model assistance is not appropriate for:
 - silently filling missing fields that should be marked as unknown;
 - bypassing schema validation because the generated prose "looks right".
 
+## Near-Term Showcase Scope
+
+The bundled demo should directly generate semi-structured synthetic flow data.
+It may include source-like JSON blobs and import-report-like metadata, but it
+must not claim that the product interactively derived the importer from those
+sources.
+
+Near-term deliverables:
+
+- incident postmortem template;
+- fictional incident flow records;
+- source-like JSON payload attached to each flow for traceability;
+- typed step values populated from the synthetic source;
+- deterministic generator with a fixed seed;
+- visible marker that the dataset is synthetic demo data.
+
+Explicitly out of scope for the OSS showcase seed:
+
+- source editor with span markers;
+- drag/drop source-to-target mapping;
+- mapping-rule editor;
+- controlled-vocabulary editor;
+- generated importer code review UI;
+- exception-review queue for real imported data.
+
+Those capabilities belong to a future ingestion engine / schema mapping
+workbench, likely in the Pro or Team product layer.
+
 ## Target Showcase Flow
 
 Category: `Reliability / Incident Learning`
 
 Template: `Incident Postmortem Review`
 
-The template should combine typed actions with source traceability. The flow
-represents one incident report. A local demo database can then contain many
-completed synthetic or user-downloaded flows, allowing filtering, statistics,
-recurrence analysis, and chat over historical incident patterns.
+The template should combine typed steps with source traceability. The flow
+represents one synthetic incident report. A local demo database can then contain
+many completed flows, allowing filtering, statistics, recurrence analysis, and
+chat over historical incident patterns.
 
-### Actions
+### Steps
 
 1. `Source intake`
    - Type: agent/input
@@ -126,7 +160,7 @@ recurrence analysis, and chat over historical incident patterns.
 ## Suggested Typed Fields
 
 The first typed target does not need a new table per field. It can live in
-flow action values and action config while the showcase is still proving the
+flow step values and step config while the showcase is still proving the
 shape. If these fields become central product primitives later, promote them
 into first-class schema only after real usage confirms the shape.
 
@@ -260,9 +294,9 @@ Bundling rule:
 
 ## Synthetic Source Generation
 
-The default bundled demo should be generated synthetic source material. It
-should look like realistic incident source data before interpretation, so the
-demo can still show the ingestion workflow end to end.
+The default bundled demo should generate semi-structured synthetic flow data.
+Each generated flow can carry a source-like payload, but the app should present
+it as demo data, not as an interactive import created by an ingestion engine.
 
 Recommended generator inputs:
 
@@ -276,15 +310,17 @@ Recommended generator inputs:
 - incident duration distribution with short, medium, and long incidents;
 - source quality modes: `structured`, `semi_structured`, `free_text`.
 
-Recommended generated source artifacts:
+Recommended generated artifacts:
 
-- compact JSON records shaped like broad postmortem metadata;
-- richer JSON records shaped like parsed article pages;
+- completed incident flows;
+- typed flow-step values;
+- compact source-like JSON records shaped like broad postmortem metadata;
+- richer source-like JSON records shaped like parsed article pages;
 - a manifest with generator version, seed, source pattern version, and counts.
 
-The synthetic source should still pass through the same deterministic importer
-as downloaded real source data. This proves the ingestion path without shipping
-third-party content.
+The synthetic source-like payload and the populated flow values should be
+generated together from the same internal incident model. This avoids building a
+full importer before the product has an ingestion UI.
 
 ## Validation
 
@@ -325,8 +361,7 @@ bun run db:install-system
 
 The exact command names can change, but the behavior should remain explicit:
 
-- scrape/download is a separate local preparation step;
-- synthetic showcase JSON is generated by deterministic code;
+- synthetic showcase flow data is generated by deterministic code;
 - system database build may consume synthetic showcase JSON;
 - user runtime database receives system showcase content only through explicit
   install/upsert;
@@ -337,20 +372,18 @@ Suggested in-app behavior:
 
 1. User clicks `Install incident demo`.
 2. App explains that the bundled demo uses synthetic data.
-3. App optionally offers `Download public postmortem corpus` as a separate
-   local action with source/license links.
-4. App runs the deterministic importer locally.
-5. App shows import report and review queue before installing records.
+3. App installs generated synthetic flows.
+4. App optionally links to future real-source import as a Pro/Team capability.
 
 ## Open Questions
 
 - How much synthetic demo data should ship by default.
 - Whether any real public source permits redistribution of normalized records.
-- Whether optional local corpus download should live in the app UI, a CLI, or
+- Whether optional local corpus download/import should live in Pro, Team, or
   both.
-- Whether incident-specific fields should stay as action values or become
+- Whether incident-specific fields should stay as step values or become
   first-class database columns after the showcase validates the model.
 
 Default recommendation: bundle only synthetic demo generation plus the incident
-template/importer; make real-source downloads explicit, local, and
-user-triggered; promote schema only after the interaction design proves useful.
+template; keep real-source interpretation as a future ingestion-engine feature;
+promote schema only after the interaction design proves useful.

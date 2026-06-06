@@ -5,17 +5,17 @@
  * Usage: bun run db:seed
  */
 
-import { db, categories, templates, templateActions, flows, flowActions, tags, templateTags } from './db';
+import { db, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
 import { seedCategories, seedTemplates, seedFlows } from '../../src/lib/stores/seed';
 import { embedMany } from './embed';
 
 async function seed() {
 	// ── Wipe ────────────────────────────────────────────────────────────────────
 	console.log('Wiping tables...');
-	await db.delete(flowActions);
+	await db.delete(flowSteps);
 	await db.delete(flows);
 	await db.delete(templateTags);
-	await db.delete(templateActions);
+	await db.delete(templateSteps);
 	await db.delete(templates);
 	await db.delete(categories);
 	await db.delete(tags);
@@ -24,16 +24,18 @@ async function seed() {
 	// ── Batch-compute all embeddings upfront ────────────────────────────────────
 	console.log('Computing embeddings (model: BAAI/bge-small-en-v1.5, 384d)...');
 
-	const allTplActions = seedTemplates.flatMap((t) => t.actions);
-	const allFlowActions = seedFlows.flatMap((f) => f.actions);
+	const allTplSteps = seedTemplates.flatMap((t) => t.steps);
+	const allFlowSteps = seedFlows.flatMap((f) => f.steps);
 
 	const catEmb = await embedMany(seedCategories.map((c) => c.name));
 	const tplEmb = await embedMany(seedTemplates.map((t) => t.name));
-	const tplActEmb = await embedMany(allTplActions.map((a) => a.title));
+	const tplStepEmb = await embedMany(allTplSteps.map((a) => a.title));
 	const flowEmb = await embedMany(seedFlows.map((f) => f.title));
-	const flowActEmb = await embedMany(allFlowActions.map((a) => a.title));
+	const flowStepEmb = await embedMany(allFlowSteps.map((a) => a.title));
 
-	console.log(`  ✓ ${catEmb.length + tplEmb.length + tplActEmb.length + flowEmb.length + flowActEmb.length} vectors\n`);
+	console.log(
+		`  ✓ ${catEmb.length + tplEmb.length + tplStepEmb.length + flowEmb.length + flowStepEmb.length} vectors\n`
+	);
 
 	// ── Insert ───────────────────────────────────────────────────────────────────
 	console.log('Seeding database...');
@@ -71,7 +73,7 @@ async function seed() {
 	}
 	console.log(`  ✓ ${allTagNames.length} tags`);
 
-	let tplActIdx = 0;
+	let tplStepIdx = 0;
 	for (const [i, tpl] of seedTemplates.entries()) {
 		await db.insert(templates).values({
 			id: tpl.id,
@@ -88,25 +90,25 @@ async function seed() {
 			const tagId = tagIdByName.get(tagName);
 			if (tagId) await db.insert(templateTags).values({ templateId: tpl.id, tagId });
 		}
-		for (const action of tpl.actions) {
-			await db.insert(templateActions).values({
-				id: action.id,
-				templateId: action.templateId,
-				slug: action.slug,
-				order: action.order,
-				title: action.title,
-				description: action.description,
-				actionType: action.actionType,
-				executorType: action.executorType,
-				config: action.config,
-				isCritical: action.isCritical,
-				embeddings: tplActEmb[tplActIdx++]
+		for (const step of tpl.steps) {
+			await db.insert(templateSteps).values({
+				id: step.id,
+				templateId: step.templateId,
+				slug: step.slug,
+				order: step.order,
+				title: step.title,
+				description: step.description,
+				stepType: step.stepType,
+				executorType: step.executorType,
+				config: step.config,
+				isCritical: step.isCritical,
+				embeddings: tplStepEmb[tplStepIdx++]
 			});
 		}
 	}
-	console.log(`  ✓ ${seedTemplates.length} templates (with ${allTplActions.length} actions)`);
+	console.log(`  ✓ ${seedTemplates.length} templates (with ${allTplSteps.length} steps)`);
 
-	let flowActIdx = 0;
+	let flowStepIdx = 0;
 	for (const [i, flow] of seedFlows.entries()) {
 		await db.insert(flows).values({
 			id: flow.id,
@@ -121,27 +123,27 @@ async function seed() {
 			updatedAt: flow.updatedAt,
 			completedAt: flow.completedAt
 		});
-		for (const action of flow.actions) {
-			await db.insert(flowActions).values({
-				id: action.id,
-				flowId: flow.id, // action.flowId is '' in seed data — use parent flow.id
-				templateActionId: action.templateActionId,
-				order: action.order,
-				title: action.title,
-				description: action.description,
-				actionType: action.actionType,
-				executorType: action.executorType,
-				config: action.config,
-				isCritical: action.isCritical,
-				checked: action.checked,
-				value: action.value,
-				checkedAt: action.checkedAt,
-				comment: action.comment,
-				embeddings: flowActEmb[flowActIdx++]
+		for (const step of flow.steps) {
+			await db.insert(flowSteps).values({
+				id: step.id,
+				flowId: flow.id, // step.flowId is '' in seed data — use parent flow.id
+				templateStepId: step.templateStepId,
+				order: step.order,
+				title: step.title,
+				description: step.description,
+				stepType: step.stepType,
+				executorType: step.executorType,
+				config: step.config,
+				isCritical: step.isCritical,
+				checked: step.checked,
+				value: step.value,
+				checkedAt: step.checkedAt,
+				comment: step.comment,
+				embeddings: flowStepEmb[flowStepIdx++]
 			});
 		}
 	}
-	console.log(`  ✓ ${seedFlows.length} flows (with ${allFlowActions.length} actions)`);
+	console.log(`  ✓ ${seedFlows.length} flows (with ${allFlowSteps.length} steps)`);
 
 	console.log('\n✓ Seed complete');
 

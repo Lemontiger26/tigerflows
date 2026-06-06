@@ -12,9 +12,9 @@ import {
 	users,
 	categories,
 	templates,
-	templateActions,
+	templateSteps,
 	flows,
-	flowActions,
+	flowSteps,
 	tags,
 	templateTags,
 	enumSets,
@@ -53,11 +53,11 @@ export const insertTemplateSchema = createInsertSchema(templates, {
 export const updateTemplateSchema = insertTemplateSchema.partial().required({ id: true });
 
 // ---------------------------------------------------------------------------
-// template_actions
+// template_steps
 // ---------------------------------------------------------------------------
 
-export const selectTemplateActionSchema = createSelectSchema(templateActions);
-export const insertTemplateActionSchema = createInsertSchema(templateActions, {
+export const selectTemplateStepSchema = createSelectSchema(templateSteps);
+export const insertTemplateStepSchema = createInsertSchema(templateSteps, {
 	title: (s) => s.min(1, 'Title is required'),
 	slug: (s) => s.min(1),
 	order: (s) => s.int().nonnegative()
@@ -75,15 +75,15 @@ export const insertFlowSchema = createInsertSchema(flows, {
 export const updateFlowSchema = insertFlowSchema.partial().required({ id: true });
 
 // ---------------------------------------------------------------------------
-// flow_actions
+// flow_steps
 // ---------------------------------------------------------------------------
 
-export const selectFlowActionSchema = createSelectSchema(flowActions);
-export const insertFlowActionSchema = createInsertSchema(flowActions, {
+export const selectFlowStepSchema = createSelectSchema(flowSteps);
+export const insertFlowStepSchema = createInsertSchema(flowSteps, {
 	title: (s) => s.min(1, 'Title is required'),
 	order: (s) => s.int().nonnegative()
 });
-export const updateFlowActionSchema = insertFlowActionSchema.partial().required({ id: true });
+export const updateFlowStepSchema = insertFlowStepSchema.partial().required({ id: true });
 
 // ---------------------------------------------------------------------------
 // tags
@@ -129,14 +129,14 @@ export type InsertCategoryRow = z.infer<typeof insertCategorySchema>;
 export type TemplateRow = z.infer<typeof selectTemplateSchema>;
 export type InsertTemplateRow = z.infer<typeof insertTemplateSchema>;
 
-export type TemplateActionRow = z.infer<typeof selectTemplateActionSchema>;
-export type InsertTemplateActionRow = z.infer<typeof insertTemplateActionSchema>;
+export type TemplateStepRow = z.infer<typeof selectTemplateStepSchema>;
+export type InsertTemplateStepRow = z.infer<typeof insertTemplateStepSchema>;
 
 export type FlowRow = z.infer<typeof selectFlowSchema>;
 export type InsertFlowRow = z.infer<typeof insertFlowSchema>;
 
-export type FlowActionRow = z.infer<typeof selectFlowActionSchema>;
-export type InsertFlowActionRow = z.infer<typeof insertFlowActionSchema>;
+export type FlowStepRow = z.infer<typeof selectFlowStepSchema>;
+export type InsertFlowStepRow = z.infer<typeof insertFlowStepSchema>;
 
 export type TagRow = z.infer<typeof selectTagSchema>;
 export type InsertTagRow = z.infer<typeof insertTagSchema>;

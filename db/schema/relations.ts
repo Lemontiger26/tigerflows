@@ -3,9 +3,9 @@ import {
 	users,
 	categories,
 	templates,
-	templateActions,
+	templateSteps,
 	flows,
-	flowActions,
+	flowSteps,
 	tags,
 	templateTags,
 	enumSets,
@@ -13,8 +13,8 @@ import {
 } from './base';
 import {
 	skills,
-	templateActionSkills,
-	flowActionSkills,
+	templateStepSkills,
+	flowStepSkills,
 	inputSourceTemplates,
 	inputSources,
 	flowInputSources,
@@ -43,15 +43,15 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 export const templatesRelations = relations(templates, ({ one, many }) => ({
 	user: one(users, { fields: [templates.userId], references: [users.id] }),
 	category: one(categories, { fields: [templates.categoryId], references: [categories.id] }),
-	templateActions: many(templateActions),
+	templateSteps: many(templateSteps),
 	flows: many(flows),
 	tags: many(templateTags)
 }));
 
-export const templateActionsRelations = relations(templateActions, ({ one, many }) => ({
-	template: one(templates, { fields: [templateActions.templateId], references: [templates.id] }),
-	flowActions: many(flowActions),
-	skills: many(templateActionSkills),
+export const templateStepsRelations = relations(templateSteps, ({ one, many }) => ({
+	template: one(templates, { fields: [templateSteps.templateId], references: [templates.id] }),
+	flowSteps: many(flowSteps),
+	skills: many(templateStepSkills),
 	inputSources: many(inputSources),
 	executionGates: many(executionGates)
 }));
@@ -60,16 +60,16 @@ export const flowsRelations = relations(flows, ({ one, many }) => ({
 	user: one(users, { fields: [flows.userId], references: [users.id] }),
 	category: one(categories, { fields: [flows.categoryId], references: [categories.id] }),
 	template: one(templates, { fields: [flows.templateId], references: [templates.id] }),
-	flowActions: many(flowActions)
+	flowSteps: many(flowSteps)
 }));
 
-export const flowActionsRelations = relations(flowActions, ({ one, many }) => ({
-	flow: one(flows, { fields: [flowActions.flowId], references: [flows.id] }),
-	templateAction: one(templateActions, {
-		fields: [flowActions.templateActionId],
-		references: [templateActions.id]
+export const flowStepsRelations = relations(flowSteps, ({ one, many }) => ({
+	flow: one(flows, { fields: [flowSteps.flowId], references: [flows.id] }),
+	templateStep: one(templateSteps, {
+		fields: [flowSteps.templateStepId],
+		references: [templateSteps.id]
 	}),
-	skills: many(flowActionSkills),
+	skills: many(flowStepSkills),
 	inputSources: many(flowInputSources),
 	executionGates: many(flowExecutionGates)
 }));
@@ -95,24 +95,24 @@ export const enumValuesRelations = relations(enumValues, ({ one }) => ({
 
 export const skillsRelations = relations(skills, ({ one, many }) => ({
 	user: one(users, { fields: [skills.userId], references: [users.id] }),
-	templateActions: many(templateActionSkills),
-	flowActions: many(flowActionSkills)
+	templateSteps: many(templateStepSkills),
+	flowSteps: many(flowStepSkills)
 }));
 
-export const templateActionSkillsRelations = relations(templateActionSkills, ({ one }) => ({
-	templateAction: one(templateActions, {
-		fields: [templateActionSkills.templateActionId],
-		references: [templateActions.id]
+export const templateStepSkillsRelations = relations(templateStepSkills, ({ one }) => ({
+	templateStep: one(templateSteps, {
+		fields: [templateStepSkills.templateStepId],
+		references: [templateSteps.id]
 	}),
-	skill: one(skills, { fields: [templateActionSkills.skillId], references: [skills.id] })
+	skill: one(skills, { fields: [templateStepSkills.skillId], references: [skills.id] })
 }));
 
-export const flowActionSkillsRelations = relations(flowActionSkills, ({ one }) => ({
-	flowAction: one(flowActions, {
-		fields: [flowActionSkills.flowActionId],
-		references: [flowActions.id]
+export const flowStepSkillsRelations = relations(flowStepSkills, ({ one }) => ({
+	flowStep: one(flowSteps, {
+		fields: [flowStepSkills.flowStepId],
+		references: [flowSteps.id]
 	}),
-	skill: one(skills, { fields: [flowActionSkills.skillId], references: [skills.id] })
+	skill: one(skills, { fields: [flowStepSkills.skillId], references: [skills.id] })
 }));
 
 export const inputSourceTemplatesRelations = relations(inputSourceTemplates, ({ one, many }) => ({
@@ -121,9 +121,9 @@ export const inputSourceTemplatesRelations = relations(inputSourceTemplates, ({ 
 }));
 
 export const inputSourcesRelations = relations(inputSources, ({ one, many }) => ({
-	templateAction: one(templateActions, {
-		fields: [inputSources.templateActionId],
-		references: [templateActions.id]
+	templateStep: one(templateSteps, {
+		fields: [inputSources.templateStepId],
+		references: [templateSteps.id]
 	}),
 	sourceTemplate: one(inputSourceTemplates, {
 		fields: [inputSources.sourceTemplateId],
@@ -133,9 +133,9 @@ export const inputSourcesRelations = relations(inputSources, ({ one, many }) => 
 }));
 
 export const flowInputSourcesRelations = relations(flowInputSources, ({ one }) => ({
-	flowAction: one(flowActions, {
-		fields: [flowInputSources.flowActionId],
-		references: [flowActions.id]
+	flowStep: one(flowSteps, {
+		fields: [flowInputSources.flowStepId],
+		references: [flowSteps.id]
 	}),
 	inputSource: one(inputSources, {
 		fields: [flowInputSources.inputSourceId],
@@ -143,18 +143,15 @@ export const flowInputSourcesRelations = relations(flowInputSources, ({ one }) =
 	})
 }));
 
-export const executionGateTemplatesRelations = relations(
-	executionGateTemplates,
-	({ one, many }) => ({
-		user: one(users, { fields: [executionGateTemplates.userId], references: [users.id] }),
-		instances: many(executionGates)
-	})
-);
+export const executionGateTemplatesRelations = relations(executionGateTemplates, ({ one, many }) => ({
+	user: one(users, { fields: [executionGateTemplates.userId], references: [users.id] }),
+	instances: many(executionGates)
+}));
 
 export const executionGatesRelations = relations(executionGates, ({ one, many }) => ({
-	templateAction: one(templateActions, {
-		fields: [executionGates.templateActionId],
-		references: [templateActions.id]
+	templateStep: one(templateSteps, {
+		fields: [executionGates.templateStepId],
+		references: [templateSteps.id]
 	}),
 	gateTemplate: one(executionGateTemplates, {
 		fields: [executionGates.gateTemplateId],
@@ -164,9 +161,9 @@ export const executionGatesRelations = relations(executionGates, ({ one, many })
 }));
 
 export const flowExecutionGatesRelations = relations(flowExecutionGates, ({ one }) => ({
-	flowAction: one(flowActions, {
-		fields: [flowExecutionGates.flowActionId],
-		references: [flowActions.id]
+	flowStep: one(flowSteps, {
+		fields: [flowExecutionGates.flowStepId],
+		references: [flowSteps.id]
 	}),
 	executionGate: one(executionGates, {
 		fields: [flowExecutionGates.executionGateId],

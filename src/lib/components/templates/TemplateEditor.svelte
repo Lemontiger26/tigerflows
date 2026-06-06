@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { templateStore } from '$lib/stores';
-	import type { TemplateAction } from '~types';
+	import type { TemplateStep } from '~types';
 	import { tigerid } from '$lib/helpers/tigerId';
 	import MarkdownEditor from '$lib/components/ui/MarkdownEditor.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
-	import TemplateActionEditor from './TemplateActionEditor.svelte';
+	import TemplateStepEditor from './TemplateStepEditor.svelte';
 
 	interface Props {
 		id: string; // 'new' for create mode, existing id for edit
@@ -21,7 +21,7 @@
 	let name = $state('');
 	let description = $state('');
 	let tagsInput = $state('');
-	let actions = $state<TemplateAction[]>([]);
+	let steps = $state<TemplateStep[]>([]);
 
 	// Sync when existingTemplate changes (navigating between templates)
 	$effect(() => {
@@ -29,12 +29,12 @@
 			name = existingTemplate.name;
 			description = existingTemplate.description;
 			tagsInput = existingTemplate.tags.join(', ');
-			actions = [...existingTemplate.actions];
+			steps = [...existingTemplate.steps];
 		} else {
 			name = '';
 			description = '';
 			tagsInput = '';
-			actions = [];
+			steps = [];
 		}
 	});
 
@@ -59,48 +59,48 @@
 		tagsInput = (e.target as HTMLInputElement).value;
 	}
 
-	function addAction() {
-		const newAction: TemplateAction = {
+	function addStep() {
+		const newStep: TemplateStep = {
 			id: tigerid(),
 			templateId: id === 'new' ? '' : id,
 			slug: '',
-			order: actions.length + 1,
+			order: steps.length + 1,
 			title: '',
 			description: '',
-			actionType: 'boolean',
+			stepType: 'boolean',
 			executorType: 'human',
 			config: {},
 			isCritical: false,
-			embeddings: [] as unknown as TemplateAction['embeddings']
+			embeddings: [] as unknown as TemplateStep['embeddings']
 		};
-		actions = [...actions, newAction];
+		steps = [...steps, newStep];
 	}
 
-	function updateAction(index: number, updated: TemplateAction) {
-		actions = actions.map((a, i) => (i === index ? updated : a));
+	function updateStep(index: number, updated: TemplateStep) {
+		steps = steps.map((a, i) => (i === index ? updated : a));
 	}
 
-	function removeAction(index: number) {
-		actions = actions.filter((_, i) => i !== index).map((a, i) => ({ ...a, order: i + 1 }));
+	function removeStep(index: number) {
+		steps = steps.filter((_, i) => i !== index).map((a, i) => ({ ...a, order: i + 1 }));
 	}
 
 	function save() {
-		if (!name.trim() || actions.length === 0) return;
+		if (!name.trim() || steps.length === 0) return;
 
-		const templateActions = actions.map((a, i) => ({ ...a, order: i + 1 }));
+		const templateSteps = steps.map((a, i) => ({ ...a, order: i + 1 }));
 
 		if (mode === 'create') {
 			templateStore.add({
 				name: name.trim(),
 				description,
-				actions: templateActions,
+				steps: templateSteps,
 				tags
 			});
 		} else {
 			templateStore.update(id, {
 				name: name.trim(),
 				description,
-				actions: templateActions,
+				steps: templateSteps,
 				tags
 			});
 		}
@@ -141,7 +141,7 @@
 					type="button"
 					class="btn btn-primary btn-sm"
 					onclick={save}
-					disabled={!name.trim() || actions.length === 0}
+					disabled={!name.trim() || steps.length === 0}
 				>
 					Save
 				</button>
@@ -200,24 +200,24 @@
 		</div>
 	</div>
 
-	<!-- Actions -->
+	<!-- Steps -->
 	<div class="card shadow-sm">
 		<div class="card-body gap-4">
 			<div class="flex items-center justify-between">
-				<h3 class="card-title text-base">Actions ({actions.length})</h3>
-				<button type="button" class="btn btn-outline btn-sm" onclick={addAction}> + Add Action </button>
+				<h3 class="card-title text-base">Steps ({steps.length})</h3>
+				<button type="button" class="btn btn-outline btn-sm" onclick={addStep}> + Add Step </button>
 			</div>
 
-			{#if actions.length === 0}
-				<p class="text-base-content/50 py-4 text-center">No actions yet. Add your first action above.</p>
+			{#if steps.length === 0}
+				<p class="text-base-content/50 py-4 text-center">No steps yet. Add your first step above.</p>
 			{:else}
 				<div class="flex flex-col gap-3">
-					{#each actions as action, index (action.id)}
-						<TemplateActionEditor
-							{action}
+					{#each steps as step, index (step.id)}
+						<TemplateStepEditor
+							{step}
 							{index}
-							onupdate={(updated) => updateAction(index, updated)}
-							onremove={() => removeAction(index)}
+							onupdate={(updated) => updateStep(index, updated)}
+							onremove={() => removeStep(index)}
 						/>
 					{/each}
 				</div>
@@ -226,8 +226,8 @@
 	</div>
 
 	<!-- Validation messages -->
-	{#if name.trim() && actions.length === 0}
-		<p class="text-warning text-center text-sm">Add at least one action to save</p>
+	{#if name.trim() && steps.length === 0}
+		<p class="text-warning text-center text-sm">Add at least one step to save</p>
 	{/if}
 </div>
 

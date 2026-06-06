@@ -9,7 +9,7 @@ All notable changes to TigerFlows are recorded here.
 ### Fixed
 
 - `flows.userId` was inserting as empty string `''` causing silent FK violations; changed to `null` throughout store and seed data
-- `flow_actions.flowId` in seed data was always `''` (placeholder never filled); seed script now uses `flow.id` directly
+- `flow_steps.flowId` in seed data was always `''` (placeholder never filled); seed script now uses `flow.id` directly
 - `db/scripts/embed.ts` was a duplicate of `src/lib/server/embeddings.ts`; replaced with a thin re-export to eliminate drift risk
 
 ### Changed
@@ -45,7 +45,7 @@ All notable changes to TigerFlows are recorded here.
 ### Added
 
 - First Drizzle migration generated (`20260420130710_gray_angel`): full schema DDL
-- `pgvector` `embeddings vector(384)` column added to all six tables (categories, templates, template_actions, flows, flow_actions, users excluded)
+- `pgvector` `embeddings vector(384)` column added to all six tables (categories, templates, template_steps, flows, flow_steps, users excluded)
 - Second migration (`20260420132228_parallel_rattler`): schema refinements
 
 ### Changed
@@ -82,13 +82,13 @@ All notable changes to TigerFlows are recorded here.
 
 ### Added
 
-- `db/schema/base.ts` — Drizzle/PostgreSQL schema: `users`, `categories`, `templates`, `template_actions`, `flows`, `flow_actions`, `flow_status` enum
+- `db/schema/base.ts` — Drizzle/PostgreSQL schema: `users`, `categories`, `templates`, `template_steps`, `flows`, `flow_steps`, `flow_status` enum
 - `db/validators.ts` — Zod validators via `drizzle-zod` (`createSelectSchema` / `createInsertSchema`); inferred `*Row` types re-exported
 - `db/index.ts` — SvelteKit-aware Drizzle client (Supabase Supavisor pooler via `$env/static/private`)
 - `drizzle.config.ts` — Drizzle Kit config targeting Supabase
 - `src/config/defaults.ts` — shared constants (ID length)
 - `src/lib/helpers/tigerId.ts` updated to use nanoid with nolookalikes alphabet
-- `types/index.ts` rebuilt: raw `*Row` types from validators, composed app types (`Template`, `Category`, `Flow` with nested actions), UI types (`CategoryStats`, `HistoryFilters`)
+- `types/index.ts` rebuilt: raw `*Row` types from validators, composed app types (`Template`, `Category`, `Flow` with nested steps), UI types (`CategoryStats`, `HistoryFilters`)
 - `strategy/00.narrow_wedge_plan.md` — product strategy document
 
 ### Changed
@@ -105,10 +105,10 @@ All notable changes to TigerFlows are recorded here.
 - Product: **TigerSteps → TigerFlows**
 - `groups` → `categories`
 - `incidences` → `flows`
-- `steps` → `actions`
+- `actions` → `steps`
 - `timeline` → `history`
-- `StepCard` → `ActionCard`
-- `TemplateStepEditor` → `TemplateActionEditor`
+- `StepCard` → `StepCard`
+- `TemplateStepEditor` → `TemplateStepEditor`
 - `GroupDetail/Editor/List` → `CategoryDetail/Editor/List`
 - `IncidenceList/View/NewIncidenceModal` → `FlowList/FlowView/NewFlowModal`
 - `TimelineBrowser` → `HistoryBrowser`

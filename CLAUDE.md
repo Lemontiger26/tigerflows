@@ -3,9 +3,9 @@
 Structured daily capture + workflow engine. Two modes over one data model:
 
 - **Capture Mode** (v0 focus): keyboard-first daily log editor that beats markdown — dense, inline-editable, emoji+label+value rows. Loose templates, no validation, auto-save.
-- **Execution Mode**: card-based workflow tracker with typed actions, progress, AI-readiness. Strict templates.
+- **Execution Mode**: card-based workflow tracker with typed steps, progress, AI-readiness. Strict templates.
 
-Templates define their `mode` (`loose` | `strict`). Both modes read/write the same `Flow` + `FlowAction` data. The capture editor is a rendering strategy, not a separate data path.
+Templates define their `mode` (`loose` | `strict`). Both modes read/write the same `Flow` + `FlowStep` data. The capture editor is a rendering strategy, not a separate data path.
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ db/
   index.ts         # PGLite DB client (embedded, server-side)
   scripts/         # CLI tools: seed.ts, wipe.ts, check_db.ts, db.ts
   migrations/      # SQL migration files
-types/index.ts     # *Row (flat) + composed domain types (e.g. Template = TemplateRow + actions[])
+types/index.ts     # *Row (flat) + composed domain types (e.g. Template = TemplateRow + steps[])
 data/pglite/       # Local database storage (gitignored)
 ```
 
@@ -42,7 +42,7 @@ data/pglite/       # Local database storage (gitignored)
 
 PGLite runs an embedded Postgres — no external database setup needed. Data is stored locally in `./data/pglite/`. The pgvector extension is loaded automatically for embedding support.
 
-Tables: `users`, `categories`, `templates`, `template_actions`, `flows`, `flow_actions`, `tags`, `template_tags`, `enum_sets`, `enum_values`
+Tables: `users`, `categories`, `templates`, `template_steps`, `flows`, `flow_steps`, `tags`, `template_tags`, `enum_sets`, `enum_values`
 
 Key patterns:
 
@@ -52,9 +52,9 @@ Key patterns:
 - Embeddings: `vector(384)` columns, `.notNull()`
 - `flow_status` enum: `active | completed | abandoned`
 - `template_mode` enum: `strict | loose` — controls which UI renders the flow
-- Flow actions snapshot template data at instantiation
+- Flow steps snapshot template data at instantiation
 - Category/template FKs on flows use `SET NULL` on delete (preserve history)
-- For loose templates: `config` jsonb on `template_actions` stores emoji (`{ emoji: "🧭" }`)
+- For loose templates: `config` jsonb on `template_steps` stores emoji (`{ emoji: "🧭" }`)
 - Daily log entries are flows keyed by date (`title` = ISO date string)
 
 ## Path Aliases (tsconfig)
@@ -97,7 +97,7 @@ bun run db:seed      # Seed with demo data + embeddings
 **Type layers:**
 
 1. `*Row` — flat DB row type (from Zod/Drizzle)
-2. Domain type — composed (e.g. `Template` includes `actions: TemplateActionRow[]`)
+2. Domain type — composed (e.g. `Template` includes `steps: TemplateStepRow[]`)
 3. UI/computed types — `CategoryStats`, `HistoryFilters`, etc.
 
 **Store pattern:** factory functions returning `{ get items(), add(), update(), remove(), getById() }`. No external state lib.
@@ -124,11 +124,11 @@ bun run db:seed      # Seed with demo data + embeddings
 
 **Workbox:** The default landing view — scoped to today's date for v0. Shows all active flows for the current scope. Not a DB entity, just a filtered query + UI shell.
 
-**Capture Mode (DailyQuickView):** Keyboard-first, dense, single-column. Emoji+label+value rows. Enter/Shift+Enter navigation, auto-save, slash commands. No cards, no modals, no validation. Renders a Flow's actions as flat editable text.
+**Capture Mode (DailyQuickView):** Keyboard-first, dense, single-column. Emoji+label+value rows. Enter/Shift+Enter navigation, auto-save, slash commands. No cards, no modals, no validation. Renders a Flow's steps as flat editable text.
 
 **Execution Mode (FlowView):** Existing card-based UI. Progress bars, metadata, status lifecycle. Used for strict templates and complex workflows.
 
-**Transition rule:** The capture editor is a VIEW over the workflow engine's data, not a replacement. Both modes share the same Flow + FlowAction types. `template.mode` determines which UI renders.
+**Transition rule:** The capture editor is a VIEW over the workflow engine's data, not a replacement. Both modes share the same Flow + FlowStep types. `template.mode` determines which UI renders.
 
 ## Pending / Known Issues
 

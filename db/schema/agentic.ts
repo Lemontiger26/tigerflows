@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import { customAlphabet } from 'nanoid';
 import { nolookalikes } from 'nanoid-dictionary';
 import defaults from '@src/config/defaults';
-import { users, templateActions, flowActions } from './base';
+import { users, templateSteps, flowSteps } from './base';
 
 const id_length = defaults.id_length;
 const tigerid = customAlphabet(nolookalikes, id_length);
@@ -35,7 +35,7 @@ export const executionGateKindEnum = p.pgEnum('execution_gate_kind', [
 ]);
 
 // Where in the workflow the gate fires.
-// pre/post = around a single action.
+// pre/post = around a single step.
 // pre_branch/pre_merge = around conditional splits/joins.
 // pre_loop/post_loop = around iteration boundaries.
 export const gatePositionEnum = p.pgEnum('gate_position', [
@@ -75,13 +75,11 @@ export const skills = p.pgTable(
 	]
 );
 
-// m:n template_actions <-> skills
-export const templateActionSkills = p.pgTable(
-	'template_action_skills',
+// m:n template_steps <-> skills
+export const templateStepSkills = p.pgTable(
+	'template_step_skills',
 	{
-		templateActionId: p
-			.char('template_action_id', { length: id_length })
-			.notNull(),
+		templateStepId: p.char('template_step_id', { length: id_length }).notNull(),
 		skillId: p
 			.char('skill_id', { length: id_length })
 			.notNull()
@@ -89,25 +87,25 @@ export const templateActionSkills = p.pgTable(
 		order: p.integer('order').notNull().default(0)
 	},
 	(t) => [
-		p.primaryKey({ columns: [t.templateActionId, t.skillId] }),
+		p.primaryKey({ columns: [t.templateStepId, t.skillId] }),
 		p
 			.foreignKey({
-				name: 'template_action_skills_template_action_fk',
-				columns: [t.templateActionId],
-				foreignColumns: [templateActions.id]
+				name: 'template_step_skills_template_step_fk',
+				columns: [t.templateStepId],
+				foreignColumns: [templateSteps.id]
 			})
 			.onDelete('cascade')
 	]
 );
 
-// m:n flow_actions <-> skills (snapshot + runtime trace)
-export const flowActionSkills = p.pgTable(
-	'flow_action_skills',
+// m:n flow_steps <-> skills (snapshot + runtime trace)
+export const flowStepSkills = p.pgTable(
+	'flow_step_skills',
 	{
-		flowActionId: p
-			.char('flow_action_id', { length: id_length })
+		flowStepId: p
+			.char('flow_step_id', { length: id_length })
 			.notNull()
-			.references(() => flowActions.id, { onDelete: 'cascade' }),
+			.references(() => flowSteps.id, { onDelete: 'cascade' }),
 		skillId: p
 			.char('skill_id', { length: id_length })
 			.notNull()
@@ -115,11 +113,11 @@ export const flowActionSkills = p.pgTable(
 		order: p.integer('order').notNull().default(0),
 		trace: p.jsonb('trace').$type<Record<string, unknown>>()
 	},
-	(t) => [p.primaryKey({ columns: [t.flowActionId, t.skillId] })]
+	(t) => [p.primaryKey({ columns: [t.flowStepId, t.skillId] })]
 );
 
 // ---------------------------------------------------------------------------
-// input sources — templates (library) + instances (bound to template_action)
+// input sources — templates (library) + instances (bound to template_step)
 // ---------------------------------------------------------------------------
 
 export const inputSourceTemplates = p.pgTable(
@@ -148,10 +146,10 @@ export const inputSourceTemplates = p.pgTable(
 
 export const inputSources = p.pgTable('input_sources', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	templateActionId: p
-		.char('template_action_id', { length: id_length })
+	templateStepId: p
+		.char('template_step_id', { length: id_length })
 		.notNull()
-		.references(() => templateActions.id, { onDelete: 'cascade' }),
+		.references(() => templateSteps.id, { onDelete: 'cascade' }),
 	sourceTemplateId: p
 		.char('source_template_id', { length: id_length })
 		.notNull()
@@ -165,10 +163,10 @@ export const inputSources = p.pgTable('input_sources', {
 // Runtime snapshot on flow side
 export const flowInputSources = p.pgTable('flow_input_sources', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	flowActionId: p
-		.char('flow_action_id', { length: id_length })
+	flowStepId: p
+		.char('flow_step_id', { length: id_length })
 		.notNull()
-		.references(() => flowActions.id, { onDelete: 'cascade' }),
+		.references(() => flowSteps.id, { onDelete: 'cascade' }),
 	inputSourceId: p
 		.char('input_source_id', { length: id_length })
 		.references(() => inputSources.id, { onDelete: 'set null' }),
@@ -179,7 +177,7 @@ export const flowInputSources = p.pgTable('flow_input_sources', {
 });
 
 // ---------------------------------------------------------------------------
-// execution gates — templates (library) + instances (bound to template_action)
+// execution gates — templates (library) + instances (bound to template_step)
 // gates carry a workflow position (pre/post/branch/merge/loop)
 // ---------------------------------------------------------------------------
 
@@ -208,10 +206,10 @@ export const executionGateTemplates = p.pgTable(
 
 export const executionGates = p.pgTable('execution_gates', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	templateActionId: p
-		.char('template_action_id', { length: id_length })
+	templateStepId: p
+		.char('template_step_id', { length: id_length })
 		.notNull()
-		.references(() => templateActions.id, { onDelete: 'cascade' }),
+		.references(() => templateSteps.id, { onDelete: 'cascade' }),
 	gateTemplateId: p
 		.char('gate_template_id', { length: id_length })
 		.notNull()
@@ -225,10 +223,10 @@ export const executionGates = p.pgTable('execution_gates', {
 // Runtime state on flow side
 export const flowExecutionGates = p.pgTable('flow_execution_gates', {
 	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	flowActionId: p
-		.char('flow_action_id', { length: id_length })
+	flowStepId: p
+		.char('flow_step_id', { length: id_length })
 		.notNull()
-		.references(() => flowActions.id, { onDelete: 'cascade' }),
+		.references(() => flowSteps.id, { onDelete: 'cascade' }),
 	executionGateId: p
 		.char('execution_gate_id', { length: id_length })
 		.references(() => executionGates.id, { onDelete: 'set null' }),

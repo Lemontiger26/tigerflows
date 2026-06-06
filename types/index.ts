@@ -15,14 +15,14 @@ export type {
 	InsertUserRow,
 	TemplateRow,
 	InsertTemplateRow,
-	TemplateActionRow,
-	InsertTemplateActionRow,
+	TemplateStepRow,
+	InsertTemplateStepRow,
 	CategoryRow,
 	InsertCategoryRow,
 	FlowRow,
 	InsertFlowRow,
-	FlowActionRow,
-	InsertFlowActionRow
+	FlowStepRow,
+	InsertFlowStepRow
 } from '../db/validators';
 
 // ---------------------------------------------------------------------------
@@ -30,27 +30,27 @@ export type {
 // The server assembles these from joined queries; stores and components use them.
 // ---------------------------------------------------------------------------
 
-import type { TemplateRow, TemplateActionRow, CategoryRow, FlowRow, FlowActionRow } from '../db/validators';
+import type { TemplateRow, TemplateStepRow, CategoryRow, FlowRow, FlowStepRow } from '../db/validators';
 
-/** Template with its actions + tags pre-loaded (ordered by `order` asc) */
+/** Template with its steps + tags pre-loaded (ordered by `order` asc) */
 export type Template = TemplateRow & {
-	actions: TemplateActionRow[];
+	steps: TemplateStepRow[];
 	tags: string[]; // tag names for display; server joins through template_tags
 };
 
-/** Alias — TemplateAction is just the flat row type */
-export type TemplateAction = TemplateActionRow;
+/** Alias — TemplateStep is just the flat row type */
+export type TemplateStep = TemplateStepRow;
 
 /** Category is flat (no nested relations needed at query time) */
 export type Category = CategoryRow;
 
-/** Flow with its actions pre-loaded (ordered by `order` asc) */
+/** Flow with its steps pre-loaded (ordered by `order` asc) */
 export type Flow = FlowRow & {
-	actions: FlowActionRow[];
+	steps: FlowStepRow[];
 };
 
-/** Alias — FlowAction is just the flat row type */
-export type FlowAction = FlowActionRow;
+/** Alias — FlowStep is just the flat row type */
+export type FlowStep = FlowStepRow;
 
 // ---------------------------------------------------------------------------
 // UI / computed types — no DB table, derived at runtime
@@ -62,7 +62,7 @@ export interface CategoryStats {
 	abandonedFlows: number;
 	averageCompletionPercent: number;
 	averageCompletionTimeMs: number | null;
-	actionCompletionRates: { actionTitle: string; rate: number }[];
+	stepCompletionRates: { stepTitle: string; rate: number }[];
 	timelineData: { date: string; count: number; completed: number }[];
 }
 
