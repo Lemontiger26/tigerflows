@@ -1,4 +1,5 @@
 import type { Category } from '~types';
+import { LOCAL_USER_ID } from '../../../db/schema/shared';
 import { seedCategories } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
@@ -21,9 +22,9 @@ function createCategoryStore() {
 			const nextColor =
 				COLOR_CYCLE.find((c) => !existingColors.has(c)) ?? COLOR_CYCLE[items.length % COLOR_CYCLE.length];
 			const c: Category = {
-				userId: null,
+				userId: LOCAL_USER_ID,
 				slug: slugify(data.name),
-				embeddings: [] as unknown as Category['embeddings'],
+				embeddings: null,
 				...data,
 				id: tigerid(),
 				color: nextColor,

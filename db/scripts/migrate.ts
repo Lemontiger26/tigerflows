@@ -1,24 +1,24 @@
 /**
- * db:mig — Run pending Drizzle migrations using our PGLite instance.
- *
- * We can't use drizzle-kit's built-in push/migrate because it creates its own
- * PGLite instance without the pgvector WASM extension loaded.
+ * db:mig — Run pending Drizzle migrations using the local libSQL database.
  *
  * Pass --fresh to wipe the local database and re-apply all migrations.
  *
  * Usage: bun run db:mig [--fresh]
  */
 import { rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 
 const fresh = process.argv.includes('--fresh');
 
-if (fresh && existsSync('./data/pglite')) {
+if (fresh) {
 	console.log('Wiping local database...');
-	await rm('./data/pglite', { recursive: true });
+	await Promise.all(
+		['./data/userFlows.db', './data/userFlows.db-wal', './data/userFlows.db-shm'].map((path) =>
+			rm(path, { force: true })
+		)
+	);
 }
 
-const { migrate } = await import('drizzle-orm/pglite/migrator');
+const { migrate } = await import('drizzle-orm/libsql/migrator');
 const { db } = await import('./db');
 
 console.log(fresh ? 'Applying all migrations from scratch...' : 'Running pending migrations...');

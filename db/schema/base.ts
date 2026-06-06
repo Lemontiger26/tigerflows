@@ -1,147 +1,119 @@
-import { customAlphabet } from 'nanoid';
-import { nolookalikes } from 'nanoid-dictionary';
-import * as p from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
-import defaults from '@src/config/defaults';
+import * as s from 'drizzle-orm/sqlite-core';
+import { executorTypeValues, flowStatusValues, idLength, nowIso, stepTypeValues, tigerid } from './shared';
 
-const id_length = defaults.id_length;
-const tigerid = customAlphabet(nolookalikes, id_length);
-
-// All p.timestamp columns use mode:'string' so Drizzle returns/accepts ISO-8601
-// strings instead of Date objects. Keeps types consistent with JSON
-// serialization in SvelteKit load() functions and localStorage stores.
-
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-
-export const flowStatusEnum = p.pgEnum('flow_status', ['active', 'completed', 'abandoned']);
-
-export const stepTypeEnum = p.pgEnum('step_type', [
-	'boolean',
-	'text',
-	'number',
-	'date',
-	'enum_single',
-	'enum_multi',
-	'agent'
-]);
-
-export const executorTypeEnum = p.pgEnum('executor_type', ['human', 'agent']);
+// All timestamp columns are stored as ISO-8601 strings. Drizzle runtime
+// defaults keep this consistent across local file and remote Turso clients.
 
 // ---------------------------------------------------------------------------
 // users
 // ---------------------------------------------------------------------------
 
-export const users = p.pgTable('users', {
-	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	authId: p.text('auth_id').notNull().unique(),
-	email: p.text('email').notNull(),
-	createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-	updatedAt: p.timestamp('updated_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow()
+export const users = s.sqliteTable('users', {
+	id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+	authId: s.text('auth_id').notNull().unique(),
+	email: s.text('email').notNull(),
+	createdAt: s.text('created_at').notNull().$defaultFn(nowIso),
+	updatedAt: s.text('updated_at').notNull().$defaultFn(nowIso)
 });
 
 // ---------------------------------------------------------------------------
 // categories
 // ---------------------------------------------------------------------------
 
-export const categories = p.pgTable(
+export const categories = s.sqliteTable(
 	'categories',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		userId: p.char('user_id', { length: id_length }).references(() => users.id, { onDelete: 'cascade' }),
-		name: p.text('name').notNull(),
-		description: p.text('description').notNull().default(''),
-		color: p.text('color').notNull().default('primary'),
-		slug: p.text('slug').notNull(),
-		embeddings: p.vector('embeddings', { dimensions: 384 }).notNull(),
-		createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-		updatedAt: p.timestamp('updated_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow()
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		userId: s
+			.text('user_id', { length: idLength })
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		name: s.text('name').notNull(),
+		description: s.text('description').notNull().default(''),
+		color: s.text('color').notNull().default('primary'),
+		slug: s.text('slug').notNull(),
+		embeddings: s.blob('embeddings', { mode: 'buffer' }),
+		createdAt: s.text('created_at').notNull().$defaultFn(nowIso),
+		updatedAt: s.text('updated_at').notNull().$defaultFn(nowIso)
 	},
-	(t) => [
-		p.uniqueIndex('categories_user_slug_idx').on(t.userId, t.slug),
-		p
-			.uniqueIndex('categories_system_slug_idx')
-			.on(t.slug)
-			.where(sql`${t.userId} IS NULL`)
-	]
+	(t) => [s.uniqueIndex('categories_user_slug_idx').on(t.userId, t.slug)]
 );
 
 // ---------------------------------------------------------------------------
 // templates
 // ---------------------------------------------------------------------------
 
-export const templates = p.pgTable(
+export const templates = s.sqliteTable(
 	'templates',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		userId: p.char('user_id', { length: id_length }).references(() => users.id, { onDelete: 'cascade' }),
-		categoryId: p.char('category_id', { length: id_length }).references(() => categories.id, {
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		userId: s
+			.text('user_id', { length: idLength })
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		categoryId: s.text('category_id', { length: idLength }).references(() => categories.id, {
 			onDelete: 'set null'
 		}),
-		name: p.text('name').notNull(),
-		description: p.text('description').notNull().default(''),
-		slug: p.text('slug').notNull(),
-		embeddings: p.vector('embeddings', { dimensions: 384 }).notNull(),
-		createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-		updatedAt: p.timestamp('updated_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow()
+		name: s.text('name').notNull(),
+		description: s.text('description').notNull().default(''),
+		slug: s.text('slug').notNull(),
+		embeddings: s.blob('embeddings', { mode: 'buffer' }),
+		createdAt: s.text('created_at').notNull().$defaultFn(nowIso),
+		updatedAt: s.text('updated_at').notNull().$defaultFn(nowIso)
 	},
-	(t) => [
-		p.uniqueIndex('templates_user_slug_idx').on(t.userId, t.slug),
-		p
-			.uniqueIndex('templates_system_slug_idx')
-			.on(t.slug)
-			.where(sql`${t.userId} IS NULL`)
-	]
+	(t) => [s.uniqueIndex('templates_user_slug_idx').on(t.userId, t.slug)]
 );
 
 // ---------------------------------------------------------------------------
 // template_steps
 // ---------------------------------------------------------------------------
 
-export const templateSteps = p.pgTable('template_steps', {
-	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	templateId: p
-		.char('template_id', { length: id_length })
+export const templateSteps = s.sqliteTable('template_steps', {
+	id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+	templateId: s
+		.text('template_id', { length: idLength })
 		.notNull()
 		.references(() => templates.id, { onDelete: 'cascade' }),
-	slug: p.text('slug').notNull(),
-	order: p.integer('order').notNull(),
-	title: p.text('title').notNull(),
-	description: p.text('description').notNull().default(''),
-	stepType: stepTypeEnum('step_type').notNull().default('boolean'),
-	executorType: executorTypeEnum('executor_type').notNull().default('human'),
+	slug: s.text('slug').notNull(),
+	order: s.integer('order').notNull(),
+	title: s.text('title').notNull(),
+	description: s.text('description').notNull().default(''),
+	stepType: s.text('step_type', { enum: stepTypeValues }).notNull().default('boolean'),
+	executorType: s.text('executor_type', { enum: executorTypeValues }).notNull().default('human'),
 	// type-specific config: { min,max,step } | { enumSetId } | { agent hints }
-	config: p.jsonb('config').$type<Record<string, unknown>>().notNull().default({}),
-	isCritical: p.boolean('is_critical').notNull().default(false),
-	embeddings: p.vector('embeddings', { dimensions: 384 }).notNull()
+	config: s.text('config', { mode: 'json' }).$type<Record<string, unknown>>().notNull().default({}),
+	isCritical: s.integer('is_critical', { mode: 'boolean' }).notNull().default(false),
+	embeddings: s.blob('embeddings', { mode: 'buffer' })
 });
 
 // ---------------------------------------------------------------------------
 // flows
 // ---------------------------------------------------------------------------
 
-export const flows = p.pgTable(
+export const flows = s.sqliteTable(
 	'flows',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		userId: p.char('user_id', { length: id_length }).references(() => users.id, { onDelete: 'cascade' }),
-		categoryId: p.char('category_id', { length: id_length }).references(() => categories.id, {
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		userId: s
+			.text('user_id', { length: idLength })
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		categoryId: s.text('category_id', { length: idLength }).references(() => categories.id, {
 			onDelete: 'set null'
 		}),
-		templateId: p
-			.char('template_id', { length: id_length })
+		templateId: s
+			.text('template_id', { length: idLength })
 			.notNull()
 			.references(() => templates.id),
-		title: p.text('title').notNull(),
-		status: flowStatusEnum('status').notNull().default('active'),
-		slug: p.text('slug').notNull(),
-		embeddings: p.vector('embeddings', { dimensions: 384 }).notNull(),
-		createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-		updatedAt: p.timestamp('updated_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-		completedAt: p.timestamp('completed_at', { withTimezone: true, mode: 'string' })
+		title: s.text('title').notNull(),
+		status: s.text('status', { enum: flowStatusValues }).notNull().default('active'),
+		slug: s.text('slug').notNull(),
+		embeddings: s.blob('embeddings', { mode: 'buffer' }),
+		createdAt: s.text('created_at').notNull().$defaultFn(nowIso),
+		updatedAt: s.text('updated_at').notNull().$defaultFn(nowIso),
+		completedAt: s.text('completed_at')
 	},
-	(t) => [p.uniqueIndex('flows_user_slug_idx').on(t.userId, t.slug)]
+	(t) => [s.uniqueIndex('flows_user_slug_idx').on(t.userId, t.slug)]
 );
 
 // ---------------------------------------------------------------------------
@@ -150,105 +122,99 @@ export const flows = p.pgTable(
 // don't affect in-progress flows. Stores typed runtime value.
 // ---------------------------------------------------------------------------
 
-export const flowSteps = p.pgTable('flow_steps', {
-	id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-	flowId: p
-		.char('flow_id', { length: id_length })
+export const flowSteps = s.sqliteTable('flow_steps', {
+	id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+	flowId: s
+		.text('flow_id', { length: idLength })
 		.notNull()
 		.references(() => flows.id, { onDelete: 'cascade' }),
-	templateStepId: p
-		.char('template_step_id', { length: id_length })
+	templateStepId: s
+		.text('template_step_id', { length: idLength })
 		.notNull()
 		.references(() => templateSteps.id),
-	order: p.integer('order').notNull(),
-	title: p.text('title').notNull(),
-	description: p.text('description').notNull().default(''),
-	stepType: stepTypeEnum('step_type').notNull().default('boolean'),
-	executorType: executorTypeEnum('executor_type').notNull().default('human'),
-	config: p.jsonb('config').$type<Record<string, unknown>>().notNull().default({}),
-	isCritical: p.boolean('is_critical').notNull().default(false),
-	checked: p.boolean('checked').notNull().default(false),
+	order: s.integer('order').notNull(),
+	title: s.text('title').notNull(),
+	description: s.text('description').notNull().default(''),
+	stepType: s.text('step_type', { enum: stepTypeValues }).notNull().default('boolean'),
+	executorType: s.text('executor_type', { enum: executorTypeValues }).notNull().default('human'),
+	config: s.text('config', { mode: 'json' }).$type<Record<string, unknown>>().notNull().default({}),
+	isCritical: s.integer('is_critical', { mode: 'boolean' }).notNull().default(false),
+	checked: s.integer('checked', { mode: 'boolean' }).notNull().default(false),
 	// typed answer: bool | str | num | ISO date | enum value id(s)
-	value: p.jsonb('value').$type<unknown>(),
-	checkedAt: p.timestamp('checked_at', { withTimezone: true, mode: 'string' }),
-	comment: p.text('comment').notNull().default(''),
-	embeddings: p.vector('embeddings', { dimensions: 384 })
+	value: s.text('value', { mode: 'json' }).$type<unknown>(),
+	checkedAt: s.text('checked_at'),
+	comment: s.text('comment').notNull().default(''),
+	embeddings: s.blob('embeddings', { mode: 'buffer' })
 });
 
 // ---------------------------------------------------------------------------
 // tags — SQL + embeddings, m:n with templates
 // ---------------------------------------------------------------------------
 
-export const tags = p.pgTable(
+export const tags = s.sqliteTable(
 	'tags',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		userId: p.char('user_id', { length: id_length }).references(() => users.id, { onDelete: 'cascade' }),
-		name: p.text('name').notNull(),
-		slug: p.text('slug').notNull(),
-		embeddings: p.vector('embeddings', { dimensions: 384 }).notNull(),
-		createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow()
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		userId: s
+			.text('user_id', { length: idLength })
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		name: s.text('name').notNull(),
+		slug: s.text('slug').notNull(),
+		embeddings: s.blob('embeddings', { mode: 'buffer' }),
+		createdAt: s.text('created_at').notNull().$defaultFn(nowIso)
 	},
-	(t) => [
-		p.uniqueIndex('tags_user_slug_idx').on(t.userId, t.slug),
-		p
-			.uniqueIndex('tags_system_slug_idx')
-			.on(t.slug)
-			.where(sql`${t.userId} IS NULL`)
-	]
+	(t) => [s.uniqueIndex('tags_user_slug_idx').on(t.userId, t.slug)]
 );
 
-export const templateTags = p.pgTable(
+export const templateTags = s.sqliteTable(
 	'template_tags',
 	{
-		templateId: p
-			.char('template_id', { length: id_length })
+		templateId: s
+			.text('template_id', { length: idLength })
 			.notNull()
 			.references(() => templates.id, { onDelete: 'cascade' }),
-		tagId: p
-			.char('tag_id', { length: id_length })
+		tagId: s
+			.text('tag_id', { length: idLength })
 			.notNull()
 			.references(() => tags.id, { onDelete: 'cascade' })
 	},
-	(t) => [p.primaryKey({ columns: [t.templateId, t.tagId] })]
+	(t) => [s.primaryKey({ columns: [t.templateId, t.tagId] })]
 );
 
 // ---------------------------------------------------------------------------
 // user-defined enums (for enum_single / enum_multi step types)
 // ---------------------------------------------------------------------------
 
-export const enumSets = p.pgTable(
+export const enumSets = s.sqliteTable(
 	'enum_sets',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		userId: p.char('user_id', { length: id_length }).references(() => users.id, { onDelete: 'cascade' }),
-		name: p.text('name').notNull(),
-		slug: p.text('slug').notNull(),
-		description: p.text('description').notNull().default(''),
-		embeddings: p.vector('embeddings', { dimensions: 384 }).notNull(),
-		createdAt: p.timestamp('created_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow()
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		userId: s
+			.text('user_id', { length: idLength })
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		name: s.text('name').notNull(),
+		slug: s.text('slug').notNull(),
+		description: s.text('description').notNull().default(''),
+		embeddings: s.blob('embeddings', { mode: 'buffer' }),
+		createdAt: s.text('created_at').notNull().$defaultFn(nowIso)
 	},
-	(t) => [
-		p.uniqueIndex('enum_sets_user_slug_idx').on(t.userId, t.slug),
-		p
-			.uniqueIndex('enum_sets_system_slug_idx')
-			.on(t.slug)
-			.where(sql`${t.userId} IS NULL`)
-	]
+	(t) => [s.uniqueIndex('enum_sets_user_slug_idx').on(t.userId, t.slug)]
 );
 
-export const enumValues = p.pgTable(
+export const enumValues = s.sqliteTable(
 	'enum_values',
 	{
-		id: p.char('id', { length: id_length }).primaryKey().$defaultFn(tigerid),
-		enumSetId: p
-			.char('enum_set_id', { length: id_length })
+		id: s.text('id', { length: idLength }).primaryKey().$defaultFn(tigerid),
+		enumSetId: s
+			.text('enum_set_id', { length: idLength })
 			.notNull()
 			.references(() => enumSets.id, { onDelete: 'cascade' }),
-		value: p.text('value').notNull(),
-		label: p.text('label').notNull(),
-		color: p.text('color'),
-		order: p.integer('order').notNull().default(0)
+		value: s.text('value').notNull(),
+		label: s.text('label').notNull(),
+		color: s.text('color'),
+		order: s.integer('order').notNull().default(0)
 	},
-	(t) => [p.uniqueIndex('enum_values_set_value_idx').on(t.enumSetId, t.value)]
+	(t) => [s.uniqueIndex('enum_values_set_value_idx').on(t.enumSetId, t.value)]
 );

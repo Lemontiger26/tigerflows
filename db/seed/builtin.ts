@@ -1,6 +1,7 @@
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 import type { Template, Category, Flow } from '~types';
+import { SYSTEM_USER_ID } from '../schema/shared';
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
@@ -27,7 +28,7 @@ function makeTemplateStep(
 		executorType: 'human' as const,
 		config: {},
 		isCritical,
-		embeddings: [] as unknown as number[]
+		embeddings: null
 	};
 }
 
@@ -75,40 +76,40 @@ const releaseChecklistSteps = [
 export const seedTemplates: Template[] = [
 	{
 		id: t1id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Daily Standup Checklist',
 		description: 'A concise checklist to guide productive daily standup meetings.',
 		steps: dailyStandupSteps,
 		tags: ['daily', 'team', 'meeting'],
 		slug: slugify('Daily Standup Checklist'),
-		embeddings: [] as number[],
+		embeddings: null,
 		createdAt: '2026-04-01T08:00:00.000Z',
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
 		id: t2id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Incident Response Runbook',
 		description: 'Step-by-step runbook for detecting, assessing, and resolving production incidents.',
 		steps: incidentResponseSteps,
 		tags: ['ops', 'incident', 'on-call'],
 		slug: slugify('Incident Response Runbook'),
-		embeddings: [] as number[],
+		embeddings: null,
 		createdAt: '2026-04-01T08:00:00.000Z',
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
 		id: t3id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Release Checklist',
 		description: 'Pre- and post-release validation steps to ensure safe deployments.',
 		steps: releaseChecklistSteps,
 		tags: ['release', 'deployment', 'devops'],
 		slug: slugify('Release Checklist'),
-		embeddings: [] as number[],
+		embeddings: null,
 		createdAt: '2026-04-01T08:00:00.000Z',
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	}
@@ -122,23 +123,23 @@ const c2id = tigerid();
 export const seedCategories: Category[] = [
 	{
 		id: c1id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		name: 'Operations',
 		description: 'Daily standup logs and team routine tracking.',
 		color: 'primary',
 		slug: slugify('Operations'),
-		embeddings: [] as number[],
+		embeddings: null,
 		createdAt: '2026-04-01T08:00:00.000Z',
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
 		id: c2id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		name: 'Dev Ops',
 		description: 'Production incidents and crisis response logs.',
 		color: 'error',
 		slug: slugify('Dev Ops'),
-		embeddings: [] as number[],
+		embeddings: null,
 		createdAt: '2026-04-01T08:00:00.000Z',
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	}
@@ -167,7 +168,7 @@ function makeFlowStep(
 		value: null,
 		checkedAt,
 		comment,
-		embeddings: [] as unknown as number[]
+		embeddings: null
 	};
 }
 
@@ -188,13 +189,13 @@ const f5Created = '2026-04-09T16:00:00.000Z';
 export const seedFlows: Flow[] = [
 	{
 		id: f1id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: c1id,
 		templateId: t1id,
 		title: 'Daily Log — Friday Apr 11',
 		status: 'completed',
 		slug: slugify('Daily Log — Friday Apr 11'),
-		embeddings: [] as number[],
+		embeddings: null,
 		steps: dailyStandupSteps.map((a) =>
 			a.isCritical ? makeFlowStep(a, true, '2026-04-11T09:04:00.000Z') : makeFlowStep(a, false)
 		),
@@ -204,13 +205,13 @@ export const seedFlows: Flow[] = [
 	},
 	{
 		id: f2id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: c1id,
 		templateId: t1id,
 		title: 'Daily Log — Saturday Apr 12',
 		status: 'completed',
 		slug: slugify('Daily Log — Saturday Apr 12'),
-		embeddings: [] as number[],
+		embeddings: null,
 		steps: dailyStandupSteps.map((a) => makeFlowStep(a, true, '2026-04-12T09:10:00.000Z')),
 		createdAt: f2Created,
 		updatedAt: f2Completed,
@@ -218,13 +219,13 @@ export const seedFlows: Flow[] = [
 	},
 	{
 		id: f3id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: c1id,
 		templateId: t1id,
 		title: 'Daily Log — Sunday Apr 13',
 		status: 'active',
 		slug: slugify('Daily Log — Sunday Apr 13'),
-		embeddings: [] as number[],
+		embeddings: null,
 		steps: [
 			makeFlowStep(dailyStandupSteps[0], true, '2026-04-13T09:02:00.000Z'),
 			makeFlowStep(dailyStandupSteps[1], true, '2026-04-13T09:03:00.000Z'),
@@ -238,13 +239,13 @@ export const seedFlows: Flow[] = [
 	},
 	{
 		id: f4id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: c2id,
 		templateId: t2id,
 		title: 'DB connection pool exhaustion',
 		status: 'completed',
 		slug: slugify('DB connection pool exhaustion'),
-		embeddings: [] as number[],
+		embeddings: null,
 		steps: incidentResponseSteps.map((a) => {
 			if (a.title === 'Mitigate')
 				return makeFlowStep(
@@ -268,13 +269,13 @@ export const seedFlows: Flow[] = [
 	},
 	{
 		id: f5id,
-		userId: null,
+		userId: SYSTEM_USER_ID,
 		categoryId: c2id,
 		templateId: t2id,
 		title: 'Auth service degradation',
 		status: 'abandoned',
 		slug: slugify('Auth service degradation'),
-		embeddings: [] as number[],
+		embeddings: null,
 		steps: incidentResponseSteps.slice(0, 3).map((a) => makeFlowStep(a, true, '2026-04-09T16:20:00.000Z')),
 		createdAt: f5Created,
 		updatedAt: '2026-04-09T16:45:00.000Z',

@@ -1,13 +1,13 @@
 /**
  * db:seed — wipes all tables, then inserts system templates/categories/flows
- * with embeddings computed in a single batched pass before any inserts.
+ * into the local libSQL database.
  *
  * Usage: bun run db:seed
  */
 
-import { db, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
+import { db, users, categories, templates, templateSteps, flows, flowSteps, tags, templateTags } from './db';
+import { LOCAL_USER_ID, SYSTEM_USER_ID } from '../schema/shared';
 import { seedCategories, seedTemplates, seedFlows } from '../seed/builtin';
-import { embedMany } from './embed';
 
 async function seed() {
 	// ── Wipe ────────────────────────────────────────────────────────────────────
@@ -21,26 +21,30 @@ async function seed() {
 	await db.delete(tags);
 	console.log('  ✓ all tables cleared\n');
 
-	// ── Batch-compute all embeddings upfront ────────────────────────────────────
-	console.log('Computing embeddings (model: BAAI/bge-small-en-v1.5, 384d)...');
-
 	const allTplSteps = seedTemplates.flatMap((t) => t.steps);
 	const allFlowSteps = seedFlows.flatMap((f) => f.steps);
-
-	const catEmb = await embedMany(seedCategories.map((c) => c.name));
-	const tplEmb = await embedMany(seedTemplates.map((t) => t.name));
-	const tplStepEmb = await embedMany(allTplSteps.map((a) => a.title));
-	const flowEmb = await embedMany(seedFlows.map((f) => f.title));
-	const flowStepEmb = await embedMany(allFlowSteps.map((a) => a.title));
-
-	console.log(
-		`  ✓ ${catEmb.length + tplEmb.length + tplStepEmb.length + flowEmb.length + flowStepEmb.length} vectors\n`
-	);
 
 	// ── Insert ───────────────────────────────────────────────────────────────────
 	console.log('Seeding database...');
 
-	for (const [i, cat] of seedCategories.entries()) {
+	await db
+		.insert(users)
+		.values([
+			{
+				id: SYSTEM_USER_ID,
+				authId: 'system',
+				email: 'system@local.invalid'
+			},
+			{
+				id: LOCAL_USER_ID,
+				authId: 'local',
+				email: 'local@local.invalid'
+			}
+		])
+		.onConflictDoNothing();
+	console.log('  ✓ sentinel users');
+
+	for (const cat of seedCategories) {
 		await db.insert(categories).values({
 			id: cat.id,
 			userId: cat.userId,
@@ -48,7 +52,7 @@ async function seed() {
 			description: cat.description,
 			color: cat.color,
 			slug: cat.slug,
-			embeddings: catEmb[i],
+			embeddings: null,
 			createdAt: cat.createdAt,
 			updatedAt: cat.updatedAt
 		});
@@ -57,24 +61,22 @@ async function seed() {
 
 	// Collect unique tag names across all templates, insert as system tags
 	const allTagNames = Array.from(new Set(seedTemplates.flatMap((t) => t.tags)));
-	const tagEmb = await embedMany(allTagNames);
 	const tagIdByName = new Map<string, string>();
-	for (const [i, name] of allTagNames.entries()) {
+	for (const name of allTagNames) {
 		const [row] = await db
 			.insert(tags)
 			.values({
-				userId: null,
+				userId: SYSTEM_USER_ID,
 				name,
 				slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-				embeddings: tagEmb[i]
+				embeddings: null
 			})
 			.returning({ id: tags.id });
 		tagIdByName.set(name, row.id);
 	}
 	console.log(`  ✓ ${allTagNames.length} tags`);
 
-	let tplStepIdx = 0;
-	for (const [i, tpl] of seedTemplates.entries()) {
+	for (const tpl of seedTemplates) {
 		await db.insert(templates).values({
 			id: tpl.id,
 			userId: tpl.userId,
@@ -82,7 +84,7 @@ async function seed() {
 			name: tpl.name,
 			description: tpl.description,
 			slug: tpl.slug,
-			embeddings: tplEmb[i],
+			embeddings: null,
 			createdAt: tpl.createdAt,
 			updatedAt: tpl.updatedAt
 		});
@@ -102,14 +104,13 @@ async function seed() {
 				executorType: step.executorType,
 				config: step.config,
 				isCritical: step.isCritical,
-				embeddings: tplStepEmb[tplStepIdx++]
+				embeddings: null
 			});
 		}
 	}
 	console.log(`  ✓ ${seedTemplates.length} templates (with ${allTplSteps.length} steps)`);
 
-	let flowStepIdx = 0;
-	for (const [i, flow] of seedFlows.entries()) {
+	for (const flow of seedFlows) {
 		await db.insert(flows).values({
 			id: flow.id,
 			userId: flow.userId,
@@ -118,7 +119,7 @@ async function seed() {
 			title: flow.title,
 			status: flow.status,
 			slug: flow.slug,
-			embeddings: flowEmb[i],
+			embeddings: null,
 			createdAt: flow.createdAt,
 			updatedAt: flow.updatedAt,
 			completedAt: flow.completedAt
@@ -139,7 +140,7 @@ async function seed() {
 				value: step.value,
 				checkedAt: step.checkedAt,
 				comment: step.comment,
-				embeddings: flowStepEmb[flowStepIdx++]
+				embeddings: null
 			});
 		}
 	}

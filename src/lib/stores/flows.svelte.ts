@@ -1,4 +1,5 @@
 import type { Flow, FlowStep } from '~types';
+import { LOCAL_USER_ID } from '../../../db/schema/shared';
 import { seedFlows } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { templateStore } from './templates.svelte';
@@ -18,9 +19,9 @@ function createFlowStore() {
 		) {
 			const now = new Date().toISOString();
 			const flow: Flow = {
-				userId: null,
+				userId: LOCAL_USER_ID,
 				slug: slugify(data.title),
-				embeddings: [] as unknown as Flow['embeddings'],
+				embeddings: null,
 				...data,
 				id: tigerid(),
 				createdAt: now,
@@ -65,19 +66,19 @@ function createFlowStore() {
 				value: null,
 				checkedAt: null,
 				comment: '',
-				embeddings: [] as unknown as number[]
+				embeddings: null
 			}));
 
 			const flow: Flow = {
 				id: flowId,
-				userId: null,
+				userId: LOCAL_USER_ID,
 				categoryId,
 				templateId,
 				title,
 				status: 'active',
 				slug: slugify(title),
 				steps,
-				embeddings: [] as unknown as number[],
+				embeddings: null,
 				createdAt: now,
 				updatedAt: now,
 				completedAt: null

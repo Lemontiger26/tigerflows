@@ -1,19 +1,18 @@
 /**
  * Drizzle database client — server-side only.
- * Uses PGLite for local-first embedded Postgres.
+ * Uses libSQL locally (`file:`) and can point at remote Turso via env vars.
  * Import this in +page.server.ts, +server.ts, or server-only lib files.
  */
-import { PGlite } from '@electric-sql/pglite';
-import { vector } from '@electric-sql/pglite-pgvector';
-import { drizzle } from 'drizzle-orm/pglite';
+import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './schema';
 
-const client = await PGlite.create({
-	dataDir: './data/pglite',
-	extensions: { vector }
+export const client = createClient({
+	url: process.env.TURSO_DB_URL ?? 'file:./data/userFlows.db',
+	authToken: process.env.TURSO_AUTH_TOKEN
 });
 
-await client.exec('CREATE EXTENSION IF NOT EXISTS vector;');
+await client.execute('PRAGMA foreign_keys = ON');
 
 export const db = drizzle(client, { schema });
 

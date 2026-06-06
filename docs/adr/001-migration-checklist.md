@@ -15,50 +15,50 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 1. Prep / Git Hygiene
 
-- [ ] Confirm current branch and worktree state.
-- [ ] Commit any pending ADR/doc changes before schema work starts.
-- [ ] Keep unrelated staged/unstaged changes untouched.
-- [ ] Stop any stale `pglite-server` process before testing DB tools; DBeaver/Studio must not accidentally connect to the old PGLite socket.
-- [ ] Preserve the current seed data as the import source while rewriting scripts.
+- [x] Confirm current branch and worktree state.
+- [x] Commit any pending ADR/doc changes before schema work starts.
+- [x] Keep unrelated staged/unstaged changes untouched.
+- [x] Stop any stale `pglite-server` process before testing DB tools; DBeaver/Studio must not accidentally connect to the old PGLite socket.
+- [x] Preserve the current seed data as the import source while rewriting scripts.
 
 **Review point:** decide whether doc changes are committed before schema work starts.
 
 ## 2. Schema Rewrite (`db/schema/base.ts` + `db/schema/agentic.ts`)
 
-- [ ] Convert both files from `drizzle-orm/pg-core` to `drizzle-orm/sqlite-core` (`pgTable` → `sqliteTable`).
-- [ ] Convert IDs from `char({ length: 21 })` to `text(...)`.
-- [ ] Convert booleans to `integer(..., { mode: 'boolean' })`.
-- [ ] Convert timestamps to ISO string `text(...)` with `.$defaultFn(() => new Date().toISOString())`.
-- [ ] Convert any Postgres arrays to `text(..., { mode: 'json' }).$type<string[]>()`.
-- [ ] Convert all 14 `jsonb` columns (`config` x6, `configSchema` x2, `defaults` x2, `toolSpec`, `trace`, `result`, `value`) to `text({ mode: 'json' }).$type<T>()`; convert object defaults — Drizzle serializes `default({})` for the DDL.
-- [ ] Replace all 6 `pgEnum`s with plain `text(...)` columns; export value tuples as `as const` for reuse in validators (`flow_status`, `step_type`, `executor_type`, `input_source_kind`, `execution_gate_kind`, `gate_position`).
-- [ ] Convert `vector(384)` columns to nullable `blob('embeddings', { mode: 'buffer' })` so rows can be inserted first and vectors updated via raw SQL. Keep the current column name `embeddings`. Remove HNSW/pgvector index definitions.
-- [ ] Make scoped root-table `userId` columns `notNull()` and replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel. Self-hosted user content uses `'LOCAL'`; authenticated content uses `users.id`.
-- [ ] Collapse the 7 partial unique indexes into single compound `uniqueIndex(...).on(userId, slug)` — works because sentinels are real non-null strings (no SQLite NULL-distinctness quirk).
-- [ ] Keep composite PKs on join tables and other plain indexes (map directly).
-- [ ] Add `db/schema/shared.ts`: `SYSTEM_USER_ID`/`LOCAL_USER_ID` sentinels, enum value tuples, nanoid helper.
-- [ ] Preserve `relations.ts` (single DB, all FKs local — no structural change).
-- [ ] Use the sqlite extra-config array-return syntax `(table) => [...]`.
+- [x] Convert both files from `drizzle-orm/pg-core` to `drizzle-orm/sqlite-core` (`pgTable` → `sqliteTable`).
+- [x] Convert IDs from `char({ length: 21 })` to `text(...)`.
+- [x] Convert booleans to `integer(..., { mode: 'boolean' })`.
+- [x] Convert timestamps to ISO string `text(...)` with `.$defaultFn(() => new Date().toISOString())`.
+- [x] Convert any Postgres arrays to `text(..., { mode: 'json' }).$type<string[]>()`.
+- [x] Convert all 14 `jsonb` columns (`config` x6, `configSchema` x2, `defaults` x2, `toolSpec`, `trace`, `result`, `value`) to `text({ mode: 'json' }).$type<T>()`; convert object defaults — Drizzle serializes `default({})` for the DDL.
+- [x] Replace all 6 `pgEnum`s with plain `text(...)` columns; export value tuples as `as const` for reuse in validators (`flow_status`, `step_type`, `executor_type`, `input_source_kind`, `execution_gate_kind`, `gate_position`).
+- [x] Convert `vector(384)` columns to nullable `blob('embeddings', { mode: 'buffer' })` so rows can be inserted first and vectors updated via raw SQL. Keep the current column name `embeddings`. Remove HNSW/pgvector index definitions.
+- [x] Make scoped root-table `userId` columns `notNull()` and replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel. Self-hosted user content uses `'LOCAL'`; authenticated content uses `users.id`.
+- [x] Collapse the 7 partial unique indexes into single compound `uniqueIndex(...).on(userId, slug)` — works because sentinels are real non-null strings (no SQLite NULL-distinctness quirk).
+- [x] Keep composite PKs on join tables and other plain indexes (map directly).
+- [x] Add `db/schema/shared.ts`: `SYSTEM_USER_ID`/`LOCAL_USER_ID` sentinels, enum value tuples, nanoid helper.
+- [x] Preserve `relations.ts` (single DB, all FKs local — no structural change).
+- [x] Use the sqlite extra-config array-return syntax `(table) => [...]`.
 
 **Review point:** inspect schema diff before touching connection, config, or seeds.
 
 ## 3. Connection + Drizzle Config
 
-- [ ] Replace PGLite client in `db/index.ts` with `@libsql/client` + `drizzle-orm/libsql`.
-- [ ] Default local dev to `file:./data/userFlows.db`; support `TURSO_DB_URL` / `TURSO_AUTH_TOKEN`.
-- [ ] Enable FK enforcement per connection: `await client.execute('PRAGMA foreign_keys = ON')` before `drizzle(...)`.
-- [ ] Do **not** run migration or system seed as a side effect of importing `db/index.ts` or starting the app. Migration and seed/install are explicit CLI/provisioning commands.
-- [ ] Replace `db/scripts/db.ts` (CLI client) with the same single libSQL client; drop `CREATE EXTENSION vector`.
-- [ ] Update `drizzle.config.ts` → `dialect: 'turso'`, `dbCredentials` url/authToken.
-- [ ] Update `.env.example`.
-- [ ] Defer embedded-replica / `syncUrl` config to the future sync milestone.
+- [x] Replace PGLite client in `db/index.ts` with `@libsql/client` + `drizzle-orm/libsql`.
+- [x] Default local dev to `file:./data/userFlows.db`; support `TURSO_DB_URL` / `TURSO_AUTH_TOKEN`.
+- [x] Enable FK enforcement per connection: `await client.execute('PRAGMA foreign_keys = ON')` before `drizzle(...)`.
+- [x] Do **not** run migration or system seed as a side effect of importing `db/index.ts` or starting the app. Migration and seed/install are explicit CLI/provisioning commands.
+- [x] Replace `db/scripts/db.ts` (CLI client) with the same single libSQL client; drop `CREATE EXTENSION vector`.
+- [x] Update `drizzle.config.ts` → `dialect: 'turso'`, `dbCredentials` url/authToken.
+- [x] Update `.env.example`.
+- [x] Defer embedded-replica / `syncUrl` config to the future sync milestone.
 
 **Review point:** confirm env naming, local/remote behavior, and PRAGMA placement.
 
 ## 4. Migration Baseline
 
-- [ ] Delete the old Postgres baseline (`db/migrations/0000_goofy_major_mapleleaf.sql` + `meta/`).
-- [ ] Generate a fresh SQLite/libSQL migration (`bun run db:gen`).
+- [x] Delete the old Postgres baseline (`db/migrations/0000_goofy_major_mapleleaf.sql` + `meta/`).
+- [x] Generate a fresh SQLite/libSQL migration (`bun run db:gen`).
 - [ ] Inspect generated SQL: `embeddings blob`, JSON columns as `text`, timestamp `text`, booleans `integer DEFAULT`, compound unique constraints, FK clauses.
 - [ ] Apply the generated migration to a fresh `data/userFlows.db`.
 - [ ] Confirm `PRAGMA foreign_key_check` returns no rows on an empty migrated DB.
@@ -67,7 +67,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 5. Validators & Types
 
-- [ ] `db/validators.ts`: add Zod `z.enum(...)` refinements for the 6 ex-enum columns (referencing the schema's `as const` tuples). `createInsertSchema`/`createSelectSchema` otherwise dialect-agnostic.
+- [x] `db/validators.ts`: add Zod `z.enum(...)` refinements for the 6 ex-enum columns (referencing the schema's `as const` tuples). `createInsertSchema`/`createSelectSchema` otherwise dialect-agnostic.
 - [ ] `types/index.ts`: no changes expected (composed types reference `*Row` inferred types).
 
 **Review point:** confirm enum refinements compile and cover every ex-enum column.

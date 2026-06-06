@@ -1,4 +1,5 @@
 import type { Template } from '~types';
+import { LOCAL_USER_ID } from '../../../db/schema/shared';
 import { seedTemplates } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
@@ -17,10 +18,10 @@ function createTemplateStore() {
 		) {
 			const now = new Date().toISOString();
 			const t: Template = {
-				userId: null,
+				userId: LOCAL_USER_ID,
 				categoryId: null,
 				slug: slugify(data.name),
-				embeddings: [] as unknown as Template['embeddings'],
+				embeddings: null,
 				...data,
 				id: tigerid(),
 				createdAt: now,

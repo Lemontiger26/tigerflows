@@ -9,12 +9,15 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
+	executorTypeValues,
+	flowStatusValues,
 	users,
 	categories,
 	templates,
 	templateSteps,
 	flows,
 	flowSteps,
+	stepTypeValues,
 	tags,
 	templateTags,
 	enumSets,
@@ -56,21 +59,29 @@ export const updateTemplateSchema = insertTemplateSchema.partial().required({ id
 // template_steps
 // ---------------------------------------------------------------------------
 
-export const selectTemplateStepSchema = createSelectSchema(templateSteps);
+export const selectTemplateStepSchema = createSelectSchema(templateSteps, {
+	stepType: () => z.enum(stepTypeValues),
+	executorType: () => z.enum(executorTypeValues)
+});
 export const insertTemplateStepSchema = createInsertSchema(templateSteps, {
 	title: (s) => s.min(1, 'Title is required'),
 	slug: (s) => s.min(1),
-	order: (s) => s.int().nonnegative()
+	order: (s) => s.int().nonnegative(),
+	stepType: () => z.enum(stepTypeValues),
+	executorType: () => z.enum(executorTypeValues)
 });
 
 // ---------------------------------------------------------------------------
 // flows
 // ---------------------------------------------------------------------------
 
-export const selectFlowSchema = createSelectSchema(flows);
+export const selectFlowSchema = createSelectSchema(flows, {
+	status: () => z.enum(flowStatusValues)
+});
 export const insertFlowSchema = createInsertSchema(flows, {
 	title: (s) => s.min(1, 'Title is required'),
-	slug: (s) => s.min(1)
+	slug: (s) => s.min(1),
+	status: () => z.enum(flowStatusValues)
 });
 export const updateFlowSchema = insertFlowSchema.partial().required({ id: true });
 
@@ -78,10 +89,15 @@ export const updateFlowSchema = insertFlowSchema.partial().required({ id: true }
 // flow_steps
 // ---------------------------------------------------------------------------
 
-export const selectFlowStepSchema = createSelectSchema(flowSteps);
+export const selectFlowStepSchema = createSelectSchema(flowSteps, {
+	stepType: () => z.enum(stepTypeValues),
+	executorType: () => z.enum(executorTypeValues)
+});
 export const insertFlowStepSchema = createInsertSchema(flowSteps, {
 	title: (s) => s.min(1, 'Title is required'),
-	order: (s) => s.int().nonnegative()
+	order: (s) => s.int().nonnegative(),
+	stepType: () => z.enum(stepTypeValues),
+	executorType: () => z.enum(executorTypeValues)
 });
 export const updateFlowStepSchema = insertFlowStepSchema.partial().required({ id: true });
 
