@@ -1,13 +1,12 @@
-import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 import type { Template, Category, Flow } from '~types';
 import { SYSTEM_USER_ID } from '../schema/shared';
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
-const t1id = tigerid();
-const t2id = tigerid();
-const t3id = tigerid();
+const dailyStandupTemplateId = 'tpl-daily-standup';
+const incidentResponseTemplateId = 'tpl-incident-response';
+const releaseChecklistTemplateId = 'tpl-release-checklist';
 
 function makeTemplateStep(
 	id: string,
@@ -33,49 +32,161 @@ function makeTemplateStep(
 }
 
 const dailyStandupSteps = [
-	makeTemplateStep(tigerid(), 0, 'Check ticket status', 'Review your assigned tickets and update status.', true, t1id),
-	makeTemplateStep(tigerid(), 1, 'Blockers', 'Identify any blockers preventing progress.', true, t1id),
-	makeTemplateStep(tigerid(), 2, 'Parking lot', 'Note any topics to revisit later.', false, t1id),
-	makeTemplateStep(tigerid(), 3, 'Next steps', 'Capture concrete next steps from yesterday.', false, t1id),
-	makeTemplateStep(tigerid(), 4, 'Notes', 'Any miscellaneous notes for the team.', false, t1id)
+	makeTemplateStep(
+		'tpl-step-daily-ticket-status',
+		0,
+		'Check ticket status',
+		'Review your assigned tickets and update status.',
+		true,
+		dailyStandupTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-daily-blockers',
+		1,
+		'Blockers',
+		'Identify any blockers preventing progress.',
+		true,
+		dailyStandupTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-daily-parking-lot',
+		2,
+		'Parking lot',
+		'Note any topics to revisit later.',
+		false,
+		dailyStandupTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-daily-next-steps',
+		3,
+		'Next steps',
+		'Capture concrete next steps from yesterday.',
+		false,
+		dailyStandupTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-daily-notes',
+		4,
+		'Notes',
+		'Any miscellaneous notes for the team.',
+		false,
+		dailyStandupTemplateId
+	)
 ];
 
 const incidentResponseSteps = [
-	makeTemplateStep(tigerid(), 0, 'Detect', 'Identify that an incident has occurred.', true, t2id),
-	makeTemplateStep(tigerid(), 1, 'Assess severity', 'Determine impact scope and severity level.', true, t2id),
-	makeTemplateStep(tigerid(), 2, 'Notify', 'Alert relevant stakeholders and on-call team.', true, t2id),
-	makeTemplateStep(tigerid(), 3, 'Mitigate', 'Take immediate action to limit damage.', true, t2id),
-	makeTemplateStep(tigerid(), 4, 'Resolve', 'Implement the fix or workaround.', true, t2id),
-	makeTemplateStep(tigerid(), 5, 'Document', 'Record timeline, impact, and resolution details.', false, t2id),
-	makeTemplateStep(tigerid(), 6, 'Post-mortem', 'Schedule and conduct a blameless review.', false, t2id)
+	makeTemplateStep(
+		'tpl-step-incident-detect',
+		0,
+		'Detect',
+		'Identify that an incident has occurred.',
+		true,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-assess-severity',
+		1,
+		'Assess severity',
+		'Determine impact scope and severity level.',
+		true,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-notify',
+		2,
+		'Notify',
+		'Alert relevant stakeholders and on-call team.',
+		true,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-mitigate',
+		3,
+		'Mitigate',
+		'Take immediate action to limit damage.',
+		true,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-resolve',
+		4,
+		'Resolve',
+		'Implement the fix or workaround.',
+		true,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-document',
+		5,
+		'Document',
+		'Record timeline, impact, and resolution details.',
+		false,
+		incidentResponseTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-incident-postmortem',
+		6,
+		'Post-mortem',
+		'Schedule and conduct a blameless review.',
+		false,
+		incidentResponseTemplateId
+	)
 ];
 
 const releaseChecklistSteps = [
 	makeTemplateStep(
-		tigerid(),
+		'tpl-step-release-code-freeze',
 		0,
 		'Code freeze',
 		'Confirm no new features or breaking changes are being merged.',
 		true,
-		t3id
+		releaseChecklistTemplateId
 	),
-	makeTemplateStep(tigerid(), 1, 'Smoke tests', 'Run the automated smoke test suite and verify all pass.', true, t3id),
-	makeTemplateStep(tigerid(), 2, 'Migration', 'Apply any pending database migrations in staging.', true, t3id),
-	makeTemplateStep(tigerid(), 3, 'Deploy', 'Deploy to production following the deployment runbook.', true, t3id),
 	makeTemplateStep(
-		tigerid(),
+		'tpl-step-release-smoke-tests',
+		1,
+		'Smoke tests',
+		'Run the automated smoke test suite and verify all pass.',
+		true,
+		releaseChecklistTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-release-migration',
+		2,
+		'Migration',
+		'Apply any pending database migrations in staging.',
+		true,
+		releaseChecklistTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-release-deploy',
+		3,
+		'Deploy',
+		'Deploy to production following the deployment runbook.',
+		true,
+		releaseChecklistTemplateId
+	),
+	makeTemplateStep(
+		'tpl-step-release-verify',
 		4,
 		'Verify',
 		'Confirm the release is healthy via dashboards and sanity checks.',
 		true,
-		t3id
+		releaseChecklistTemplateId
 	),
-	makeTemplateStep(tigerid(), 5, 'Rollback plan', 'Document the rollback procedure in case of regression.', false, t3id)
+	makeTemplateStep(
+		'tpl-step-release-rollback-plan',
+		5,
+		'Rollback plan',
+		'Document the rollback procedure in case of regression.',
+		false,
+		releaseChecklistTemplateId
+	)
 ];
 
 export const seedTemplates: Template[] = [
 	{
-		id: t1id,
+		id: dailyStandupTemplateId,
 		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Daily Standup Checklist',
@@ -88,7 +199,7 @@ export const seedTemplates: Template[] = [
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
-		id: t2id,
+		id: incidentResponseTemplateId,
 		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Incident Response Runbook',
@@ -101,7 +212,7 @@ export const seedTemplates: Template[] = [
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
-		id: t3id,
+		id: releaseChecklistTemplateId,
 		userId: SYSTEM_USER_ID,
 		categoryId: null,
 		name: 'Release Checklist',
@@ -117,12 +228,12 @@ export const seedTemplates: Template[] = [
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
-const c1id = tigerid();
-const c2id = tigerid();
+const operationsCategoryId = 'cat-operations';
+const devopsCategoryId = 'cat-devops';
 
 export const seedCategories: Category[] = [
 	{
-		id: c1id,
+		id: operationsCategoryId,
 		userId: SYSTEM_USER_ID,
 		name: 'Operations',
 		description: 'Daily standup logs and team routine tracking.',
@@ -133,7 +244,7 @@ export const seedCategories: Category[] = [
 		updatedAt: '2026-04-01T08:00:00.000Z'
 	},
 	{
-		id: c2id,
+		id: devopsCategoryId,
 		userId: SYSTEM_USER_ID,
 		name: 'Dev Ops',
 		description: 'Production incidents and crisis response logs.',
@@ -148,14 +259,16 @@ export const seedCategories: Category[] = [
 // ─── Flows ────────────────────────────────────────────────────────────────────
 
 function makeFlowStep(
+	id: string,
+	flowId: string,
 	templateStep: (typeof dailyStandupSteps)[number],
 	checked = false,
 	checkedAt: string | null = null,
 	comment = ''
 ) {
 	return {
-		id: tigerid(),
-		flowId: '', // filled in when the flow is built
+		id,
+		flowId,
 		templateStepId: templateStep.id,
 		order: templateStep.order,
 		title: templateStep.title,
@@ -172,32 +285,34 @@ function makeFlowStep(
 	};
 }
 
-const f1id = tigerid();
+const f1id = 'flow-daily-2026-04-11';
 const f1Created = '2026-04-11T09:00:00.000Z';
 const f1Completed = '2026-04-11T09:08:00.000Z';
-const f2id = tigerid();
+const f2id = 'flow-daily-2026-04-12';
 const f2Created = '2026-04-12T09:00:00.000Z';
 const f2Completed = '2026-04-12T09:12:00.000Z';
-const f3id = tigerid();
+const f3id = 'flow-daily-2026-04-13';
 const f3Created = '2026-04-13T09:00:00.000Z';
-const f4id = tigerid();
+const f4id = 'flow-incident-db-pool';
 const f4Created = '2026-04-11T14:30:00.000Z';
 const f4Completed = '2026-04-11T15:45:00.000Z';
-const f5id = tigerid();
+const f5id = 'flow-incident-auth-degradation';
 const f5Created = '2026-04-09T16:00:00.000Z';
 
 export const seedFlows: Flow[] = [
 	{
 		id: f1id,
 		userId: SYSTEM_USER_ID,
-		categoryId: c1id,
-		templateId: t1id,
+		categoryId: operationsCategoryId,
+		templateId: dailyStandupTemplateId,
 		title: 'Daily Log — Friday Apr 11',
 		status: 'completed',
 		slug: slugify('Daily Log — Friday Apr 11'),
 		embeddings: null,
 		steps: dailyStandupSteps.map((a) =>
-			a.isCritical ? makeFlowStep(a, true, '2026-04-11T09:04:00.000Z') : makeFlowStep(a, false)
+			a.isCritical
+				? makeFlowStep(`${f1id}-${a.slug}`, f1id, a, true, '2026-04-11T09:04:00.000Z')
+				: makeFlowStep(`${f1id}-${a.slug}`, f1id, a, false)
 		),
 		createdAt: f1Created,
 		updatedAt: f1Completed,
@@ -206,13 +321,13 @@ export const seedFlows: Flow[] = [
 	{
 		id: f2id,
 		userId: SYSTEM_USER_ID,
-		categoryId: c1id,
-		templateId: t1id,
+		categoryId: operationsCategoryId,
+		templateId: dailyStandupTemplateId,
 		title: 'Daily Log — Saturday Apr 12',
 		status: 'completed',
 		slug: slugify('Daily Log — Saturday Apr 12'),
 		embeddings: null,
-		steps: dailyStandupSteps.map((a) => makeFlowStep(a, true, '2026-04-12T09:10:00.000Z')),
+		steps: dailyStandupSteps.map((a) => makeFlowStep(`${f2id}-${a.slug}`, f2id, a, true, '2026-04-12T09:10:00.000Z')),
 		createdAt: f2Created,
 		updatedAt: f2Completed,
 		completedAt: f2Completed
@@ -220,18 +335,30 @@ export const seedFlows: Flow[] = [
 	{
 		id: f3id,
 		userId: SYSTEM_USER_ID,
-		categoryId: c1id,
-		templateId: t1id,
+		categoryId: operationsCategoryId,
+		templateId: dailyStandupTemplateId,
 		title: 'Daily Log — Sunday Apr 13',
 		status: 'active',
 		slug: slugify('Daily Log — Sunday Apr 13'),
 		embeddings: null,
 		steps: [
-			makeFlowStep(dailyStandupSteps[0], true, '2026-04-13T09:02:00.000Z'),
-			makeFlowStep(dailyStandupSteps[1], true, '2026-04-13T09:03:00.000Z'),
-			makeFlowStep(dailyStandupSteps[2]),
-			makeFlowStep(dailyStandupSteps[3]),
-			makeFlowStep(dailyStandupSteps[4])
+			makeFlowStep(
+				`${f3id}-${dailyStandupSteps[0].slug}`,
+				f3id,
+				dailyStandupSteps[0],
+				true,
+				'2026-04-13T09:02:00.000Z'
+			),
+			makeFlowStep(
+				`${f3id}-${dailyStandupSteps[1].slug}`,
+				f3id,
+				dailyStandupSteps[1],
+				true,
+				'2026-04-13T09:03:00.000Z'
+			),
+			makeFlowStep(`${f3id}-${dailyStandupSteps[2].slug}`, f3id, dailyStandupSteps[2]),
+			makeFlowStep(`${f3id}-${dailyStandupSteps[3].slug}`, f3id, dailyStandupSteps[3]),
+			makeFlowStep(`${f3id}-${dailyStandupSteps[4].slug}`, f3id, dailyStandupSteps[4])
 		],
 		createdAt: f3Created,
 		updatedAt: f3Created,
@@ -240,8 +367,8 @@ export const seedFlows: Flow[] = [
 	{
 		id: f4id,
 		userId: SYSTEM_USER_ID,
-		categoryId: c2id,
-		templateId: t2id,
+		categoryId: devopsCategoryId,
+		templateId: incidentResponseTemplateId,
 		title: 'DB connection pool exhaustion',
 		status: 'completed',
 		slug: slugify('DB connection pool exhaustion'),
@@ -249,6 +376,8 @@ export const seedFlows: Flow[] = [
 		steps: incidentResponseSteps.map((a) => {
 			if (a.title === 'Mitigate')
 				return makeFlowStep(
+					`${f4id}-${a.slug}`,
+					f4id,
 					a,
 					true,
 					'2026-04-11T15:40:00.000Z',
@@ -256,12 +385,14 @@ export const seedFlows: Flow[] = [
 				);
 			if (a.title === 'Document')
 				return makeFlowStep(
+					`${f4id}-${a.slug}`,
+					f4id,
 					a,
 					true,
 					'2026-04-11T15:40:00.000Z',
 					'Incident lasted ~75 min, affected ~12k users. Full timeline documented in Incident Tracker.'
 				);
-			return makeFlowStep(a, true, '2026-04-11T14:35:00.000Z');
+			return makeFlowStep(`${f4id}-${a.slug}`, f4id, a, true, '2026-04-11T14:35:00.000Z');
 		}),
 		createdAt: f4Created,
 		updatedAt: f4Completed,
@@ -270,13 +401,15 @@ export const seedFlows: Flow[] = [
 	{
 		id: f5id,
 		userId: SYSTEM_USER_ID,
-		categoryId: c2id,
-		templateId: t2id,
+		categoryId: devopsCategoryId,
+		templateId: incidentResponseTemplateId,
 		title: 'Auth service degradation',
 		status: 'abandoned',
 		slug: slugify('Auth service degradation'),
 		embeddings: null,
-		steps: incidentResponseSteps.slice(0, 3).map((a) => makeFlowStep(a, true, '2026-04-09T16:20:00.000Z')),
+		steps: incidentResponseSteps
+			.slice(0, 3)
+			.map((a) => makeFlowStep(`${f5id}-${a.slug}`, f5id, a, true, '2026-04-09T16:20:00.000Z')),
 		createdAt: f5Created,
 		updatedAt: '2026-04-09T16:45:00.000Z',
 		completedAt: null

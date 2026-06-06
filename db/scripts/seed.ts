@@ -157,6 +157,17 @@ function flattenValue(value: unknown): string {
 	return '';
 }
 
+function seedSlug(value: string) {
+	return value
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
+function tagIdFromName(name: string) {
+	return `tag-${seedSlug(name)}`;
+}
+
 function vectorParam(vec: number[]) {
 	return JSON.stringify(vec);
 }
@@ -351,12 +362,14 @@ async function seed() {
 	// Collect unique tag names across all templates, insert as system tags
 	const tagIdByName = new Map<string, string>();
 	for (const name of allTagNames) {
+		const tagId = tagIdFromName(name);
 		const [row] = await db
 			.insert(tags)
 			.values({
+				id: tagId,
 				userId: SYSTEM_USER_ID,
 				name,
-				slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+				slug: seedSlug(name),
 				embeddings: null
 			})
 			.returning({ id: tags.id });
