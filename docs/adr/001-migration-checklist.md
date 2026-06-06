@@ -80,7 +80,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [x] Write embeddings via raw SQL `UPDATE ... SET embeddings = vector32(?) WHERE id = ?`.
 - [x] Replace all current `userId: null` seed/store defaults with `SYSTEM_USER_ID` for built-ins and `LOCAL_USER_ID` for self-hosted user-created records.
 - [x] Seed/import all existing built-in demo content from `db/seed/builtin.ts`: categories, tags, templates, template steps, flows, flow steps, skills, execution gates, input sources, enum sets/values, and join tables.
-- [ ] Seed/import bundled postmortem showcase flows from `db/seed/postmortems/` as `SYSTEM` demo/showcase content.
+- [x] Seed/import bundled postmortem showcase flows from `db/seed/postmortems/` as `SYSTEM` demo/showcase content.
 - [x] Seed/import `SYSTEM` and `LOCAL` sentinel users before any scoped records.
 - [x] `db/scripts/wipe.ts`, `check_db.ts`, `migrate.ts`, `embed.ts`: update client import; remove any `CREATE EXTENSION` calls.
 - [ ] Run wipe + migrate + seed against the local libSQL file.
@@ -97,7 +97,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] Remove `@electric-sql/pglite-pgvector`.
 - [ ] Add `@libsql/client`.
 - [ ] Remove the `db:serve` (pglite-server) script from `package.json`.
-- [ ] `.gitignore`: ignore local runtime DBs (`data/userFlows.db*`) while allowing committed/bundled `data/systemFlows.db` (`data/*` + `!data/systemFlows.db`).
+- [x] `.gitignore`: ignore local runtime DBs (`data/userFlows.db*`) while allowing committed/bundled `data/systemFlows.db` (`data/*` + `!data/systemFlows.db`).
 
 **Review point:** confirm no stray pglite references remain (`grep -ri pglite`).
 
@@ -107,7 +107,7 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [ ] Replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel across queries.
 - [ ] Seed both sentinels as rows in `users` (satisfy FK constraints) via explicit init/install commands and `onConflictDoNothing`.
 - [ ] Give all system content **stable hardcoded IDs** (not random `tigerid()` at module load) so upsert-by-PK updates rather than duplicates.
-- [ ] Add `db:build-system` CLI: fresh libSQL DB, apply migrations, insert release-managed built-in content with `userId='SYSTEM'` + stable IDs → `data/systemFlows.db` (committed/bundled). Content includes the `SYSTEM` sentinel row, categories, tags, skills, templates, agentic input/gate templates, demos/onboarding examples, and the 50-flow postmortem showcase from `db/seed/postmortems/`.
+- [x] Add `db:build-system` CLI: fresh libSQL DB, apply migrations, insert current release-managed built-in content with `userId='SYSTEM'` + stable IDs → `data/systemFlows.db` (committed/bundled). Current content includes the `SYSTEM` sentinel row, categories, tags, templates, demo/onboarding flows, and the 50-flow postmortem showcase from `db/seed/postmortems/`.
 - [ ] Add `db:install-system` CLI / `db/seed-system.ts`: ensure `SYSTEM` + `LOCAL` users in `userFlows.db` → open `systemFlows.db` read-only → copy in FK-safe order (root tables with `userId`, then child tables by FK) → `onConflictDoUpdate` by PK → close source.
 - [ ] Keep system installation explicit. Do not wire `seedSystemData` into app startup.
 - [ ] Use only synthetic, privacy-safe showcase content. Avoid health, medical, mental-health, employee surveillance, customer PII, or other sensitive personal data.

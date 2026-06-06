@@ -1,13 +1,12 @@
 import type { Category } from '~types';
 import { LOCAL_USER_ID } from '../../../db/schema/shared';
-import { seedCategories } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 
 const COLOR_CYCLE = ['primary', 'secondary', 'accent', 'info', 'success', 'warning'] as const;
 
 function createCategoryStore() {
-	let items = $state<Category[]>(seedCategories);
+	let items = $state<Category[]>([]);
 
 	return {
 		get items() {

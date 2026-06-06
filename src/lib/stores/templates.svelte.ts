@@ -1,11 +1,10 @@
 import type { Template } from '~types';
 import { LOCAL_USER_ID } from '../../../db/schema/shared';
-import { seedTemplates } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { slugify } from '$lib/helpers/slugify';
 
 function createTemplateStore() {
-	let items = $state<Template[]>(seedTemplates);
+	let items = $state<Template[]>([]);
 
 	return {
 		get items() {

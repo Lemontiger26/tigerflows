@@ -8,14 +8,23 @@
 import { rm } from 'node:fs/promises';
 
 const fresh = process.argv.includes('--fresh');
+const dbUrl = process.env.TURSO_DB_URL ?? 'file:./data/userFlows.db';
+
+function filePathFromDbUrl(url: string) {
+	if (!url.startsWith('file:')) return null;
+	const rawPath = url.slice('file:'.length);
+	if (rawPath.startsWith('//')) return rawPath.slice('//'.length);
+	return rawPath;
+}
 
 if (fresh) {
-	console.log('Wiping local database...');
-	await Promise.all(
-		['./data/userFlows.db', './data/userFlows.db-wal', './data/userFlows.db-shm'].map((path) =>
-			rm(path, { force: true })
-		)
-	);
+	const dbPath = filePathFromDbUrl(dbUrl);
+	if (!dbPath) {
+		throw new Error('--fresh is only supported for local file: database URLs');
+	}
+
+	console.log(`Wiping local database ${dbPath}...`);
+	await Promise.all([dbPath, `${dbPath}-wal`, `${dbPath}-shm`].map((path) => rm(path, { force: true })));
 }
 
 const { migrate } = await import('drizzle-orm/libsql/migrator');

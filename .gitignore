@@ -142,8 +142,9 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-# PGLite local database
-data/
+# Local/generated databases
+data/*
+!data/systemFlows.db
 
 # AI agent files
 .implement

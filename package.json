@@ -16,9 +16,10 @@
 		"test": "npm run test:unit -- --run",
 		"db:gen": "bunx tsx --tsconfig ./tsconfig.json ./node_modules/drizzle-kit/bin.cjs generate",
 		"db:mig": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts",
-		"db:reset": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts --fresh && bun run db:seed",
+		"db:reset": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts --fresh",
+		"db:build-system": "TURSO_DB_URL=file:./data/systemFlows.db bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts --fresh && TURSO_DB_URL=file:./data/systemFlows.db bunx tsx --tsconfig ./tsconfig.json ./db/scripts/seed.ts --system",
 		"db:serve": "pglite-server --db=./data/pglite --port=5433 --extensions=@electric-sql/pglite-pgvector:vector --max-connections=10",
-		"db:seed": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/seed.ts"
+		"db:seed": "bun run db:build-system"
 	},
 	"devDependencies": {
 		"@electric-sql/pglite-socket": "^0.2.1",

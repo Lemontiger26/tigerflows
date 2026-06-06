@@ -1,12 +1,11 @@
 import type { Flow, FlowStep } from '~types';
 import { LOCAL_USER_ID } from '../../../db/schema/shared';
-import { seedFlows } from '../../../db/seed/builtin';
 import { tigerid } from '$lib/helpers/tigerId';
 import { templateStore } from './templates.svelte';
 import { slugify } from '$lib/helpers/slugify';
 
 function createFlowStore() {
-	let items = $state<Flow[]>(seedFlows);
+	let items = $state<Flow[]>([]);
 
 	return {
 		get items() {
