@@ -18,8 +18,10 @@
 		"db:mig": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts",
 		"db:reset": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts --fresh",
 		"db:build-system": "TURSO_DB_URL=file:./data/systemFlows.db bunx tsx --tsconfig ./tsconfig.json ./db/scripts/migrate.ts --fresh && TURSO_DB_URL=file:./data/systemFlows.db bunx tsx --tsconfig ./tsconfig.json ./db/scripts/seed.ts --system",
+		"db:install-system": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/install-system.ts",
+		"db:install-showcase": "bunx tsx --tsconfig ./tsconfig.json ./db/scripts/install-system.ts --showcase",
 		"db:serve": "pglite-server --db=./data/pglite --port=5433 --extensions=@electric-sql/pglite-pgvector:vector --max-connections=10",
-		"db:seed": "bun run db:build-system"
+		"db:seed": "bun run db:reset && bun run db:build-system && bun run db:install-system"
 	},
 	"devDependencies": {
 		"@electric-sql/pglite-socket": "^0.2.1",

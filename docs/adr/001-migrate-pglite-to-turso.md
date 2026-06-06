@@ -43,7 +43,7 @@ Migrate from PGLite (embedded Postgres) to **Turso** (libSQL, a SQLite fork) usi
 └── userFlows.db     (single runtime DB — all data lives here)
 ```
 
-**`systemFlows.db`** ships bundled with the app. It contains built-in templates, categories, tags, skills, demo flows, showcase workflows, and onboarding examples. It is not used for normal application queries; it is read only by explicit seed/install commands that copy its contents into `userFlows.db`. Think of it as a structured seed file that happens to be a SQLite database.
+**`systemFlows.db`** ships bundled with the app. It contains built-in templates, categories, tags, skills, demo flows, onboarding examples, and optional showcase packs. It is not used for normal application queries; it is read only by explicit seed/install commands that copy selected contents into `userFlows.db`. Think of it as a structured seed file that happens to be a SQLite database.
 
 **`userFlows.db`** is the single runtime database. All queries — system and user data alike — go here. Records are scoped by `userId` using sentinel values:
 
@@ -59,7 +59,7 @@ This approach eliminates cross-DB foreign key problems entirely — all FKs are 
 
 ### Self-hosted (local, no cloud)
 
-One runtime DB, no auth. User records have `userId = 'LOCAL'`. System records have `userId = 'SYSTEM'`. Demo content is explorable out of the box and clearly separated from user data. Installing or resetting demos is an explicit CLI/user action, not an automatic startup side effect.
+One runtime DB, no auth. User records have `userId = 'LOCAL'`. System records have `userId = 'SYSTEM'`. Core built-ins are installed explicitly during setup/dev seeding so the app has useful templates out of the box. Large showcase packs are installed only by explicit user request. No migration or seed runs as an automatic startup side effect.
 
 ### Cloud / Team (with sync)
 
@@ -436,18 +436,20 @@ Recommendation: **hardcoded IDs** for the initial set (it's small), with the opt
 bun run db:build-system   # creates/rebuilds data/systemFlows.db
 ```
 
-This script creates a fresh libSQL database, applies the same schema migrations, and inserts release-managed built-in content with `userId = 'SYSTEM'` and stable IDs. That includes the `SYSTEM` sentinel row, built-in categories, tags, skills, templates, agentic input/gate templates, demo/onboarding flows, and the bundled 50-flow synthetic incident-postmortem showcase from `db/seed/postmortems/`. The resulting file is committed to the repo or bundled with releases.
+This script creates a fresh libSQL database, applies the same schema migrations, and inserts release-managed content with `userId = 'SYSTEM'` and stable IDs. Current content includes the `SYSTEM` sentinel row, built-in categories, tags, templates, demo/onboarding flows, and the bundled 50-flow synthetic incident-postmortem showcase from `db/seed/postmortems/`. The resulting file is committed to the repo or bundled with releases.
 
 `LOCAL` is a runtime sentinel, not bundled showcase content. It is ensured in `userFlows.db` by explicit runtime init/install commands.
 
 #### 8.4 Explicit install: systemFlows.db → userFlows.db
 
-System content is installed explicitly, not automatically on app startup:
+Core system content is installed explicitly, not automatically on app startup:
 
 1. Seeds sentinel user rows (`SYSTEM`, `LOCAL`) if they don't exist
 2. Opens `systemFlows.db` as a read-only source
-3. Copies records into `userFlows.db` in FK-safe order (parents before children)
+3. Copies core built-ins into `userFlows.db` in FK-safe order (parents before children)
 4. Closes `systemFlows.db`
+
+The showcase pack uses the same installer with an explicit showcase mode. This keeps large demo history out of a fresh runtime DB until the user clicks a demo/load-showcase action.
 
 **Not every table has `userId`.** Root tables (categories, templates, tags, enum_sets, skills, flows, input_source_templates, execution_gate_templates) carry ownership via `userId = 'SYSTEM'`. Dependent tables (template_steps, flow_steps, template_tags, enum_values, template_step_skills, input_sources, execution_gates, etc.) are copied by FK traversal — the seed reads all child rows belonging to system parent records.
 
@@ -520,9 +522,10 @@ The app does **not** auto-migrate or auto-seed on startup. Drizzle tracks which 
 ```bash
 bun run db:mig             # migrate userFlows.db
 bun run db:build-system    # rebuild bundled systemFlows.db
-bun run db:install-system  # upsert bundled system content into userFlows.db
-bun run db:seed            # local dev seed/import path for demo data
-bun run db:reset           # local dev convenience: fresh DB + migrate + install/seed
+bun run db:install-system  # upsert core built-ins into userFlows.db
+bun run db:install-showcase # explicitly upsert optional showcase pack into userFlows.db
+bun run db:seed            # local dev convenience: reset user DB, build system DB, install core built-ins
+bun run db:reset           # fresh userFlows.db + migrate only
 ```
 
 #### Why this works across deployment modes

@@ -105,22 +105,23 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 - [x] Define `SYSTEM_USER_ID = 'SYSTEM'`, `LOCAL_USER_ID = 'LOCAL'` in `shared.ts`.
 - [x] Replace the `userId IS NULL` system convention with the `'SYSTEM'` sentinel across current queries/stores/seeds.
-- [ ] Seed both sentinels as rows in `users` (satisfy FK constraints) via explicit init/install commands and `onConflictDoNothing`.
+- [x] Seed both sentinels as rows in `users` (satisfy FK constraints) via explicit init/install commands and `onConflictDoNothing`.
 - [x] Give all system content **stable hardcoded IDs** (not random `tigerid()` at module load) so upsert-by-PK updates rather than duplicates.
 - [x] Add `db:build-system` CLI: fresh libSQL DB, apply migrations, insert current release-managed built-in content with `userId='SYSTEM'` → `data/systemFlows.db` (committed/bundled). Current content includes the `SYSTEM` sentinel row, categories, tags, templates, demo/onboarding flows, and the 50-flow postmortem showcase from `db/seed/postmortems/`.
-- [ ] Add `db:install-system` CLI / `db/seed-system.ts`: ensure `SYSTEM` + `LOCAL` users in `userFlows.db` → open `systemFlows.db` read-only → copy in FK-safe order (root tables with `userId`, then child tables by FK) → `onConflictDoUpdate` by PK → close source.
+- [x] Add `db:install-system` CLI / `db/scripts/install-system.ts`: ensure `SYSTEM` + `LOCAL` users in `userFlows.db` → open `systemFlows.db` read-only → copy core built-ins in FK-safe order (root tables with `userId`, then child tables by FK) → `onConflictDoUpdate` by PK → close source.
+- [x] Add explicit showcase install mode (`db:install-showcase`) so optional demo history is copied only on user request.
 - [x] Keep system installation explicit. Do not wire `seedSystemData` into app startup.
 - [x] Keep runtime UI stores from importing bundled system seed data directly; system content enters runtime only through explicit install.
 - [x] Use only synthetic, privacy-safe showcase content. Avoid health, medical, mental-health, employee surveillance, customer PII, or other sensitive personal data.
 
-**Review point:** verify a fresh `userFlows.db` ends up with SYSTEM/LOCAL users + all system content after explicit install, and that re-running the install updates (not duplicates) by PK.
+**Review point:** verify a fresh `userFlows.db` ends up with SYSTEM/LOCAL users + core built-ins after explicit install, and that re-running core/showcase installs update (not duplicate) by PK.
 
 ## 9. Cleanup + Verification
 
 - [ ] `grep -ri "pglite\|pg-core\|pgEnum\|jsonb\|vector(" db/ src/` returns nothing stale.
 - [x] Run `bun run check` (svelte-check + tsc) → 0 errors.
 - [ ] Run `bun run test`.
-- [ ] Run wipe + migrate + seed/import + build-system + install-system.
+- [x] Run wipe + migrate + seed/import + build-system + install-system.
 - [ ] Start dev server and open DB inspector simultaneously against `data/userFlows.db` — confirm multi-process access, the original motivation.
 - [x] Remove or archive `data/pglite/` after libSQL seed/import verification passes.
 - [ ] Review full diff.
