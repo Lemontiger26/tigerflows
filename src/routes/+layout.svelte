@@ -4,9 +4,18 @@
 	import Header from '$lib/components/layout/Header.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import MobileNav from '$lib/components/layout/MobileNav.svelte';
-	import { navigationStore } from '$lib/stores';
+	import { categoryStore, flowStore, navigationStore, templateStore } from '$lib/stores';
 
-	let { children } = $props();
+	let { children, data } = $props();
+	let hydrated = false;
+
+	$effect(() => {
+		if (hydrated) return;
+		categoryStore.hydrate(data.flowData.categories);
+		templateStore.hydrate(data.flowData.templates);
+		flowStore.hydrate(data.flowData.flows);
+		hydrated = true;
+	});
 
 	// Apply current theme to <html> — re-runs whenever theme changes.
 	$effect(() => {

@@ -13,6 +13,10 @@ function createCategoryStore() {
 			return items;
 		},
 
+		hydrate(data: Category[]) {
+			items = data;
+		},
+
 		add(
 			data: Pick<Category, 'name' | 'description'> & Partial<Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'color'>>
 		) {

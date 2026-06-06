@@ -12,6 +12,10 @@ function createFlowStore() {
 			return items;
 		},
 
+		hydrate(data: Flow[]) {
+			items = data;
+		},
+
 		add(
 			data: Pick<Flow, 'categoryId' | 'templateId' | 'title' | 'status' | 'steps'> &
 				Partial<Omit<Flow, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'>>

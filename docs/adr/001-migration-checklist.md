@@ -93,10 +93,10 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 7. Dependencies & Data Directory
 
-- [ ] Remove `@electric-sql/pglite` and `@electric-sql/pglite-socket`.
-- [ ] Remove `@electric-sql/pglite-pgvector`.
+- [x] Remove `@electric-sql/pglite` and `@electric-sql/pglite-socket`.
+- [x] Remove `@electric-sql/pglite-pgvector`.
 - [x] Add `@libsql/client`.
-- [ ] Remove the `db:serve` (pglite-server) script from `package.json`.
+- [x] Remove the `db:serve` (pglite-server) script from `package.json`.
 - [x] `.gitignore`: ignore local runtime DBs (`data/userFlows.db*`) while allowing committed/bundled `data/systemFlows.db` (`data/*` + `!data/systemFlows.db`).
 
 **Review point:** confirm no stray pglite references remain (`grep -ri pglite`).
@@ -118,9 +118,9 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 
 ## 9. Cleanup + Verification
 
-- [ ] `grep -ri "pglite\|pg-core\|pgEnum\|jsonb\|vector(" db/ src/` returns nothing stale.
+- [x] `grep -ri "pglite\|pg-core\|pgEnum\|jsonb\|vector(" db/ src/` returns nothing stale.
 - [x] Run `bun run check` (svelte-check + tsc) → 0 errors.
-- [ ] Run `bun run test`.
+- [x] Run `bun run test`.
 - [x] Run wipe + migrate + seed/import + build-system + install-system.
 - [ ] Start dev server and open DB inspector simultaneously against `data/userFlows.db` — confirm multi-process access, the original motivation.
 - [x] Remove or archive `data/pglite/` after libSQL seed/import verification passes.

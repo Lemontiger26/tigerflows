@@ -11,6 +11,10 @@ function createTemplateStore() {
 			return items;
 		},
 
+		hydrate(data: Template[]) {
+			items = data;
+		},
+
 		add(
 			data: Pick<Template, 'name' | 'description' | 'steps' | 'tags'> &
 				Partial<Omit<Template, 'id' | 'createdAt' | 'updatedAt'>>
