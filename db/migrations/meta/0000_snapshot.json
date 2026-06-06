@@ -1,5 +1,5 @@
 {
-  "id": "92057b8c-e4c9-479b-80aa-3acaf6123d97",
+  "id": "ae2275d7-1e46-4d2f-a9eb-327187377f11",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1272,79 +1272,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.flow_step_skills": {
-      "name": "flow_step_skills",
-      "schema": "",
-      "columns": {
-        "flow_step_id": {
-          "name": "flow_step_id",
-          "type": "char(21)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "skill_id": {
-          "name": "skill_id",
-          "type": "char(21)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "trace": {
-          "name": "trace",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "flow_step_skills_flow_step_id_flow_steps_id_fk": {
-          "name": "flow_step_skills_flow_step_id_flow_steps_id_fk",
-          "tableFrom": "flow_step_skills",
-          "tableTo": "flow_steps",
-          "columnsFrom": [
-            "flow_step_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "flow_step_skills_skill_id_skills_id_fk": {
-          "name": "flow_step_skills_skill_id_skills_id_fk",
-          "tableFrom": "flow_step_skills",
-          "tableTo": "skills",
-          "columnsFrom": [
-            "skill_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "flow_step_skills_flow_step_id_skill_id_pk": {
-          "name": "flow_step_skills_flow_step_id_skill_id_pk",
-          "columns": [
-            "flow_step_id",
-            "skill_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.flow_execution_gates": {
       "name": "flow_execution_gates",
       "schema": "",
@@ -1522,6 +1449,79 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.flow_step_skills": {
+      "name": "flow_step_skills",
+      "schema": "",
+      "columns": {
+        "flow_step_id": {
+          "name": "flow_step_id",
+          "type": "char(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "char(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "trace": {
+          "name": "trace",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "flow_step_skills_flow_step_id_flow_steps_id_fk": {
+          "name": "flow_step_skills_flow_step_id_flow_steps_id_fk",
+          "tableFrom": "flow_step_skills",
+          "tableTo": "flow_steps",
+          "columnsFrom": [
+            "flow_step_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "flow_step_skills_skill_id_skills_id_fk": {
+          "name": "flow_step_skills_skill_id_skills_id_fk",
+          "tableFrom": "flow_step_skills",
+          "tableTo": "skills",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "flow_step_skills_flow_step_id_skill_id_pk": {
+          "name": "flow_step_skills_flow_step_id_skill_id_pk",
+          "columns": [
+            "flow_step_id",
+            "skill_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
@@ -1877,12 +1877,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "template_step_skills_template_step_fk": {
-          "name": "template_step_skills_template_step_fk",
+        "template_step_skills_skill_id_skills_id_fk": {
+          "name": "template_step_skills_skill_id_skills_id_fk",
           "tableFrom": "template_step_skills",
-          "tableTo": "template_steps",
+          "tableTo": "skills",
           "columnsFrom": [
-            "template_step_id"
+            "skill_id"
           ],
           "columnsTo": [
             "id"
@@ -1890,12 +1890,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "template_step_skills_skill_id_skills_id_fk": {
-          "name": "template_step_skills_skill_id_skills_id_fk",
+        "template_step_skills_template_step_fk": {
+          "name": "template_step_skills_template_step_fk",
           "tableFrom": "template_step_skills",
-          "tableTo": "skills",
+          "tableTo": "template_steps",
           "columnsFrom": [
-            "skill_id"
+            "template_step_id"
           ],
           "columnsTo": [
             "id"
@@ -1920,19 +1920,6 @@
     }
   },
   "enums": {
-    "public.step_type": {
-      "name": "step_type",
-      "schema": "public",
-      "values": [
-        "boolean",
-        "text",
-        "number",
-        "date",
-        "enum_single",
-        "enum_multi",
-        "agent"
-      ]
-    },
     "public.executor_type": {
       "name": "executor_type",
       "schema": "public",
@@ -1948,6 +1935,19 @@
         "active",
         "completed",
         "abandoned"
+      ]
+    },
+    "public.step_type": {
+      "name": "step_type",
+      "schema": "public",
+      "values": [
+        "boolean",
+        "text",
+        "number",
+        "date",
+        "enum_single",
+        "enum_multi",
+        "agent"
       ]
     },
     "public.execution_gate_kind": {

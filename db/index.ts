@@ -4,7 +4,7 @@
  * Import this in +page.server.ts, +server.ts, or server-only lib files.
  */
 import { PGlite } from '@electric-sql/pglite';
-import { vector } from '@electric-sql/pglite/vector';
+import { vector } from '@electric-sql/pglite-pgvector';
 import { drizzle } from 'drizzle-orm/pglite';
 import * as schema from './schema';
 
