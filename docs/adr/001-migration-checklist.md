@@ -122,8 +122,8 @@ Companion to [ADR-001](./001-migrate-pglite-to-turso.md). Phase numbers map to t
 - [x] Run `bun run check` (svelte-check + tsc) → 0 errors.
 - [x] Run `bun run test`.
 - [x] Run wipe + migrate + seed/import + build-system + install-system.
-- [ ] Start dev server and open DB inspector simultaneously against `data/userFlows.db` — confirm multi-process access, the original motivation.
+- [x] Start dev server and open DB inspector simultaneously against `data/userFlows.db` — confirm multi-process access, the original motivation.
 - [x] Remove or archive `data/pglite/` after libSQL seed/import verification passes.
-- [ ] Review full diff.
+- [x] Review full diff.
 
 **Final review:** schema, generated migration, seed/system-seed behavior, multi-process access, dependency cleanup.
