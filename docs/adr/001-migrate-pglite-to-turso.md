@@ -1,8 +1,8 @@
 # ADR-001: Migrate from PGLite to Turso (libSQL)
 
-**Status:** Accepted — implementation starting  
+**Status:** Accepted — implemented (migration complete; see `001-migration-checklist.md`)  
 **Date:** 2026-06-02  
-**Last updated:** 2026-06-06  
+**Last updated:** 2026-06-10  
 **Authors:** @bernd-malle
 
 ## Context
